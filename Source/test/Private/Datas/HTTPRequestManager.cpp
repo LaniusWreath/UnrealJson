@@ -1,7 +1,7 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
-// ºí·çÇÁ¸°Æ®·Î »ÌÀº µÚ, ·¹º§¿¡ µû·Î ÀÎ½ºÅÏ½Ì ÇØ¾ßÇÔ.
-// ÀÎ½ºÅÏ½º¸¶´Ù ÇÏ³ªÀÇ json url°ú response json °´Ã¼¸¦ ÀúÀåÇÔ.
+// ë¸”ë£¨í”„ë¦°íŠ¸ë¡œ ë½‘ì€ ë’¤, ë ˆë²¨ì— ë”°ë¡œ ì¸ìŠ¤í„´ì‹± í•´ì•¼í•¨.
+// ì¸ìŠ¤í„´ìŠ¤ë§ˆë‹¤ í•˜ë‚˜ì˜ json urlê³¼ response json ê°ì²´ë¥¼ ì €ì¥í•¨.
 
 #include "Datas/HTTPRequestManager.h"
 
@@ -14,18 +14,21 @@ void UHTTPRequestManager::MakeGetRequest(const FString& Url)
     Request->SetURL(Url);
     Request->SetVerb(TEXT("GET"));
 
-    // ±âº» Çì´õ ¼³Á¤ (ÁÖ¼® ÇØÁ¦)
+    // ê¸°ë³¸ í—¤ë” ì„¤ì • (ì£¼ì„ í•´ì œ)
     /*Request->SetHeader(TEXT("User-Agent"), TEXT("UnrealEngine/5.4"));
     Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
     Request->SetHeader(TEXT("Accept"), TEXT("application/json"));*/
 
-    // ÀÎÁõÀÌ ÇÊ¿äÇÑ °æ¿ì Ãß°¡ ¿¹½Ã (ÁÖ¼® ÇØÁ¦)
+    // ì¸ì¦ì´ í•„ìš”í•œ ê²½ìš° ì¶”ê°€ ì˜ˆì‹œ (ì£¼ì„ í•´ì œ)
     //Request->SetHeader(TEXT("Authorization"), TEXT("Bearer YOUR_ACCESS_TOKEN"));
 
-    // ÀÀ´ä Ã³¸® ÇÔ¼ö µ¨¸®°ÔÀÌÆ® ¹ÙÀÎµù
+    // ì‘ë‹µ í•¨ìˆ˜ ë¸ë¦¬ê²Œì´íŠ¸ ë°”ì¸ë”©
     Request->OnProcessRequestComplete().BindUObject(this, &UHTTPRequestManager::OnResponseReceived);
 
-    // ¿äÃ» ½ÇÇà
+	// ì‘ë‹µ ì²˜ë¦¬ í•¨ìˆ˜ ë¸ë¦¬ê²Œì´íŠ¸ ë°”ì¸ë”©
+	OnJsonDataReady.BindUObject(this, &UHTTPRequestManager::ExecuteCustomFucntion);
+
+    // ìš”ì²­ ì‹¤í–‰
     Request->ProcessRequest();
 }
 
@@ -33,21 +36,21 @@ void UHTTPRequestManager::OnResponseReceived(FHttpRequestPtr Request, FHttpRespo
 {
     if (bWasSuccessful && Response.IsValid())
     {
-        // ÀÀ´ä µ¥ÀÌÅÍ È®ÀÎ
+        // ì‘ë‹µ ë°ì´í„° í™•ì¸
         FString ResponseString = Response->GetContentAsString();
         UE_LOG(LogTemp, Log, TEXT("Response: %s"), *ResponseString);
 
-        // JSON ÆÄ½Ì
-        TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResponseString);
+		TSharedPtr<FJsonObject> JsonData;
 
+        // JSON íŒŒì‹±
+        TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResponseString);
         if (FJsonSerializer::Deserialize(Reader, JsonData)&& JsonData.IsValid())
         {
-            // ´ë¸®ÀÚ È£Ãâ
-            OnJsonDataReady.ExecuteIfBound(JsonData);
-
-            // FStringÀ¸·Î ÀúÀå (¿¡µğÅÍ¿¡¼­ µû·Î °á°ú È£Ãâ °¡´ÉÇÏ°Ô²û)
-            TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&ResultResponseString);
-            UE_LOG(LogTemp, Log, TEXT("HTTPRequestManager : Json Response Saved"));
+			// ëŒ€ë¦¬ì í˜¸ì¶œ
+			if (JsonData.IsValid())
+			{
+				OnJsonDataReady.ExecuteIfBound(JsonData);
+			}
         }
         else
         {
@@ -59,3 +62,98 @@ void UHTTPRequestManager::OnResponseReceived(FHttpRequestPtr Request, FHttpRespo
         UE_LOG(LogTemp, Error, TEXT("HTTP Request failed."));
     }
 }
+
+void UHTTPRequestManager::ExecuteCustomFucntion(TSharedPtr<FJsonObject> OriginJsonObject)
+{
+	ParsedJsonData = ParseRequestBody(OriginJsonObject);
+	if (ParsedJsonData)
+	{
+		UE_LOG(LogTemp, Log, TEXT("HTTPRequestManager : DataParsing Complete"));
+		OnParsedDataReady.ExecuteIfBound(ParsedJsonData);
+	}
+}
+
+
+TSharedPtr<FJsonObject> UHTTPRequestManager::ParseRequestBody(TSharedPtr<FJsonObject> RequestBody)
+{
+	const TArray<TSharedPtr<FJsonValue>>* DataArray;
+	const TArray<TSharedPtr<FJsonObject>> ResultContainer;
+
+	// data [] ê°’ ê°€ì ¸ì˜¤ê¸°
+	if (!RequestBody->TryGetArrayField(TEXT("data"), DataArray))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to get 'data' array"));
+		return nullptr;
+	}
+
+	// ìµœì¢… ì¶œë ¥ JSON ê°ì²´ ìƒì„±
+	TSharedPtr<FJsonObject> OutputJsonObject = MakeShareable(new FJsonObject);
+
+	for (int i = 0; i < DataArray->Num(); i++)
+	{
+		const TSharedPtr<FJsonObject> CurrentDataObject = (*DataArray)[i]->AsObject();
+
+		// í‚¤ì™€ ê°’ì„ ì €ì¥í•  ë°°ì—´ ìƒì„±
+		TArray<FString> Regions;
+		TArray<float> Values;
+		FString ChartTitle;
+		FString ChartType = "bar";
+
+		// í‚¤-ê°’ ìŒ ìˆœíšŒí•˜ê¸°
+		for (const auto& Pair : CurrentDataObject->Values)
+		{
+			FString Key = Pair.Key;
+
+			// "ê¸°ì¤€ì¼"ì€ ì œì™¸
+			if (Key.Equals(TEXT("ê¸°ì¤€ì¼")))
+			{
+				ChartTitle = Pair.Value->AsString();
+				continue;
+			}
+
+			// í‚¤ ì¶”ê°€
+			Regions.Add(Key);
+
+			// ê°’ ì¶”ê°€
+			float Value = Pair.Value->AsNumber();
+			Values.Add(Value);
+		}
+
+		// ì°¨íŠ¸ íƒ€ì…, íƒ€ì´í‹€ ì´ˆê¸°í™”
+		OutputJsonObject->SetStringField(TEXT("chartTitle"), ChartTitle);
+		OutputJsonObject->SetStringField(TEXT("chartType"), ChartType);
+
+		// "xAxis" ê°ì²´ ìƒì„±
+		TSharedPtr<FJsonObject> XAxisObject = MakeShareable(new FJsonObject);
+		XAxisObject->SetStringField(TEXT("key"), TEXT("region"));
+
+		// ì§€ì—­ ë°ì´í„°ë¥¼ JSON ë°°ì—´ë¡œ ë³€í™˜
+		TArray<TSharedPtr<FJsonValue>> RegionJsonArray;
+		for (const FString& Region : Regions)
+		{
+			RegionJsonArray.Add(MakeShareable(new FJsonValueString(Region)));
+		}
+		XAxisObject->SetArrayField(TEXT("data"), RegionJsonArray);
+
+		// "yAxis" ê°ì²´ ìƒì„±
+		TSharedPtr<FJsonObject> YAxisObject = MakeShareable(new FJsonObject);
+		YAxisObject->SetStringField(TEXT("key"), TEXT("amount"));
+		YAxisObject->SetStringField(TEXT("unit"), TEXT("car"));
+
+		// ê°’ ë°ì´í„°ë¥¼ JSON ë°°ì—´ë¡œ ë³€í™˜
+		TArray<TSharedPtr<FJsonValue>> ValueJsonArray;
+		for (float Value : Values)
+		{
+			ValueJsonArray.Add(MakeShareable(new FJsonValueNumber(Value)));
+		}
+		YAxisObject->SetArrayField(TEXT("data"), ValueJsonArray);
+
+
+		// ìµœì¢… JSON ê°ì²´ì— "xAxis" ë° "yAxis" ì¶”ê°€
+		OutputJsonObject->SetObjectField(TEXT("xAxis"), XAxisObject);
+		OutputJsonObject->SetObjectField(TEXT("yAxis"), YAxisObject);
+	}
+
+	return OutputJsonObject;
+}
+

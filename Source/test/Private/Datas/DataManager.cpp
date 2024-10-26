@@ -13,20 +13,20 @@ void UDataManager::LocalJsonReadProcessRoutine(const FString& FilePath)
 	ChartDataClassInstanceArray.Add(NewChartData);
 }
 
-// 
-void UDataManager::JsonObjectReadProcessRoutine(const TSharedPtr<FJsonObject> JsonData)
-{
-	if (JsonData.IsValid())
-	{
-		FDataInstancePair NewChartData = InstancingDataClass(JsonData);
-		ChartDataClassInstanceArray.Add(NewChartData);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("DataManager: JsonObjectReadProcessRoutine : Json Data from HTTPRequestManager is invaild"));
-	}
 
-}
+//void UDataManager::JsonObjectReadProcessRoutine(const TSharedPtr<FJsonObject> JsonData)
+//{
+//	if (JsonData.IsValid())
+//	{
+//		FDataInstancePair NewChartData = InstancingDataClass(JsonData);
+//		ChartDataClassInstanceArray.Add(NewChartData);
+//	}
+//	else
+//	{
+//		UE_LOG(LogTemp, Warning, TEXT("DataManager: JsonObjectReadProcessRoutine : Json Data from HTTPRequestManager is invaild"));
+//	}
+//
+//}
 
 // FString으로 Serialize된 Json문자열 객체로 다시 변환
 TSharedPtr<FJsonObject> UDataManager::DeserializeJsonStringToJsonObject(const FString& JsonString)
@@ -125,6 +125,12 @@ FString UDataManager::SerializeJSONToString(const TSharedPtr<FJsonObject> JSONOb
 // 데이터 입력 받아 파싱, DataClass 객체 생성 -> Chart
 FDataInstancePair UDataManager::InstancingDataClass(const TSharedPtr<FJsonObject> Data)
 {
+	if (!Data.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DataManager : InstancingDataClass : Input Data is invalid"));
+		return FDataInstancePair();
+	}
+
 	FString ChartType = Data->GetStringField(TEXT("chartType"));
 	int32 ChartTypeNumber = DataTypes::MapChartTypes[ChartType.ToUpper()];
 	EChartTypes CurChartTypeEnum = DataTypes::MapChartTypes[ChartType];
@@ -170,6 +176,9 @@ FDataInstancePair UDataManager::InstancingDataClass(const TSharedPtr<FJsonObject
 
 		DataPair.ClassName = ClassName;
 		DataPair.DataInstance = NewChartBarClass;
+
+		UE_LOG(LogTemp, Log, TEXT("DataManager : DataClass Instanced"));
+		return DataPair;
 	}
 		
 	case LINE:

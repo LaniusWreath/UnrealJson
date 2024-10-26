@@ -37,11 +37,12 @@ public:
 	// Return Deseiralized JsonObject
 	const TSharedPtr<FJsonObject> GetJsonData()
 	{
-		return JsonData;
+		return ParsedJsonData;
 	}
 
 	// Delegate for Alarming Request Done, Data Ready
 	FOnJsonDataReadyDelegate OnJsonDataReady;
+	FOnJsonDataReadyDelegate OnParsedDataReady;
 
 private:
 	// HTTP Processing
@@ -50,5 +51,10 @@ private:
 	UPROPERTY()
 	FString ResultResponseString;
 
-	TSharedPtr<FJsonObject> JsonData;
+	TSharedPtr<FJsonObject> ParsedJsonData;
+	
+	// Custom JsonParsing Function.
+	TSharedPtr<FJsonObject> ParseRequestBody(TSharedPtr<FJsonObject> RequestBody);
+
+	void ExecuteCustomFucntion(TSharedPtr<FJsonObject> OriginJsonObject);
 };

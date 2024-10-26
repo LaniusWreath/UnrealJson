@@ -30,9 +30,14 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Chart")
 	FString CurrentChartType;
 
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	void CallJsonObjectPtr(const FString& URL);
+
 	// Initializing Data Manager Getting from Game Instance
 	UFUNCTION()
 	void InitilizeManagers();
+
+	void SetJsonObject (const TSharedPtr<FJsonObject> JsonData);
 
 	// Visualization Chart Title
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chart")
@@ -48,12 +53,11 @@ protected:
 	virtual void BeginPlay() override;
 
 	// Pure Virtual Setter Data Class Instance. Getting from DataManager's ChartDataClassInstanceArray.
-	UFUNCTION(BlueprintCallable, Category = "Chart")
-	virtual void SetDataClassInstance() PURE_VIRTUAL(UDataFetcherBase::FetchData, ;);
+	/*UFUNCTION(BlueprintCallable, Category = "Chart")
+	virtual UDataClasses* SetDataClassInstance() PURE_VIRTUAL(UDataFetcherBase::FetchData, ;);*/
 
 	// Pure Virtual Routine for Generate Chart
-	UFUNCTION(BlueprintCallable, Category = "Chart")
-	virtual void GenerateChartRoutine()  PURE_VIRTUAL(UDataFetcherBase::FetchData, ;);
+	virtual void GenerateChartRoutine() PURE_VIRTUAL(UDataFetcherBase::FetchData, ;);
 
 	// DataManager Reference
 	UPROPERTY()
@@ -84,7 +88,8 @@ private:
 	void SetChartDefaultTexts();
 
 protected:
-	virtual void SetDataClassInstance() override;
+	//virtual UDataClasses* SetDataClassInstance() override;
+	UFUNCTION(BlueprintCallable, Category = "Chart")
 	virtual void GenerateChartRoutine() override;
 
 public:

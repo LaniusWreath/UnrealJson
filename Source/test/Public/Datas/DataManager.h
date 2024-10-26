@@ -43,9 +43,6 @@ private:
 	// JSON String Serialization Function
 	FString SerializeJSONToString(const TSharedPtr<FJsonObject> JSONObject);
 	FString DataString;
-	
-	// JsonObject Ptr to Data Struct <String Header, UDataClasses* DataClassInstance>
-	FDataInstancePair InstancingDataClass(const TSharedPtr<FJsonObject> Data);
 
 	// Instancing JsonHandler and Get JsonObject Ptr
 	TSharedPtr<FJsonObject> LoadDataFromJSON(const FString& FilePath);
@@ -64,11 +61,14 @@ private:
 
 public:
 
+	// JsonObject Ptr to Data Struct <String Header, UDataClasses* DataClassInstance>
+	FDataInstancePair InstancingDataClass(const TSharedPtr<FJsonObject> Data);
+
 	// Routine Function for Controlling Json Reading to Processing Functions
 	UFUNCTION(BlueprintCallable, Category = "Data Management")
 	void LocalJsonReadProcessRoutine(const FString& FilePath);
 
-	void JsonObjectReadProcessRoutine(const TSharedPtr<FJsonObject> JsonData);
+	//void JsonObjectReadProcessRoutine(const TSharedPtr<FJsonObject> JsonData);
 
 	// Getter Data Class Instance only without Header from Data Struct
 	UFUNCTION(BlueprintCallable, Category = "Data Management")

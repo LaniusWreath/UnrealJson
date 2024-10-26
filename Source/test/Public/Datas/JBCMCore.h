@@ -12,7 +12,7 @@ class UHTTPRequestManager;
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class TEST_API UJBCMCore : public UObject
 {
 	GENERATED_BODY()
@@ -29,18 +29,24 @@ private:
 
 protected:
 	// Initializing Each Managers
+	UFUNCTION(BlueprintCallable, Category = "Chart")
 	void InitializeManagers();
 
 public:
 
 	// Core Approching Function
+	UFUNCTION(BlueprintCallable, Category = "Chart")
 	static UJBCMCore* GetJBCMCore();
 
+	UFUNCTION(BlueprintCallable, Category = "Chart")
 	// Core Deleting Function
 	static void Destroy();
 
 	// Each Manager Getter Function
+	UFUNCTION(BlueprintCallable, Category = "Chart")
 	UHTTPRequestManager* GetHttpRequestManager() const { return RequestManagerInstance; }
+
+	UFUNCTION(BlueprintCallable, Category = "Chart")
 	UDataManager* GetDataManager() const { return DataManagerInstance; }
 
 };

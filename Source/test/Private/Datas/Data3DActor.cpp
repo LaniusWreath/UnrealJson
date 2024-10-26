@@ -9,6 +9,7 @@
 #include "Datas/DataManager.h"
 #include "Datas/ChartGenerator.h"
 #include "Datas/DataClasses.h"
+#include "Datas/HTTPRequestManager.h"
 #include "Components/SplineComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Components/TextRenderComponent.h"
@@ -40,6 +41,12 @@ void AData3DActor::BeginPlay()
 	InitilizeManagers();
 }
 
+void AData3DActor::CallJsonObjectPtr(const FString& URL)
+{
+	RequestManagerInstance->MakeGetRequest(URL);
+
+}
+
 void AData3DActor::InitilizeManagers()
 {	
 	UJBCMCore* JBCMCoreReference = UJBCMCore::GetJBCMCore();
@@ -56,10 +63,31 @@ void AData3DActor::InitilizeManagers()
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Data3DActor : Initialize Managers : Getting RequestManager Reference Failed"));
 		}
+		else
+		{
+			// Request 델리게이트 바인딩 함수 : DataClass 멤버변수 초기화
+			RequestManagerInstance->OnParsedDataReady.BindUObject(this, &AData3DActor::SetJsonObject);
+		}
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Couldn't find GameInstance or DataManager"));
+	}
+}
+
+// FJsonObject 받아 UDataClasses*로 추출
+void AData3DActor::SetJsonObject(const TSharedPtr<FJsonObject> JsonData)
+{
+	if (RequestManagerInstance)
+	{
+		TSharedPtr<FJsonObject> Data = RequestManagerInstance->GetJsonData();
+		FDataInstancePair ResultData = DataManagerInstance->InstancingDataClass(Data);
+		UE_LOG(LogTemp, Log, TEXT("Data3DActor : Response Chart Class is : %s"), *ResultData.ClassName);
+		DataClassInstance = ResultData.DataInstance;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Data3DActor : RequestManagerInstance is Invalid"));
 	}
 }
 
@@ -110,37 +138,42 @@ void AData3DActorBar::SetChartDefaultTexts()
 	}
 }
 
-void AData3DActorBar::SetDataClassInstance()
-{
-	if (DataManagerInstance)
-	{
-		UE_LOG(LogTemp, Log, TEXT("Data3DActor : Getting Last Chart Data Class Instance"));
-		DataClassInstance = DataManagerInstance->GetChartDataClassInstance(ChartClassNames::NAME_BARCHART);
-		if (DataClassInstance)
-		{
-			UE_LOG(LogTemp, Log, TEXT("Data3DActor : DataClassInstance : %s"), *DataClassInstance->GetName());
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Data3DActor : DataClassInstacning Failed"));
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Data3DActor : no DataManagerReference"));
-	}
-}
+//UDataClasses* AData3DActorBar::SetDataClassInstance()
+//{
+//	if (DataManagerInstance)
+//	{
+//		UE_LOG(LogTemp, Log, TEXT("Data3DActor : Getting Last Chart Data Class Instance"));
+//		DataClassInstance = DataManagerInstance->GetChartDataClassInstance(ChartClassNames::NAME_BARCHART);
+//		if (DataClassInstance)
+//		{
+//			UE_LOG(LogTemp, Log, TEXT("Data3DActor : DataClassInstance : %s"), *DataClassInstance->GetName());
+//			return DataClassInstance;
+//		}
+//		else
+//		{
+//			UE_LOG(LogTemp, Warning, TEXT("Data3DActor : DataClassInstacning Failed"));
+//			return nullptr;
+//		}
+//	}
+//	else
+//	{
+//		UE_LOG(LogTemp, Error, TEXT("Data3DActor : no DataManagerReference"));
+//		return nullptr;
+//	}
+//}
 
 void AData3DActorBar::GenerateChartRoutine()
 {
+
 	UE_LOG(LogTemp, Log, TEXT("Data3DActorBar : Generate Chart Routine Running"));
 	if (!DataClassInstance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Data3DActorBar : DataClassInstance is null, SetDataClassInstance"));
-		SetDataClassInstance();
-		// 차트 타이틀 초기화
-		SetChartDefaultTexts();
+		UE_LOG(LogTemp, Warning, TEXT("Data3DActorBar : GenerateChartRoutine : DataClassInstance is invalid"));
+		return;
 	}
+
+	// 차트 타이틀 초기화
+	SetChartDefaultTexts();
 
 	// 생성할 바 소스 액터 BarGenerator에 전달
 	if (BarBaseActorBPClass)
@@ -150,24 +183,18 @@ void AData3DActorBar::GenerateChartRoutine()
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Data3DActor : BarBaseActorBPClass is null"));
+		return;
 	}
 
-	if (DataClassInstance)
-	{
-		// 데이터로부터 차트 타입 추출
-		EChartTypes ECurrentChartType = DataClassInstance->GetChartType();
-		UE_LOG(LogTemp, Log, TEXT("Data3DActorBar : LastChartType is %d"), ECurrentChartType);
+	// 데이터로부터 차트 타입 추출
+	EChartTypes ECurrentChartType = DataClassInstance->GetChartType();
+	UE_LOG(LogTemp, Log, TEXT("Data3DActorBar : LastChartType is %d"), ECurrentChartType);
 
-		// 바 데이터 객체로 데이터 클래스 객체 캐스팅
-		UShapeChartBarClass* BarDataClassInstance = Cast<UShapeChartBarClass>(DataClassInstance);
+	// 바 데이터 객체로 데이터 클래스 객체 캐스팅
+	UShapeChartBarClass* BarDataClassInstance = Cast<UShapeChartBarClass>(DataClassInstance);
 
-		// GenerateBarChart() : 데이터 입력 받아 차트 생성 루틴 함수 호출 / GetShapeChartData() : Bar(모양)차트 데이터 Get
-		BarGeneratorComponent->GenerateBarChart(BarDataClassInstance->GetShapeChartData());
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Data3DActorBar : DataClassInstance is null"));
-	}
+	// GenerateBarChart() : 데이터 입력 받아 차트 생성 루틴 함수 호출 / GetShapeChartData() : Bar(모양)차트 데이터 Get
+	BarGeneratorComponent->GenerateBarChart(BarDataClassInstance->GetShapeChartData());
 
 }
 
