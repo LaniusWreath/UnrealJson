@@ -21,7 +21,7 @@ class TEST_API UChartGenerator : public USceneComponent
 protected:
 
 	// This Array contains Chart Base BP Actor 
-	UPROPERTY(BlueprintReadOnly, Category = "Component")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	TArray<UChildActorComponent*> ChildActorComponents;
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
@@ -32,7 +32,7 @@ protected:
 public:
 	UChartGenerator();
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USceneComponent* ChildActorContainComponent;
 
 };
@@ -75,10 +75,10 @@ public:
 	UFUNCTION()
 	void SetBarSourceActor(const TSubclassOf<ABarBaseActor>& SourceActor);
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Component")
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Component")
 	USplineComponent* SplineComponent_length;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Component")
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Component")
 	USplineComponent* SplineComponent_height;
 };
 

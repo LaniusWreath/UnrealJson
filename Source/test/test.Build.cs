@@ -11,6 +11,8 @@ public class test : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "HTTP", "Json", "JsonUtilities", "UMG", 
 															"Sockets" , "Networking" , "ProceduralMeshComponent" });
 
+		// 나중에 다른 프로젝트에서 플러그인 연동할 때, 수정 필요
+
 		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 
 		// Uncomment if you are using Slate UI

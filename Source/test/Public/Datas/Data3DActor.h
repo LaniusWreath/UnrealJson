@@ -11,6 +11,7 @@ class UDataManager;
 class UDataClasses;
 class UChartGenerator;
 class UTextRenderComponent;
+class UHTTPRequestManager;
 
 UCLASS(Abstract)
 class TEST_API AData3DActor : public AActor
@@ -23,9 +24,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Chart")
-	USceneComponent* RootSceneComponent;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chart")
 	UStaticMeshComponent* BaseMesh;
 
@@ -34,11 +32,16 @@ public:
 
 	// Initializing Data Manager Getting from Game Instance
 	UFUNCTION()
-	void InitilizeDataManager();
+	void InitilizeManagers();
 
 	// Visualization Chart Title
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chart")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chart")
 	UTextRenderComponent* TextRenderComponent_chartTitle;
+	
+	// Http Request URL
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chart")
+	FString HttpRequestURL;
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -54,11 +57,17 @@ protected:
 
 	// DataManager Reference
 	UPROPERTY()
-	UDataManager* DataManagerReference;
+	UDataManager* DataManagerInstance;
 
 	// Data Class Instance
 	UPROPERTY()
 	UDataClasses* DataClassInstance;
+
+	UPROPERTY()
+	UHTTPRequestManager* RequestManagerInstance;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Chart")
+	USceneComponent* RootSceneComponent;
 
 };
 
@@ -90,11 +99,11 @@ public:
 	TSubclassOf<ABarBaseActor> BarBaseActorBPClass;
 
 	// Visualization Chart Xaxis Name
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chart")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chart")
 	UTextRenderComponent* TextRenderComponent_chartXaxisName;
 
 	// Visualization Chart Yaxis Name
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chart")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chart")
 	UTextRenderComponent* TextRenderComponent_chartYaxisName;
 
 };

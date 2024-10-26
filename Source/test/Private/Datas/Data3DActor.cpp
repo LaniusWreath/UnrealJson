@@ -4,7 +4,7 @@
 #include "Datas/Data3DActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/StaticMeshActor.h"
-#include "Datas/DataManageGameInstance.h"
+#include "Datas/JBCMCore.h"
 #include "Datas/BarBaseActor.h"
 #include "Datas/DataManager.h"
 #include "Datas/ChartGenerator.h"
@@ -37,22 +37,24 @@ void AData3DActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitilizeDataManager();
+	InitilizeManagers();
 }
 
-void AData3DActor::InitilizeDataManager()
-{
-	UDataManageGameInstance* GameInstance = Cast<UDataManageGameInstance>(UGameplayStatics::GetGameInstance(this));
-	if (GameInstance && GameInstance->GetDataManager())
+void AData3DActor::InitilizeManagers()
+{	
+	UJBCMCore* JBCMCoreReference = UJBCMCore::GetJBCMCore();
+
+	if (JBCMCoreReference)
 	{
-		DataManagerReference = GameInstance->GetDataManager();
-		if (DataManagerReference)
+		DataManagerInstance = JBCMCoreReference->GetDataManager();
+		if (!DataManagerInstance)
 		{
-			UE_LOG(LogTemp, Log, TEXT("Data3DActor : DataManager has referenced well"));
+			UE_LOG(LogTemp, Warning, TEXT("Data3DActor : Initialize Managers : Getting DataManager Reference Failed"));
 		}
-		else
+		RequestManagerInstance = JBCMCoreReference->GetHttpRequestManager();
+		if (!RequestManagerInstance)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Couldn't get DataManager Reference"));
+			UE_LOG(LogTemp, Warning, TEXT("Data3DActor : Initialize Managers : Getting RequestManager Reference Failed"));
 		}
 	}
 	else
@@ -110,10 +112,10 @@ void AData3DActorBar::SetChartDefaultTexts()
 
 void AData3DActorBar::SetDataClassInstance()
 {
-	if (DataManagerReference)
+	if (DataManagerInstance)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Data3DActor : Getting Last Chart Data Class Instance"));
-		DataClassInstance = DataManagerReference->GetChartDataClassInstance(ChartClassNames::NAME_BARCHART);
+		DataClassInstance = DataManagerInstance->GetChartDataClassInstance(ChartClassNames::NAME_BARCHART);
 		if (DataClassInstance)
 		{
 			UE_LOG(LogTemp, Log, TEXT("Data3DActor : DataClassInstance : %s"), *DataClassInstance->GetName());

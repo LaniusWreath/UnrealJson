@@ -12,7 +12,7 @@
 UChartGenerator::UChartGenerator()
 {
 	ChildActorContainComponent= CreateDefaultSubobject<USceneComponent>(TEXT("childActorContainComponent"));
-	ChildActorContainComponent->SetupAttachment(this);
+	ChildActorContainComponent->SetupAttachment(GetAttachParent());
 	UE_LOG(LogTemp, Log, TEXT("%s"), *(GetAttachmentRoot()->GetName()));
 	ChildActorContainComponent->SetMobility(EComponentMobility::Movable);
 }

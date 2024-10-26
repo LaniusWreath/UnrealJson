@@ -10,7 +10,6 @@
 
 class UJsonHandler;
 class UCSVHandler;
-class UHTTPHandler;
 
 // Struct With String Header And Data
 USTRUCT(BlueprintType)
@@ -29,7 +28,6 @@ struct FDataInstancePair
 		: ClassName(InClassName), DataInstance(InInstance) {}
 };
 
-class AAPITutorial;
 // Manage Datas Class and Control those Member Function
 UCLASS(Blueprintable, BlueprintType)
 class TEST_API UDataManager : public UObject
@@ -38,19 +36,16 @@ class TEST_API UDataManager : public UObject
 
 private:
 
-	AAPITutorial* GameModeInstance;
-
 	// DataHander Instances
 	UJsonHandler* JSONHandlerInstance;
 	UCSVHandler* CSVHandlerInstance;
-	UHTTPHandler* HTTPHandlerInstance;
 
 	// JSON String Serialization Function
 	FString SerializeJSONToString(const TSharedPtr<FJsonObject> JSONObject);
 	FString DataString;
 	
 	// JsonObject Ptr to Data Struct <String Header, UDataClasses* DataClassInstance>
-	FDataInstancePair InstancingDataClass(TSharedPtr<FJsonObject>& Data);
+	FDataInstancePair InstancingDataClass(const TSharedPtr<FJsonObject> Data);
 
 	// Instancing JsonHandler and Get JsonObject Ptr
 	TSharedPtr<FJsonObject> LoadDataFromJSON(const FString& FilePath);
@@ -65,17 +60,15 @@ private:
 	UPROPERTY()
 	TArray<FDataInstancePair> ChartDataClassInstanceArray;
 
-public:
+	TSharedPtr<FJsonObject> DeserializeJsonStringToJsonObject(const FString& JsonString);
 
-	UFUNCTION(BlueprintCallable, Category = "Data Management")
-	void InitializeGameModeInstance();
+public:
 
 	// Routine Function for Controlling Json Reading to Processing Functions
 	UFUNCTION(BlueprintCallable, Category = "Data Management")
-	void JsonReadProcessRoutine(const FString& FilePath);
+	void LocalJsonReadProcessRoutine(const FString& FilePath);
 
-	UFUNCTION(BlueprintCallable, Category = "DataManage")
-	void JsonObjectReadProcessRoutine(int TargetIndex);
+	void JsonObjectReadProcessRoutine(const TSharedPtr<FJsonObject> JsonData);
 
 	// Getter Data Class Instance only without Header from Data Struct
 	UFUNCTION(BlueprintCallable, Category = "Data Management")

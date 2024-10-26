@@ -3,39 +3,48 @@
 #include "Datas/DataManager.h"
 #include "Datas/JsonHandler.h"
 #include "Datas/CSVHandler.h"
-#include "Datas/HTTPHandler.h"
 #include "Serialization/JsonWriter.h"
-#include "GameMode/APITutorial.h"
 
-
-void UDataManager::InitializeGameModeInstance()
-{
-	AGameModeBase* gamemode = GetWorld()->GetAuthGameMode();
-	GameModeInstance = Cast<AAPITutorial>(gamemode);
-}
-
-void UDataManager::JsonReadProcessRoutine(const FString& FilePath)
+// json 로컬 파일 직접 읽고 처리하는 루틴
+void UDataManager::LocalJsonReadProcessRoutine(const FString& FilePath)
 {
 	TSharedPtr<FJsonObject> Data = LoadDataFromJSON(FilePath);
 	FDataInstancePair NewChartData = InstancingDataClass(Data);
 	ChartDataClassInstanceArray.Add(NewChartData);
 }
 
-// 현재는 인덱스로 데이터 받아오게끔 작성함. 나중에 수정할 것. 
-void UDataManager::JsonObjectReadProcessRoutine(int TargetIndex)
+// 
+void UDataManager::JsonObjectReadProcessRoutine(const TSharedPtr<FJsonObject> JsonData)
 {
-	TSharedPtr<FJsonObject> Data = GameModeInstance->GetParsedJsonObject(TargetIndex);
-	
-	FString OutputJsonString; 
-	TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputJsonString);
-	FJsonSerializer::Serialize(Data.ToSharedRef(), Writer);
+	if (JsonData.IsValid())
+	{
+		FDataInstancePair NewChartData = InstancingDataClass(JsonData);
+		ChartDataClassInstanceArray.Add(NewChartData);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DataManager: JsonObjectReadProcessRoutine : Json Data from HTTPRequestManager is invaild"));
+	}
 
-	// 결과 출력
-	UE_LOG(LogTemp, Log, TEXT("Output JSON: %s"), *OutputJsonString);
-	DataString = OutputJsonString;
+}
 
-	FDataInstancePair NewChartData = InstancingDataClass(Data);
-	ChartDataClassInstanceArray.Add(NewChartData);
+// FString으로 Serialize된 Json문자열 객체로 다시 변환
+TSharedPtr<FJsonObject> UDataManager::DeserializeJsonStringToJsonObject(const FString& JsonString)
+{
+	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
+	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
+
+	// JSON 문자열을 FJsonObject로 파싱
+	if (FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
+	{
+		UE_LOG(LogTemp, Log, TEXT("Successfully deserialized JSON string to FJsonObject."));
+		return JsonObject;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to deserialize JSON string."));
+		return nullptr;
+	}
 }
 
 // 탐색기 패스로 파일 읽기, 나중에 오버로딩 하던 뭘 하던 JSON만 넘겨받는 함수 만들 것
@@ -113,13 +122,15 @@ FString UDataManager::SerializeJSONToString(const TSharedPtr<FJsonObject> JSONOb
 	return JsonString;
 }
 
-// 데이터 입력 받아 DataClass 객체 생성 -> Chart
-FDataInstancePair UDataManager::InstancingDataClass(TSharedPtr<FJsonObject>& Data)
+// 데이터 입력 받아 파싱, DataClass 객체 생성 -> Chart
+FDataInstancePair UDataManager::InstancingDataClass(const TSharedPtr<FJsonObject> Data)
 {
 	FString ChartType = Data->GetStringField(TEXT("chartType"));
 	int32 ChartTypeNumber = DataTypes::MapChartTypes[ChartType.ToUpper()];
 	EChartTypes CurChartTypeEnum = DataTypes::MapChartTypes[ChartType];
 	FString ChartTitle = Data->GetStringField(TEXT("chartTitle"));
+
+	FDataInstancePair DataPair;
 
 	switch (CurChartTypeEnum)
 	{
@@ -157,9 +168,8 @@ FDataInstancePair UDataManager::InstancingDataClass(TSharedPtr<FJsonObject>& Dat
 		}
 		NewChartBarClass->SetChartData(ChartTitle, ChartType, XName, XLabels, YName, YValues);
 
-		FDataInstancePair DataPair(ClassName, NewChartBarClass);
-		
-		return DataPair;
+		DataPair.ClassName = ClassName;
+		DataPair.DataInstance = NewChartBarClass;
 	}
 		
 	case LINE:
@@ -172,9 +182,10 @@ FDataInstancePair UDataManager::InstancingDataClass(TSharedPtr<FJsonObject>& Dat
 		break;
 	case FREE:
 		break;
+	default:
+		UE_LOG(LogTemp, Warning, TEXT("DataManager.cpp : Instancing Data Class was failed"));
 	}
-	UE_LOG(LogTemp, Warning, TEXT("DataManager.cpp : Instancing Data Class was failed"));
-	return {TEXT("None") ,nullptr};
+	return DataPair;
 }
 
 
