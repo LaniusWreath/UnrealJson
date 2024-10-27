@@ -41,7 +41,7 @@ void AData3DActor::BeginPlay()
 	InitilizeManagers();
 }
 
-void AData3DActor::CallJsonObjectPtr(const FString& URL)
+void AData3DActor::CallJsonObject(const FString& URL)
 {
 	RequestManagerInstance->MakeGetRequest(URL);
 

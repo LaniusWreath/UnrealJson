@@ -24,14 +24,14 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chart")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Chart")
 	UStaticMeshComponent* BaseMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Chart")
 	FString CurrentChartType;
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	void CallJsonObjectPtr(const FString& URL);
+	void CallJsonObject(const FString& URL);
 
 	// Initializing Data Manager Getting from Game Instance
 	UFUNCTION()
@@ -70,7 +70,7 @@ protected:
 	UPROPERTY()
 	UHTTPRequestManager* RequestManagerInstance;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Chart")
+	UPROPERTY()
 	USceneComponent* RootSceneComponent;
 
 };
@@ -87,6 +87,10 @@ private:
 	UFUNCTION()
 	void SetChartDefaultTexts();
 
+	// Controler Component for Generating 3D Bar Chart 
+	UPROPERTY()
+	UBarGenerator* BarGeneratorComponent;
+
 protected:
 	//virtual UDataClasses* SetDataClassInstance() override;
 	UFUNCTION(BlueprintCallable, Category = "Chart")
@@ -94,10 +98,6 @@ protected:
 
 public:
 	AData3DActorBar();
-
-	// Controler Component for Generating 3D Bar Chart 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Chart")
-	UBarGenerator* BarGeneratorComponent;
 
 	// Select Bar Blueprint Actor Source to Generate
 	UPROPERTY(EditAnywhere, BlueprintReadOnly ,Category = "Chart")
