@@ -6,6 +6,7 @@
 #include "Components/TimelineComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "KismetProceduralMeshLibrary.h"
+#include "PhysicsEngine/BodySetup.h"
 
 // Sets default values
 ABarBaseActor::ABarBaseActor()
@@ -16,11 +17,13 @@ ABarBaseActor::ABarBaseActor()
 	ProcMeshComponent = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("ProceduralMesh"));
 	ProcMeshComponent->SetupAttachment(RootComponent);
 
-	LegacyActorSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("LegacyMeshOffsetLayer"));
-	LegacyActorSceneComponent->SetupAttachment(RootComponent);
+	CustomActorSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("LegacyMeshOffsetLayer"));
+	CustomActorSceneComponent->SetupAttachment(RootComponent);
 
-	LegacyStaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LegacyMesh"));
-	LegacyStaticMeshComponent->SetupAttachment(LegacyActorSceneComponent);
+	CustomStaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LegacyMesh"));
+	CustomStaticMeshComponent->SetupAttachment(CustomActorSceneComponent);
+
+	CustomStaticMeshComponent->SetHiddenInGame(true);
 
 	// Procedural Mesh Component를 Navigation 시스템에서 제외. 경로탐색이나 ai상호작용이 필요 없는 경우, 꺼도 좋음. 
 	// 안끄면 Navigation system에서 화냄. (계속 감시중)
@@ -85,14 +88,64 @@ void ABarBaseActor::CreateProceduralBoxMesh(float BarHeight)
 }
 
 // 커스텀 메시를 차트 메시로 할 경우, 높이 매핑하여 메시 수정
-void ABarBaseActor::CreateLegacyMesh(float BarHeight)
+void ABarBaseActor::CreateCustomMesh(float BarHeight)
 {
-	float BarWidth = UnitSize * Width_bar;
-	float zScaler = BarHeight / (UnitSize * BarWidth);
-	UE_LOG(LogTemp, Log, TEXT("ABarBaseActor : Calculate ZScaler : zScaler : %f, BarHeight : %f, UnitSIZE : %d, BarWidth : %f"), zScaler, BarHeight, UnitSize, BarWidth);
-	//UE_LOG(LogTemp, Log, TEXT("BarBaseActor : zScaler is %f"), zScaler);
-	LegacyStaticMeshComponent->SetWorldScale3D(FVector(1.f, 1.f, zScaler));
-	LegacyStaticMeshComponent->AddWorldOffset(FVector(0, 0, (BarHeight / 2)));
+	float UnitMeshHeight = GetStaticMeshBoxUnitSize(CustomStaticMeshComponent->GetStaticMesh()).Z;
+	int32 UnitMeshAmount = BarHeight / UnitMeshHeight;
+	UE_LOG(LogTemp, Log, TEXT("BarBaseActor : Amount is %d"), UnitMeshAmount);
+	float UnitMeshLeft = BarHeight / UnitMeshHeight - UnitMeshAmount;
+
+	for (int i = 0; i < UnitMeshAmount; i++)
+	{
+		// StaticMeshComponent를 동적으로 생성하고, 부모 액터에 속하도록 설정
+		UStaticMeshComponent* UnitMeshComponent = NewObject<UStaticMeshComponent>(this);
+
+		// 템플릿의 속성을 UnitMeshComponent에 복사
+		UnitMeshComponent->SetStaticMesh(CustomStaticMeshComponent->GetStaticMesh());
+		UnitMeshComponent->SetMaterial(0, CustomStaticMeshComponent->GetMaterial(0));
+		UnitMeshComponent->SetRelativeScale3D(CustomStaticMeshComponent->GetRelativeScale3D());
+
+		// 콜리전
+		UnitMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		UnitMeshComponent->SetCollisionObjectType(ECollisionChannel::ECC_PhysicsBody);
+		UnitMeshComponent->SetCollisionResponseToAllChannels(ECR_Block);
+
+		// 중력
+		UnitMeshComponent->SetSimulatePhysics(true);
+		UnitMeshComponent->SetEnableGravity(true);
+
+		UnitMeshComponent->SetupAttachment(CustomActorSceneComponent);
+		UnitMeshComponent->AddWorldOffset(FVector(0, 0, BarHeight+ UnitMeshHeight*3));
+		// 월드에 컴포넌트를 등록하여 액터와 함께 관리되도록 설정
+		UnitMeshComponent->RegisterComponent();
+	}
+}
+
+UStaticMeshComponent* ABarBaseActor::InitializeCustomStaticMeshPhysics(UStaticMeshComponent* TargetStaticMesh)
+{
+	UBodySetup* BodySetup = TargetStaticMesh->GetStaticMesh()->GetBodySetup();
+	if (BodySetup)
+	{
+		bool isCollisionSetup = BodySetup->AggGeom.GetElementCount() > 0;
+		if (isCollisionSetup&& !(TargetStaticMesh->IsSimulatingPhysics()))
+		{
+			UE_LOG(LogTemp, Log, TEXT("BarBaseActor : Enable StaticMesh Physics"));
+			TargetStaticMesh->SetSimulatePhysics(true);
+			TargetStaticMesh->SetEnableGravity(true);
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("BarBaseActor : Specify StaticMesh First"));
+	}
+
+	return TargetStaticMesh;
+}
+
+FVector ABarBaseActor::GetStaticMeshBoxUnitSize(UStaticMesh* TargetStaticMesh) const
+{
+	FVector BoundsExtent = TargetStaticMesh->GetBounds().BoxExtent;
+	return BoundsExtent * 2.0f;
 }
 
 // 에디터 상에 Procedural Mesh 또는 커스텀 메시 생성 유무 bool로 추출해놓음 분기하여 메시 생성 함수 결정
@@ -104,7 +157,15 @@ void ABarBaseActor::CreateMesh(float BarHeight)
 	}
 	else
 	{
-		CreateLegacyMesh(BarHeight);
+		if (CustomStaticMeshComponent)
+		{
+			UE_LOG(LogTemp, Log, TEXT("BarBaseActor : CreateMesh : Create Custom Static Mesh"));
+			CreateCustomMesh(BarHeight);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("BarBaseActor : CreateMesh : Specify Custom Static Mesh First"));
+		}
 	}
 }
 

@@ -23,12 +23,20 @@ private:
 	UPROPERTY()
 	USceneComponent* DefaultSceneRootComponent;
 
+	// Legacy Static Mesh Component Offset Layer
+	UPROPERTY()
+	USceneComponent* CustomActorSceneComponent;
+
 	// TimeLine Animation Binding Function
 	UFUNCTION()
 	void OnAnimationUpdate(float Value);
 
 	UFUNCTION()
-	void CreateLegacyMesh(float BarHeight);
+	void CreateCustomMesh(float BarHeight);
+
+	UFUNCTION()
+	UStaticMeshComponent* InitializeCustomStaticMeshPhysics(UStaticMeshComponent* TargetStaticMesh);
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -44,14 +52,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Chart")
 	UProceduralMeshComponent* ProcMeshComponent;
-	
-	// Legacy Static Mesh Component Offset Layer
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chart")
-	USceneComponent* LegacyActorSceneComponent;
 
 	// Specify Static Mesh to Generate, Don't For Get to Check off isProceduralMeshUsing
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chart")
-	UStaticMeshComponent* LegacyStaticMeshComponent;
+	UStaticMeshComponent* CustomStaticMeshComponent;
 
 	// Bar Procedural Mesh Material
 	UPROPERTY(EditAnywhere, Category = "Chart")
@@ -77,6 +81,9 @@ public:
 	// Bar Text Unit Size : Label
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chart")
 	float ValueTextPadding = 15.f;
+
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	FVector GetStaticMeshBoxUnitSize(UStaticMesh* TargetStaticMesh) const;
 
 	// Animation Control Function
 	UFUNCTION()
