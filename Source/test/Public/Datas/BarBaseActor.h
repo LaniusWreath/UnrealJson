@@ -23,16 +23,30 @@ private:
 	UPROPERTY()
 	USceneComponent* DefaultSceneRootComponent;
 
-	// Legacy Static Mesh Component Offset Layer
+	// Custom Static Mesh Component Offset Layer
 	UPROPERTY()
 	USceneComponent* CustomActorSceneComponent;
+
+	// Custome Static Mesh Spawn Timer
+	FTimerHandle SpawnTimerHandle;
+
+	int32 SpawnCount;
+
+	UPROPERTY()
+	int32 ResultCustomStaticMeshSpawnedAmount;
+
+	UPROPERTY()
+	float ResultCustomStaticMeshSpawnedValue;
 
 	// TimeLine Animation Binding Function
 	UFUNCTION()
 	void OnAnimationUpdate(float Value);
 
 	UFUNCTION()
-	void CreateCustomMesh(float BarHeight);
+	void CreateCustomMeshRoutine(float BarHeight);
+
+	UFUNCTION()
+	void CreateSingleCustomMeshComponent(float BarHeight, float UnitMeshHeight, int32 SpawnAmount);
 
 	UFUNCTION()
 	UStaticMeshComponent* InitializeCustomStaticMeshPhysics(UStaticMeshComponent* TargetStaticMesh);
@@ -101,8 +115,19 @@ public:
 	void InitializeTextMeshLabel(const FString& LabelName);
 
 	// Initialize Value Text Mesh
-	UFUNCTION(BlueprintCallable, Category = " Chart")
+	UFUNCTION(BlueprintCallable, Category = "Chart")
 	void InitializeTextMeshValue(const float& FloatValue, const float& BarHeight);
 
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	int32 GetResultCustomMeshSpawnedAmount() const
+	{
+		return ResultCustomStaticMeshSpawnedAmount;
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	float GetResultCustomMeshSpawnedValue() const
+	{
+		return ResultCustomStaticMeshSpawnedValue;
+	}
 
 };
