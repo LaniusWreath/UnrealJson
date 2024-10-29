@@ -64,7 +64,7 @@ protected:
 	UDataManager* DataManagerInstance;
 
 	// Data Class Instance
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, Category = "Chart")
 	UDataClasses* DataClassInstance;
 
 	UPROPERTY()

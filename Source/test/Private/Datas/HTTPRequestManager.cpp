@@ -26,7 +26,7 @@ void UHTTPRequestManager::MakeGetRequest(const FString& Url)
     Request->OnProcessRequestComplete().BindUObject(this, &UHTTPRequestManager::OnResponseReceived);
 
 	// 응답 처리 함수 델리게이트 바인딩
-	OnJsonDataReady.BindUObject(this, &UHTTPRequestManager::ExecuteCustomFucntion);
+	OnJsonDataReady.AddUObject(this, &UHTTPRequestManager::ExecuteCustomFucntion);
 
     // 요청 실행
     Request->ProcessRequest();
@@ -49,7 +49,7 @@ void UHTTPRequestManager::OnResponseReceived(FHttpRequestPtr Request, FHttpRespo
 			// 대리자 호출
 			if (JsonData.IsValid())
 			{
-				OnJsonDataReady.ExecuteIfBound(JsonData);
+				OnJsonDataReady.Broadcast(JsonData);
 			}
         }
         else
@@ -69,7 +69,7 @@ void UHTTPRequestManager::ExecuteCustomFucntion(TSharedPtr<FJsonObject> OriginJs
 	if (ParsedJsonData)
 	{
 		UE_LOG(LogTemp, Log, TEXT("HTTPRequestManager : DataParsing Complete"));
-		OnParsedDataReady.ExecuteIfBound(ParsedJsonData);
+		OnParsedDataReady.Broadcast(ParsedJsonData);
 	}
 }
 

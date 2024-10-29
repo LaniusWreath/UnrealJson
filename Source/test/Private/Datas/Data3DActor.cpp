@@ -66,7 +66,7 @@ void AData3DActor::InitilizeManagers()
 		else
 		{
 			// Request 델리게이트 바인딩 함수 : DataClass 멤버변수 초기화
-			RequestManagerInstance->OnParsedDataReady.BindUObject(this, &AData3DActor::SetJsonObject);
+			RequestManagerInstance->OnParsedDataReady.AddUObject(this, &AData3DActor::SetJsonObject);
 		}
 	}
 	else
@@ -82,8 +82,12 @@ void AData3DActor::SetJsonObject(const TSharedPtr<FJsonObject> JsonData)
 	{
 		TSharedPtr<FJsonObject> Data = RequestManagerInstance->GetJsonData();
 		FDataInstancePair ResultData = DataManagerInstance->InstancingDataClass(Data);
-		UE_LOG(LogTemp, Log, TEXT("Data3DActor : Response Chart Class is : %s"), *ResultData.ClassName);
+		UE_LOG(LogTemp, Log, TEXT("Data3DActor : DataClass Set, Response Chart Class is : %s"), *ResultData.ClassName);
 		DataClassInstance = ResultData.DataInstance;
+		if (!DataClassInstance)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Data3DActor : Received Data Class is invaid"));
+		}
 	}
 	else
 	{
@@ -164,7 +168,6 @@ void AData3DActorBar::SetChartDefaultTexts()
 
 void AData3DActorBar::GenerateChartRoutine()
 {
-
 	UE_LOG(LogTemp, Log, TEXT("Data3DActorBar : Generate Chart Routine Running"));
 	if (!DataClassInstance)
 	{

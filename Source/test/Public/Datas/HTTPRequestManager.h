@@ -14,7 +14,7 @@
  * 
  */
 
-DECLARE_DELEGATE_OneParam(FOnJsonDataReadyDelegate, TSharedPtr<FJsonObject>);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnJsonDataReadyDelegate, const TSharedPtr<FJsonObject>);
 
 UCLASS(Blueprintable)
 class TEST_API UHTTPRequestManager : public UObject
