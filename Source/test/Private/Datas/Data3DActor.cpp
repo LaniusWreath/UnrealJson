@@ -24,8 +24,8 @@ AData3DActor::AData3DActor()
 
 	RootSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponet"));
 
-	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
-	BaseMesh->SetupAttachment(RootSceneComponent);
+	/*BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
+	BaseMesh->SetupAttachment(RootSceneComponent);*/
 
 	TextRenderComponent_chartTitle = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Text_title"));
 	TextRenderComponent_chartTitle->SetupAttachment(RootSceneComponent);
@@ -113,6 +113,7 @@ AData3DActorBar::AData3DActorBar()
 		BarGeneratorComponent->SplineComponent_length->SetupAttachment(BarGeneratorComponent);
 		BarGeneratorComponent->ChildActorContainComponent->SetupAttachment(BarGeneratorComponent);
 	}
+
 	TextRenderComponent_chartXaxisName = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Text_xAxis"));
 	TextRenderComponent_chartXaxisName->SetupAttachment(RootSceneComponent);
 	TextRenderComponent_chartXaxisName->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);

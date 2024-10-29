@@ -24,8 +24,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Chart")
-	UStaticMeshComponent* BaseMesh;
+	/*UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Chart")
+	UStaticMeshComponent* BaseMesh;*/
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Chart")
 	FString CurrentChartType;
@@ -87,9 +87,7 @@ private:
 	UFUNCTION()
 	void SetChartDefaultTexts();
 
-	// Controler Component for Generating 3D Bar Chart 
-	UPROPERTY()
-	UBarGenerator* BarGeneratorComponent;
+	
 
 protected:
 	//virtual UDataClasses* SetDataClassInstance() override;
@@ -110,5 +108,9 @@ public:
 	// Visualization Chart Yaxis Name
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chart")
 	UTextRenderComponent* TextRenderComponent_chartYaxisName;
+
+	// Controler Component for Generating 3D Bar Chart 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Chart")
+	UBarGenerator* BarGeneratorComponent;
 
 };

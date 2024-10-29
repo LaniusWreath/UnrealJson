@@ -53,6 +53,9 @@ void ABarBaseActor::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// 템플릿으로 둔 커스텀 스태틱 메시의 콜리전 제거
+	CustomStaticMeshComponent->SetSimulatePhysics(false);
+	CustomStaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ABarBaseActor::CreateProceduralBoxMesh(float BarHeight)
@@ -127,7 +130,7 @@ void ABarBaseActor::CreateSingleCustomMeshComponent(float BarHeight, float UnitM
 	UnitMeshComponent->BodyInstance.SetMassOverride(CustomStaticMeshComponent->BodyInstance.GetMassOverride()); //질량
 
 	// 콜리전 복사 : 콜리전-피직스는 bodyinstance로 묶어 관리 됨. bodyinstance 사용 못하는 현재, 콜리전도 일일이 복사
-	UnitMeshComponent->SetCollisionEnabled(CustomStaticMeshComponent->GetCollisionEnabled());
+	UnitMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	UnitMeshComponent->SetCollisionObjectType(CustomStaticMeshComponent->GetCollisionObjectType());
 	UnitMeshComponent->SetCollisionResponseToChannels(CustomStaticMeshComponent->GetCollisionResponseToChannels());
 
@@ -229,6 +232,12 @@ void ABarBaseActor::InitializeTextMeshValue(const float& FloatValue, const float
 // 애니메이션 실행 제어
 void ABarBaseActor::PlayBarAnimation()
 {
+	if (!isProceduralMeshUsing)
+	{
+		UE_LOG(LogTemp, Log, TEXT("BarBaseActor : Creating Custom Mesh doesn't have animation"));
+		return;
+	}
+
 	if (AnimationCurve)
 	{
 		FOnTimelineFloat TimelineCallBack;

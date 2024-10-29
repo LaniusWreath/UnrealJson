@@ -125,7 +125,8 @@ bool UBarGenerator::CreateBar(const TArray<float>& ValueArray, const TArray<FStr
 			CurrentValue, BarHeightScaler ,ScaledHeight);
 		float Distance = i * BarSpacing;
 
-		FVector BarLocation = SplineComponent_length->GetLocationAtDistanceAlongSpline(Distance, ESplineCoordinateSpace::World);
+		// 스플라인 로컬 좌표를 따야 레벨에 배치했을 때 차트 메시의 좌표에 월드 오프셋이 추가 안됨.
+		FVector BarLocation = SplineComponent_length->GetLocationAtDistanceAlongSpline(Distance, ESplineCoordinateSpace::Local);
 		FString LabelName = LabelArray[i];
 
 		// 자손 액터(차트 액터) 넣을 UChildActorComponent* 반복 생성
@@ -134,7 +135,8 @@ bool UBarGenerator::CreateBar(const TArray<float>& ValueArray, const TArray<FStr
 		if (NewChildActorComponent)
 		{
 			// 자손 컴포넌트 부착
-			NewChildActorComponent->SetupAttachment(ChildActorContainComponent);
+			//NewChildActorComponent->SetupAttachment(ChildActorContainComponent);
+			NewChildActorComponent->AttachToComponent(ChildActorContainComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
 			//자손 액터 클래스 설정
 			NewChildActorComponent->SetChildActorClass(BarBaseActorBPClass);
