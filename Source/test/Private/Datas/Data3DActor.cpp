@@ -24,9 +24,6 @@ AData3DActor::AData3DActor()
 
 	RootSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponet"));
 
-	/*BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
-	BaseMesh->SetupAttachment(RootSceneComponent);*/
-
 	TextRenderComponent_chartTitle = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Text_title"));
 	TextRenderComponent_chartTitle->SetupAttachment(RootSceneComponent);
 	TextRenderComponent_chartTitle->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
@@ -44,7 +41,6 @@ void AData3DActor::BeginPlay()
 void AData3DActor::CallJsonObject(const FString& URL)
 {
 	RequestManagerInstance->MakeGetRequest(URL);
-
 }
 
 void AData3DActor::InitilizeManagers()
@@ -131,14 +127,16 @@ void AData3DActorBar::SetChartDefaultTexts()
 	if (DataClassInstance)
 	{
 		UShapeChartClass* TempCastedDataClass = Cast<UShapeChartClass>(DataClassInstance);
-		FString ChartTitle = TempCastedDataClass->GetChartTitle();
+		//FString ChartTitle = TempCastedDataClass->GetChartTitle();
+		FString ChartTitle = TempCastedDataClass->GetShapeChartData().ChartTitle;
+
 		TextRenderComponent_chartTitle->SetText(FText::FromString(ChartTitle));
 		UE_LOG(LogTemp, Log, TEXT("Data3DActor : Chart Title : %s"), *ChartTitle);
 
-		FString ChartXAxisName = TempCastedDataClass->GetChartXName();
+		FString ChartXAxisName = TempCastedDataClass->GetShapeChartData().XName;
 		TextRenderComponent_chartXaxisName->SetText(FText::FromString(ChartXAxisName));
 
-		FString ChartYAxisName = TempCastedDataClass->GetChartYName();
+		FString ChartYAxisName = TempCastedDataClass->GetShapeChartData().YName;
 		TextRenderComponent_chartYaxisName->SetText(FText::FromString(ChartYAxisName));
 	}
 }

@@ -16,10 +16,10 @@ class TEST_API UDataClasses : public UObject
 private:
 
 protected:
-	virtual void ProcessData() {}
 	EChartTypes ChartType = EChartTypes::None;
 
 public:
+	UFUNCTION()
 	virtual const EChartTypes GetChartType() const;
 };
 
@@ -29,7 +29,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Mapping Shape Chart Data 
-UCLASS()
+UCLASS(BlueprintType)
 class UShapeChartClass : public UDataClasses
 {
 	GENERATED_BODY()
@@ -38,56 +38,29 @@ private:
 	UPROPERTY()
 	FShapeChartData ShapeChartData;
 
-	virtual void ProcessData() override
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Processing Shape Chart Data"));
-	}
-
 public:
 	// Getting Data Struct Member for Mapping
 	virtual bool SetChartData(const FString& ChartTitle, const FString& ChartTypeName, const FString& XName, const TArray<FString>& Labels, const FString& YName, const TArray<float>& Values);
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	virtual bool SetChartData(const FShapeChartData& InputData);
 
-	// Getter Only Values
-	virtual const TArray<float>& GetShapeChartDataValues() const;
-
 	// Getter Data Struct Reference
+	UFUNCTION(BlueprintCallable, Category = "Chart")
 	const FShapeChartData& GetShapeChartData() const
 	{
 		return ShapeChartData;
-	}
-
-	// Getter Chart Title String
-	const FString& GetChartTitle() const
-	{
-		return ShapeChartData.ChartTitle;
-	}
-
-	// Getter Chart XAxis Name String
-	const FString& GetChartXName() const
-	{
-		return ShapeChartData.XName;
-	}
-
-	// Getter Chart YAxis Name String
-	const FString& GetChartYName() const
-	{
-		return ShapeChartData.YName;
 	}
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-UCLASS()
+UCLASS(BlueprintType)
 class UShapeChartBarClass : public UShapeChartClass
 {
 	GENERATED_BODY()
 
 private:
 	EChartTypes ChartType = EChartTypes::BAR;
-
-	void ProcessData() override {};
 
 public:
 	virtual bool SetChartData(const FShapeChartData& InputData) override;
@@ -110,8 +83,6 @@ class UShapeChartLineClass : public UShapeChartClass
 private:
 	EChartTypes ChartType = EChartTypes::LINE;
 
-	void ProcessData() override {};
-
 public:
 
 };
@@ -123,8 +94,6 @@ class UShapeChartPieClass : public UShapeChartClass
 
 private:
 	EChartTypes ChartType = EChartTypes::PIE;
-
-	void ProcessData() override {};
 
 public:
 
@@ -141,11 +110,6 @@ private:
 	EChartTypes ChartType = EChartTypes::XY;
 	FXYChartData XYChartData;
 
-	virtual void ProcessData() override
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Processing XY Chart Data"));
-	}
-
 public:
 
 	virtual bool SetChartData(const FString& XName, const TArray<float>& XData, const FString& YName, const TArray<float>& YData);
@@ -161,11 +125,6 @@ class UXYZChartClass : public UDataClasses
 private:
 	EChartTypes ChartType = EChartTypes::XYZ;
 	FXYZChartData XYZChartData;
-
-	virtual void ProcessData() override
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Processing XYZ Chart Data"));
-	}
 
 public:
 
