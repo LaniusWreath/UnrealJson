@@ -8,7 +8,7 @@
 #include "DataClasses.generated.h"
 
 // Mapping Chart Data and Returning Instance Factory Method : Abstract
-UCLASS(Abstract)
+UCLASS(BlueprintType)
 class TEST_API UDataClasses : public UObject
 {
 	GENERATED_BODY()

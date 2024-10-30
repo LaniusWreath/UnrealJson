@@ -42,6 +42,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chart")
 	FString HttpRequestURL;
 
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Chart")
+	bool IsDataClassInstanceSet;
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -62,7 +66,7 @@ protected:
 	UDataManager* DataManagerInstance;
 
 	// Data Class Instance
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Chart")
 	UDataClasses* DataClassInstance;
 
 	UPROPERTY()
@@ -114,11 +118,20 @@ public:
 	// 블루프린트에서는 액터가 자식 클래스로 구체화되어있으므로, 데이터 컨테이너 클래스를 호출 할 때에도 액터 형식에 맞게
 	// 캐스팅해주는 과정이 필요함. 다른 자식 3DActor 클래스에도 구성해줄 것.
 	
-	// Get Json Data Container Class
+	//Get Precessed Json Data Container Class
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	const UShapeChartClass* GetData() const
+	const UDataClasses* GetData() const
 	{
-		UShapeChartClass* CastedDataClassInstance = Cast<UShapeChartClass>(DataClassInstance);
-		return CastedDataClassInstance;
+		if (IsDataClassInstanceSet)
+			return DataClassInstance;
+		else
+			return nullptr;
+	}
+	
+	// Set Processed Json Data Container Class Instance Directly : You have to get a reference from other Data3DActor Instance to use this function.
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	void SetData(UDataClasses* DataClassInstancePtr)
+	{
+		DataClassInstance = DataClassInstancePtr;
 	}
 };

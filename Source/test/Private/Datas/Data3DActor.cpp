@@ -36,11 +36,12 @@ void AData3DActor::BeginPlay()
 	Super::BeginPlay();
 
 	InitializeDataManager();
-	InitializeRequestManager();
 }
 
 void AData3DActor::CallJsonObject(const FString& URL)
 {
+	InitializeRequestManager();
+	IsDataClassInstanceSet = false;
 	RequestManagerInstance->MakeGetRequest(URL);
 }
 
@@ -89,6 +90,10 @@ void AData3DActor::SetJsonObject(const TSharedPtr<FJsonObject> JsonData)
 		if (!DataClassInstance)
 		{
 			UE_LOG(LogTemp, Log, TEXT("Data3DActor : Received Data Class is invaid"));
+		}
+		else
+		{
+			IsDataClassInstanceSet = true;
 		}
 	}
 	else
