@@ -26,7 +26,7 @@ void UHTTPRequestManager::MakeGetRequest(const FString& Url)
     Request->OnProcessRequestComplete().BindUObject(this, &UHTTPRequestManager::OnResponseReceived);
 
 	// 응답 처리 함수 델리게이트 바인딩
-	OnJsonDataReady.AddUObject(this, &UHTTPRequestManager::ExecuteCustomFucntion);
+	//OnJsonDataReady.AddUObject(this, &UHTTPRequestManager::ExecuteCustomFucntion);
 
     // 요청 실행
     Request->ProcessRequest();
@@ -46,11 +46,8 @@ void UHTTPRequestManager::OnResponseReceived(FHttpRequestPtr Request, FHttpRespo
         TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResponseString);
         if (FJsonSerializer::Deserialize(Reader, JsonData)&& JsonData.IsValid())
         {
-			// 대리자 호출
-			if (JsonData.IsValid())
-			{
-				OnJsonDataReady.Broadcast(JsonData);
-			}
+			// 파싱 실행 함수 호출
+			ExecuteCustomParseFucntion(JsonData);
         }
         else
         {
@@ -63,7 +60,8 @@ void UHTTPRequestManager::OnResponseReceived(FHttpRequestPtr Request, FHttpRespo
     }
 }
 
-void UHTTPRequestManager::ExecuteCustomFucntion(TSharedPtr<FJsonObject> OriginJsonObject)
+// 데이터 형식에 맞는 커스텀 파싱 함수 호출.
+void UHTTPRequestManager::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject)
 {
 	ParsedJsonData = ParseRequestBody(OriginJsonObject);
 	if (ParsedJsonData)
@@ -72,7 +70,6 @@ void UHTTPRequestManager::ExecuteCustomFucntion(TSharedPtr<FJsonObject> OriginJs
 		OnParsedDataReady.Broadcast(ParsedJsonData);
 	}
 }
-
 
 TSharedPtr<FJsonObject> UHTTPRequestManager::ParseRequestBody(TSharedPtr<FJsonObject> RequestBody)
 {

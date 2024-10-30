@@ -41,7 +41,7 @@ public:
 	}
 
 	// Delegate for Alarming Request Done, Data Ready
-	FOnJsonDataReadyDelegate OnJsonDataReady;
+	//FOnJsonDataReadyDelegate OnJsonDataReady;
 	FOnJsonDataReadyDelegate OnParsedDataReady;
 
 private:
@@ -56,5 +56,5 @@ private:
 	// Custom JsonParsing Function.
 	TSharedPtr<FJsonObject> ParseRequestBody(TSharedPtr<FJsonObject> RequestBody);
 
-	void ExecuteCustomFucntion(TSharedPtr<FJsonObject> OriginJsonObject);
+	void ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject);
 };

@@ -14,7 +14,7 @@ class UChartGenerator;
 class UTextRenderComponent;
 class UHTTPRequestManager;
 
-UCLASS(Abstract)
+UCLASS()
 class TEST_API AData3DActor : public AActor
 {
 	GENERATED_BODY()
@@ -29,13 +29,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Chart")
 	FString CurrentChartType;
-
+	
+	// Call Json Request Function, Result Data will be stored in this  
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	void CallJsonObject(const FString& URL);
-
-	// Initializing Data Manager Getting from Game Instance
-	UFUNCTION()
-	void InitilizeManagers();
 
 	// Visualization Chart Title
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chart")
@@ -49,9 +46,13 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	// Pure Virtual Setter Data Class Instance. Getting from DataManager's ChartDataClassInstanceArray.
-	/*UFUNCTION(BlueprintCallable, Category = "Chart")
-	virtual UDataClasses* SetDataClassInstance() PURE_VIRTUAL(UDataFetcherBase::FetchData, ;);*/
+	// Initializing Data Manager Getting from Game Instance
+	UFUNCTION()
+	void InitializeDataManager();
+
+	// Initializing Request Manager Instance : this instance have to be initialized in every CallJsonRoutine()
+	UFUNCTION()
+	void InitializeRequestManager();
 
 	// Pure Virtual Routine for Generate Chart
 	virtual void GenerateChartRoutine() PURE_VIRTUAL(UDataFetcherBase::FetchData, ;);
@@ -112,6 +113,7 @@ public:
 	// 또한 이 공통 데이터는 공통 액터 추상클래스에 속해있음
 	// 블루프린트에서는 액터가 자식 클래스로 구체화되어있으므로, 데이터 컨테이너 클래스를 호출 할 때에도 액터 형식에 맞게
 	// 캐스팅해주는 과정이 필요함. 다른 자식 3DActor 클래스에도 구성해줄 것.
+	
 	// Get Json Data Container Class
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	const UShapeChartClass* GetData() const

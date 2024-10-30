@@ -44,7 +44,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	virtual bool SetChartData(const FShapeChartData& InputData);
 
-	// Getter Data Struct Reference
+	// Getter Data Struct Reference (const)
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	const FShapeChartData& GetShapeChartData() const
 	{

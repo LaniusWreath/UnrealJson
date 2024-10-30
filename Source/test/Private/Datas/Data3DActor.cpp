@@ -35,7 +35,8 @@ void AData3DActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitilizeManagers();
+	InitializeDataManager();
+	InitializeRequestManager();
 }
 
 void AData3DActor::CallJsonObject(const FString& URL)
@@ -43,7 +44,7 @@ void AData3DActor::CallJsonObject(const FString& URL)
 	RequestManagerInstance->MakeGetRequest(URL);
 }
 
-void AData3DActor::InitilizeManagers()
+void AData3DActor::InitializeDataManager()
 {	
 	UJBCMCore* JBCMCoreReference = UJBCMCore::GetJBCMCore();
 
@@ -54,21 +55,26 @@ void AData3DActor::InitilizeManagers()
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Data3DActor : Initialize Managers : Getting DataManager Reference Failed"));
 		}
-		RequestManagerInstance = JBCMCoreReference->GetHttpRequestManager();
-		if (!RequestManagerInstance)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Data3DActor : Initialize Managers : Getting RequestManager Reference Failed"));
-		}
-		else
-		{
-			// Request 델리게이트 바인딩 함수 : DataClass 멤버변수 초기화
-			RequestManagerInstance->OnParsedDataReady.AddUObject(this, &AData3DActor::SetJsonObject);
-		}
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Couldn't find GameInstance or DataManager"));
 	}
+}
+
+// RequestManager의 인스턴스는 각각 request를 담당하는 액터에서 직접 생성. 
+// 각 인스턴스의 델리게이트는 각 액터의 url에 대한 리퀘스트만 감지하여 각 액터 인스턴스의 함수와 1:1 바인딩
+// url로 데이터를 리퀘스트 할 때 마다 기존 httpManager인스턴스를 삭제하고 새롭게 초기화.
+void AData3DActor::InitializeRequestManager()
+{
+	if (RequestManagerInstance)
+	{
+		RequestManagerInstance = nullptr;
+	}
+	RequestManagerInstance = NewObject<UHTTPRequestManager>();
+
+	// Request 델리게이트 바인딩 함수 : DataClass 멤버변수 초기화
+	RequestManagerInstance->OnParsedDataReady.AddUObject(this, &AData3DActor::SetJsonObject);
 }
 
 // FJsonObject 받아 UDataClasses*로 추출
@@ -90,6 +96,7 @@ void AData3DActor::SetJsonObject(const TSharedPtr<FJsonObject> JsonData)
 		UE_LOG(LogTemp, Warning, TEXT("Data3DActor : RequestManagerInstance is Invalid"));
 	}
 }
+
 
 // Called every frame
 void AData3DActor::Tick(float DeltaTime)
@@ -199,5 +206,4 @@ void AData3DActorBar::GenerateChartRoutine()
 	BarGeneratorComponent->GenerateBarChart(BarDataClassInstance->GetShapeChartData());
 
 }
-
 
