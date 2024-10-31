@@ -66,13 +66,7 @@ public:
 
 	// Routine Function for Controlling Json Reading to Processing Functions
 	UFUNCTION(BlueprintCallable, Category = "Data Management")
-	void LocalJsonReadProcessRoutine(const FString& FilePath);
-
-	//void JsonObjectReadProcessRoutine(const TSharedPtr<FJsonObject> JsonData);
-
-	// Getter Data Class Instance only without Header from Data Struct
-	UFUNCTION(BlueprintCallable, Category = "Data Management")
-	UDataClasses* GetChartDataClassInstance(const FString& ClassName);
+	UDataClasses* LocalJsonReadProcessRoutine(const FString& FilePath);
 
 	// Getter Serialized JSON String Data
 	UFUNCTION(BlueprintCallable, Category = "Data")

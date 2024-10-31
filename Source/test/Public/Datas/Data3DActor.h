@@ -37,10 +37,6 @@ public:
 	// Visualization Chart Title
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chart")
 	UTextRenderComponent* TextRenderComponent_chartTitle;
-	
-	// Http Request URL
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chart")
-	FString HttpRequestURL;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Chart")
 	bool IsDataClassInstanceSet;

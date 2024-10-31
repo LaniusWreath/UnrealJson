@@ -6,27 +6,13 @@
 #include "Serialization/JsonWriter.h"
 
 // json 로컬 파일 직접 읽고 처리하는 루틴
-void UDataManager::LocalJsonReadProcessRoutine(const FString& FilePath)
+UDataClasses* UDataManager::LocalJsonReadProcessRoutine(const FString& FilePath)
 {
 	TSharedPtr<FJsonObject> Data = LoadDataFromJSON(FilePath);
 	FDataInstancePair NewChartData = InstancingDataClass(Data);
 	ChartDataClassInstanceArray.Add(NewChartData);
+	return NewChartData.DataInstance;
 }
-
-
-//void UDataManager::JsonObjectReadProcessRoutine(const TSharedPtr<FJsonObject> JsonData)
-//{
-//	if (JsonData.IsValid())
-//	{
-//		FDataInstancePair NewChartData = InstancingDataClass(JsonData);
-//		ChartDataClassInstanceArray.Add(NewChartData);
-//	}
-//	else
-//	{
-//		UE_LOG(LogTemp, Warning, TEXT("DataManager: JsonObjectReadProcessRoutine : Json Data from HTTPRequestManager is invaild"));
-//	}
-//
-//}
 
 // FString으로 Serialize된 Json문자열 객체로 다시 변환
 TSharedPtr<FJsonObject> UDataManager::DeserializeJsonStringToJsonObject(const FString& JsonString)
@@ -74,24 +60,6 @@ void UDataManager::LoadDataFromCSV(const FString& FilePath)
 
 void UDataManager::FetchDataFromHTTP(const FString& URL)
 {
-}
-
-// Return DataClass from ChartDataClassInstanceArray
-UDataClasses* UDataManager::GetChartDataClassInstance(const FString& ClassName)
-{
-	UE_LOG(LogTemp, Log, TEXT("DataManager : %d"), ChartDataClassInstanceArray.Num());
-	for (int32 i = 0; i < ChartDataClassInstanceArray.Num(); i++)
-	{
-		UE_LOG(LogTemp, Log, TEXT("DataManager : Current Data Class Instance name : %s"), *ChartDataClassInstanceArray[i].ClassName)
-		if (ChartDataClassInstanceArray[i].ClassName == ClassName)
-		{
-			UDataClasses* FindingReference = ChartDataClassInstanceArray[i].DataInstance;
-			ChartDataClassInstanceArray.RemoveAt(i);
-			return FindingReference;
-		}
-	}
-	UE_LOG(LogTemp, Warning, TEXT("DataManager.cpp : ChartDataClassInstanceQueue is empty or no such class"));
-	return nullptr;
 }
 
 // Return JSON String Getter()
