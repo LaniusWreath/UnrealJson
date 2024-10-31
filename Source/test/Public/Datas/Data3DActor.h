@@ -66,7 +66,7 @@ protected:
 	UDataManager* DataManagerInstance;
 
 	// Data Class Instance
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Chart")
+	UPROPERTY(VisibleAnywhere, Category = "Chart")
 	UDataClasses* DataClassInstance;
 
 	UPROPERTY()
@@ -120,7 +120,7 @@ public:
 	
 	//Get Precessed Json Data Container Class
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	const UDataClasses* GetData() const
+	const UDataClasses* GetDataClassInstance() const
 	{
 		if (IsDataClassInstanceSet)
 			return DataClassInstance;
@@ -130,8 +130,17 @@ public:
 	
 	// Set Processed Json Data Container Class Instance Directly : You have to get a reference from other Data3DActor Instance to use this function.
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	void SetData(UDataClasses* DataClassInstancePtr)
+	void SetDataClassInstance(UDataClasses* DataClassInstancePtr)
 	{
 		DataClassInstance = DataClassInstancePtr;
+		IsDataClassInstanceSet = true;
+	}
+	
+	// Delete Data Container Class Instance
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	void DeleteClassInstance()
+	{
+		DataClassInstance = nullptr;
+		IsDataClassInstanceSet = false;
 	}
 };
