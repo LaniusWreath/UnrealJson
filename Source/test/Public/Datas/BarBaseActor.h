@@ -49,8 +49,8 @@ private:
 	void CreateSingleCustomMeshComponent(float BarHeight, float UnitMeshHeight, int32 SpawnAmount);
 
 	UFUNCTION()
-	UStaticMeshComponent* InitializeCustomStaticMeshPhysics(UStaticMeshComponent* TargetStaticMesh);
-
+	void InitializeCustomStaticMeshPhysics(UStaticMeshComponent* TargetStaticMesh,
+		UStaticMeshComponent* TemplateComponent);
 
 protected:
 	// Called when the game starts or when spawned
@@ -59,10 +59,6 @@ protected:
 public:	
 	// Sets default values for this actor's properties
 	ABarBaseActor();
-
-	// On : Using Procedural Mesh, Off: Using Legacy Static Mesh Component to Generate Chart
-	UPROPERTY(EditAnywhere, Category = "Chart")
-	bool isProceduralMeshUsing;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Chart")
 	UProceduralMeshComponent* ProcMeshComponent;
@@ -95,6 +91,13 @@ public:
 	// Bar Text Unit Size : Label
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chart")
 	float ValueTextPadding = 15.f;
+
+	// On : Spawning Custom Mesh, Off: Spawning Default Bar Mesh
+	UPROPERTY(EditAnywhere, Category = "Chart")
+	bool EnableSpawnCustomMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chart")
+	float CustomMeshSpawnWaitingTime = 0.5f;
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	FVector GetStaticMeshBoxUnitSize(UStaticMesh* TargetStaticMesh) const;

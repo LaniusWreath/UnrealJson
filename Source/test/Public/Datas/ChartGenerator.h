@@ -56,8 +56,10 @@ private:
 		const float MaxHeight);
 
 	// Create BarChart Function
-	UFUNCTION()
 	bool CreateBar(const TArray<float>& ValueArray, const TArray<FString>& LabelArray, const int BarSpacing,
+		const float BarPaddingScaler, const float BarHeightScaler);
+
+	bool CreateBarAlongSplinePoint(const TArray<float>& ValueArray, const TArray<FString>& LabelArray,
 		const float BarPaddingScaler, const float BarHeightScaler);
 
 	// BP BarBase Actor Source to Display 
@@ -69,11 +71,14 @@ public:
 
 	// Generate Bar Chart Routine Function
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	void GenerateBarChart(const FShapeChartData& CopiedData);
+	void GenerateBarChart(const FShapeChartData& CopiedData, bool bGenerateMeshAtSplinePoint);
 
 	// Set BP BarBase Actor Source to Display 
 	UFUNCTION()
 	void SetBarSourceActor(const TSubclassOf<ABarBaseActor>& SourceActor);
+
+	UFUNCTION()
+	void AddSplinePoint(USplineComponent* SplineComponent, int TargetCount);
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Component")
 	USplineComponent* SplineComponent_length;

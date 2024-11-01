@@ -208,7 +208,7 @@ void AData3DActorBar::GenerateChartRoutine()
 	UShapeChartBarClass* BarDataClassInstance = Cast<UShapeChartBarClass>(DataClassInstance);
 
 	// GenerateBarChart() : 데이터 입력 받아 차트 생성 루틴 함수 호출 / GetShapeChartData() : Bar(모양)차트 데이터 Get
-	BarGeneratorComponent->GenerateBarChart(BarDataClassInstance->GetShapeChartData());
+	BarGeneratorComponent->GenerateBarChart(BarDataClassInstance->GetShapeChartData(), EnableGenerateMeshAtSplinePoint);
 
 }
 

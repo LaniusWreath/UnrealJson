@@ -54,8 +54,8 @@ private:
 	void FetchDataFromHTTP(const FString& URL);
 
 	// Container for Data Struct
-	UPROPERTY()
-	TArray<FDataInstancePair> ChartDataClassInstanceArray;
+	//UPROPERTY()
+	//TArray<FDataInstancePair> ChartDataClassInstanceArray;
 
 	TSharedPtr<FJsonObject> DeserializeJsonStringToJsonObject(const FString& JsonString);
 

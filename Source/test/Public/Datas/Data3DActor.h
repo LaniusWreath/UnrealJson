@@ -93,6 +93,10 @@ protected:
 public:
 	AData3DActorBar();
 
+	// On : Spawn Chart Mesh At Each Spline Point / Off : Spawn Chart Mesh by Equally Deviding whole Spline
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chart")
+	bool EnableGenerateMeshAtSplinePoint;
+
 	// Select Bar Blueprint Actor Source to Generate
 	UPROPERTY(EditAnywhere, BlueprintReadOnly ,Category = "Chart")
 	TSubclassOf<ABarBaseActor> BarBaseActorBPClass;

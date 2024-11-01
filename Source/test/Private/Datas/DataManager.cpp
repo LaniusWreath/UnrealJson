@@ -10,7 +10,7 @@ UDataClasses* UDataManager::LocalJsonReadProcessRoutine(const FString& FilePath)
 {
 	TSharedPtr<FJsonObject> Data = LoadDataFromJSON(FilePath);
 	FDataInstancePair NewChartData = InstancingDataClass(Data);
-	ChartDataClassInstanceArray.Add(NewChartData);
+	//ChartDataClassInstanceArray.Add(NewChartData);
 	return NewChartData.DataInstance;
 }
 

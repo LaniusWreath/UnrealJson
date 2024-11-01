@@ -60,7 +60,7 @@ void UBarGenerator::SetBarSourceActor(const TSubclassOf<ABarBaseActor>& SourceAc
 }
 
 // 바 차트 생성 함수
-void UBarGenerator::GenerateBarChart(const FShapeChartData& CopiedData)
+void UBarGenerator::GenerateBarChart(const FShapeChartData& CopiedData, bool bGenerateMeshAtSplinePoint)
 {
 	// 스플라인 총 길이 
 	float SplineLength = SplineComponent_length->GetSplineLength();
@@ -82,8 +82,18 @@ void UBarGenerator::GenerateBarChart(const FShapeChartData& CopiedData)
 	PrepareBarValues(ValueArray, BarHeightScaler, BarPadding, MaxHeight);
 	UE_LOG(LogTemp, Log, TEXT("ChartGenerator: PrepareBarValues() result, BarHeightScaler : %f"), BarHeightScaler);
 
+	bool isGenerateDone;
+	if (!bGenerateMeshAtSplinePoint)
+	{	
+		// 스플라인 균등하게 분할하여 메쉬 생성
+		isGenerateDone = CreateBar(ValueArray, LabelAarray, SplineSpacing, BarPadding, BarHeightScaler);
+	}
+	else
+	{
+		// 스플라인 포인트에 메쉬 생성
+		isGenerateDone = CreateBarAlongSplinePoint(ValueArray, LabelAarray, BarPadding, BarHeightScaler);
+	}
 	// 바 메시 생성
-	bool isGenerateDone = CreateBar(ValueArray, LabelAarray, SplineSpacing, BarPadding, BarHeightScaler);
 	if (!isGenerateDone)
 	{
 		UE_LOG(LogTemp, Log, TEXT("ChartGenerator : Generating Bar Failed"));
@@ -113,7 +123,6 @@ bool UBarGenerator::CreateBar(const TArray<float>& ValueArray, const TArray<FStr
 	const float BarPaddingScaler, const float BarHeightScaler)
 {
 	ClearChildrenActors();
-
 	int32 Numbers = ValueArray.Num();
 
 	// 바 차트 생성 : ValueArray, AverageHeight, BarHeightScaler
@@ -177,12 +186,123 @@ bool UBarGenerator::CreateBar(const TArray<float>& ValueArray, const TArray<FStr
 			{
 				UE_LOG(LogTemp, Error, TEXT("ChartGenerator : Failed NewChildActorComponent->GetChildActor()"));
 			}
-
 		}
 
 		UE_LOG(LogTemp, Log, TEXT("ChartGenerator: Created bar Number with Height: %f"), ScaledHeight);
 	}
 	return true;
+}
+
+// 스플라인 컴포넌트의 점 개수 모자랄 때 target만큼 맞춰줌
+void UBarGenerator::AddSplinePoint(USplineComponent* SplineComponent, int TargetCount)
+{
+	int32 SplinePointCount = SplineComponent->GetNumberOfSplinePoints();
+	if (TargetCount > SplinePointCount)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("ChartGenerator : CreateBarAlongSplinePoint Value Count %d dosen't same as SplinePoint Count %d"),
+			TargetCount, SplinePointCount);
+		UE_LOG(LogTemp, Warning,
+			TEXT("Adding Extra Spline Point Automatically"));
+
+		FVector LastSplinePointVector = SplineComponent_length->
+			GetLocationAtSplinePoint(SplinePointCount - 1, ESplineCoordinateSpace::Local);
+		UE_LOG(LogTemp, Log, TEXT("LastSplinePointVector : %f, %f, %f"),
+			LastSplinePointVector.X, LastSplinePointVector.Y, LastSplinePointVector.Z);
+
+		FVector UnitOffsetVector =
+			LastSplinePointVector - SplineComponent_length->
+			GetLocationAtSplinePoint(SplinePointCount - 2, ESplineCoordinateSpace::Local);
+		UE_LOG(LogTemp, Log, TEXT("UnitOffsetVector : %f, %f, %f"), UnitOffsetVector.X, UnitOffsetVector.Y, UnitOffsetVector.Z);
+
+		for (int i = 0; i < TargetCount - SplinePointCount; i++)
+		{
+			SplineComponent_length->AddSplinePoint(LastSplinePointVector + (UnitOffsetVector * (i + 1)),
+				ESplineCoordinateSpace::Local);
+		}
+	}
+}
+
+
+bool UBarGenerator::CreateBarAlongSplinePoint(const TArray<float>& ValueArray, const TArray<FString>& LabelArray, 
+	const float BarPaddingScaler, const float BarHeightScaler)
+{
+	// 기존 bar 객체 삭제
+	ClearChildrenActors();
+
+	int32 Numbers = ValueArray.Num();
+	int32 SplinePointCount = SplineComponent_length->GetNumberOfSplinePoints();		// 스플라인 포인트 개수
+
+	// 데이터 수에 스플라인 포인트 개수 맞춤
+	AddSplinePoint(SplineComponent_length, Numbers);
+
+	// 바 차트 생성 : ValueArray, AverageHeight, BarHeightScaler
+	for (int32 i = 0; i < Numbers; i++)
+	{
+		float CurrentValue = ValueArray[i];
+		float ScaledHeight = CurrentValue * BarHeightScaler;
+		UE_LOG(LogTemp, Log, TEXT("ChartGenerator : CurrentValue : %f, BarHeightScaler : %f, ScaledHeight : %f"),
+			CurrentValue, BarHeightScaler, ScaledHeight);
+
+		// 스플라인 로컬 좌표를 따야 레벨에 배치했을 때 차트 메시의 좌표에 월드 오프셋이 추가 안됨.
+		FVector BarLocation = SplineComponent_length->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::Local);
+		FString LabelName = LabelArray[i];
+
+		// 자손 액터(차트 액터) 넣을 UChildActorComponent* 반복 생성
+		UChildActorComponent* NewChildActorComponent = NewObject<UChildActorComponent>(this);
+
+		if (NewChildActorComponent)
+		{
+			// 자손 컴포넌트 부착
+			//NewChildActorComponent->SetupAttachment(ChildActorContainComponent);
+			NewChildActorComponent->AttachToComponent(ChildActorContainComponent, FAttachmentTransformRules::KeepRelativeTransform);
+
+			//자손 액터 클래스 설정
+			NewChildActorComponent->SetChildActorClass(BarBaseActorBPClass);
+
+			// 자손 액터 생성
+			NewChildActorComponent->CreateChildActor();
+
+			UE_LOG(LogTemp, Log, TEXT("ChartGenerator : Creating Bar Child Object : %s"),
+				*NewChildActorComponent->GetChildActorClass()->GetName());
+
+			// 배열에 추가
+			ChildActorComponents.Add(NewChildActorComponent);
+
+			if (NewChildActorComponent->GetChildActor())
+			{
+				// ABarBaseAcotr로 UChildActorComponent 캐스팅
+				ABarBaseActor* ChildBar = Cast<ABarBaseActor>(NewChildActorComponent->GetChildActor());
+				if (ChildBar)
+				{
+					// 이동 : 이동 먼저 시켜줘야 생성 좌표가 고정됨
+					ChildBar->SetActorRelativeLocation(BarLocation);
+					// 바 프로시저럴 메쉬 생성
+					ChildBar->CreateMesh(ScaledHeight);
+					// 바 라벨 텍스트 렌더러 생성
+					ChildBar->InitializeTextMeshLabel(LabelName);
+					// 바 값 텍스트 렌더러 생성
+					ChildBar->InitializeTextMeshValue(CurrentValue, ScaledHeight);
+					// 애니메이션
+					ChildBar->PlayBarAnimation();
+				}
+				else
+				{
+					UE_LOG(LogTemp, Error, TEXT("ChartGenerator: Failed Casting ChildBarBaseActor"));
+					return false;
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("ChartGenerator : Failed NewChildActorComponent->GetChildActor()"));
+			}
+
+		}
+
+		UE_LOG(LogTemp, Log, TEXT("ChartGenerator: Created bar Number with Height: %f"), ScaledHeight);
+	}
+
+	return false;
 }
 
 

@@ -106,9 +106,9 @@ void ABarBaseActor::CreateCustomMeshRoutine(float BarHeight)
 	GetWorldTimerManager().SetTimer(SpawnTimerHandle, [this, BarHeight, UnitMeshHeight, UnitMeshAmount]()
 	{
 		CreateSingleCustomMeshComponent(BarHeight, UnitMeshHeight, UnitMeshAmount); 
-	}, 0.5f, true);
-
+	}, CustomMeshSpawnWaitingTime, true);
 }
+
 
 // 커스텀 스태틱 메쉬 생성 함수
 void ABarBaseActor::CreateSingleCustomMeshComponent(float BarHeight, float UnitMeshHeight, int32 SpawnAmount)
@@ -116,35 +116,12 @@ void ABarBaseActor::CreateSingleCustomMeshComponent(float BarHeight, float UnitM
 	// StaticMeshComponent를 동적으로 생성하고, 부모 액터에 속하도록 설정
 	UStaticMeshComponent* UnitMeshComponent = NewObject<UStaticMeshComponent>(this);
 
-	// 템플릿의 속성을 UnitMeshComponent에 복사
-	UnitMeshComponent->SetStaticMesh(CustomStaticMeshComponent->GetStaticMesh());
-	UnitMeshComponent->SetMaterial(0, CustomStaticMeshComponent->GetMaterial(0));
-	UnitMeshComponent->SetRelativeScale3D(CustomStaticMeshComponent->GetRelativeScale3D());
-
-	// 피직스 복사 : BodyInstance를 직접 복사할 수 있지만, 그 경우에는 AttachToComponent를 사용할 수 없음. -> 개별 복사 필요
-	UnitMeshComponent->SetSimulatePhysics(true); // 피직스 on
-	UnitMeshComponent->SetEnableGravity(true); // 중력 on
-	UnitMeshComponent->SetLinearDamping(CustomStaticMeshComponent->GetLinearDamping()); // 선형 댐핑
-	UnitMeshComponent->SetAngularDamping(CustomStaticMeshComponent->GetAngularDamping()); // 회전각 댐핑
-	//UnitMeshComponent->SetPhysMaterialOverride(CustomStaticMeshComponent->GetBodySetup()->GetPhysMaterial()); // 피지컬 머티리얼
-	UnitMeshComponent->BodyInstance.SetMassOverride(CustomStaticMeshComponent->BodyInstance.GetMassOverride()); //질량
-
-	// 콜리전 복사 : 콜리전-피직스는 bodyinstance로 묶어 관리 됨. bodyinstance 사용 못하는 현재, 콜리전도 일일이 복사
-	UnitMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	UnitMeshComponent->SetCollisionObjectType(CustomStaticMeshComponent->GetCollisionObjectType());
-	UnitMeshComponent->SetCollisionResponseToChannels(CustomStaticMeshComponent->GetCollisionResponseToChannels());
-
-	// 컨스트레인트 복사
-	UnitMeshComponent->BodyInstance.bLockRotation = CustomStaticMeshComponent->BodyInstance.bLockRotation;
-	UnitMeshComponent->BodyInstance.bLockTranslation = CustomStaticMeshComponent->BodyInstance.bLockTranslation;
-
-	// 충격량 반영 여부
-	UnitMeshComponent->bApplyImpulseOnDamage = CustomStaticMeshComponent->bApplyImpulseOnDamage;
+	InitializeCustomStaticMeshPhysics(UnitMeshComponent, CustomStaticMeshComponent);
 
 	// 부착
 	UnitMeshComponent->AttachToComponent(CustomActorSceneComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
-	// Z축 오프셋 조정
+	// Z축 스폰 오프셋 조정
 	UnitMeshComponent->AddWorldOffset(FVector(0, 0, BarHeight + UnitMeshHeight * 3));
 
 	// 월드에 컴포넌트를 등록하여 액터와 함께 관리되도록 설정 
@@ -157,43 +134,46 @@ void ABarBaseActor::CreateSingleCustomMeshComponent(float BarHeight, float UnitM
 	if (SpawnCount >= SpawnAmount)
 	{
 		GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
+		//타이머 종료 시 실행시킬 함수 (여기 말고 다른데다 하면 안됨. 비동기임)
 	}
 }
 
-// 물리 옵션 설정을 코드로 하는 함수인데, 만들어놓기만 했음. 필요 없으면 나중에 삭제.
-UStaticMeshComponent* ABarBaseActor::InitializeCustomStaticMeshPhysics(UStaticMeshComponent* TargetStaticMesh)
+void ABarBaseActor::InitializeCustomStaticMeshPhysics(UStaticMeshComponent* TargetStaticMesh, UStaticMeshComponent* TemplateComponent)
 {
-	UBodySetup* BodySetup = TargetStaticMesh->GetStaticMesh()->GetBodySetup();
-	if (BodySetup)
-	{
-		bool isCollisionSetup = BodySetup->AggGeom.GetElementCount() > 0;
-		if (isCollisionSetup&& !(TargetStaticMesh->IsSimulatingPhysics()))
-		{
-			UE_LOG(LogTemp, Log, TEXT("BarBaseActor : Enable StaticMesh Physics"));
-			TargetStaticMesh->SetSimulatePhysics(true);
-			TargetStaticMesh->SetEnableGravity(true);
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("BarBaseActor : Specify StaticMesh First"));
-	}
+	// 템플릿의 속성을 UnitMeshComponent에 복사
+	TargetStaticMesh->SetStaticMesh(TemplateComponent->GetStaticMesh());
+	TargetStaticMesh->SetMaterial(0, TemplateComponent->GetMaterial(0));
+	TargetStaticMesh->SetRelativeScale3D(TemplateComponent->GetRelativeScale3D());
 
-	return TargetStaticMesh;
-}
+	// 피직스 복사 : BodyInstance를 직접 복사할 수 있지만, 그 경우에는 AttachToComponent를 사용할 수 없음. -> 개별 복사 필요
+	TargetStaticMesh->SetSimulatePhysics(true); // 피직스 on
+	TargetStaticMesh->SetEnableGravity(true); // 중력 on
+	TargetStaticMesh->SetLinearDamping(TemplateComponent->GetLinearDamping()); // 선형 댐핑
+	TargetStaticMesh->SetAngularDamping(TemplateComponent->GetAngularDamping()); // 회전각 댐핑
+	//UnitMeshComponent->SetPhysMaterialOverride(CustomStaticMeshComponent->GetBodySetup()->GetPhysMaterial()); // 피지컬 머티리얼
+	// 피지컬 머티리얼은 자원 많이 쓰고, 복사하는데도 많은 자원 필요하니, 안함
+	TargetStaticMesh->BodyInstance.SetMassOverride(TemplateComponent->BodyInstance.GetMassOverride()); //질량
 
-FVector ABarBaseActor::GetStaticMeshBoxUnitSize(UStaticMesh* TargetStaticMesh) const
-{
-	FVector BoundsExtent = TargetStaticMesh->GetBounds().BoxExtent;
-	return BoundsExtent * 2.0f;
+	// 콜리전 복사 : 콜리전-피직스는 bodyinstance로 묶어 관리 됨. bodyinstance 사용 못하는 현재, 콜리전도 일일이 복사
+	TargetStaticMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	TargetStaticMesh->SetCollisionObjectType(TemplateComponent->GetCollisionObjectType());
+	TargetStaticMesh->SetCollisionResponseToChannels(TemplateComponent->GetCollisionResponseToChannels());
+
+	// 컨스트레인트 복사
+	TargetStaticMesh->BodyInstance.bLockRotation = TemplateComponent->BodyInstance.bLockRotation;
+	TargetStaticMesh->BodyInstance.bLockTranslation = TemplateComponent->BodyInstance.bLockTranslation;
+
+	// 충격량 반영 여부
+	TargetStaticMesh->bApplyImpulseOnDamage = TemplateComponent->bApplyImpulseOnDamage;
 }
 
 // 에디터 상에 Procedural Mesh 또는 커스텀 메시 생성 유무 bool로 추출해놓음 분기하여 메시 생성 함수 결정
 void ABarBaseActor::CreateMesh(float BarHeight)
 {
-	if (isProceduralMeshUsing)
+	if (!EnableSpawnCustomMesh)
 	{
 		CreateProceduralBoxMesh(BarHeight);
+		UE_LOG(LogTemp, Log, TEXT("Work Done"));
 	}
 	else
 	{
@@ -207,6 +187,13 @@ void ABarBaseActor::CreateMesh(float BarHeight)
 			UE_LOG(LogTemp, Warning, TEXT("BarBaseActor : CreateMesh : Specify Custom Static Mesh First"));
 		}
 	}
+}
+
+// 박스형태 메시 유닛 사이즈 리턴
+FVector ABarBaseActor::GetStaticMeshBoxUnitSize(UStaticMesh* TargetStaticMesh) const
+{
+	FVector BoundsExtent = TargetStaticMesh->GetBounds().BoxExtent;
+	return BoundsExtent * 2.0f;
 }
 
 // 라벨 텍스트 렌더러 설정
@@ -232,7 +219,7 @@ void ABarBaseActor::InitializeTextMeshValue(const float& FloatValue, const float
 // 애니메이션 실행 제어
 void ABarBaseActor::PlayBarAnimation()
 {
-	if (!isProceduralMeshUsing)
+	if (EnableSpawnCustomMesh)
 	{
 		UE_LOG(LogTemp, Log, TEXT("BarBaseActor : Creating Custom Mesh doesn't have animation"));
 		return;
