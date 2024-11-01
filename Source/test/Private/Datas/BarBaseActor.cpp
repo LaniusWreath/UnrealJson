@@ -95,12 +95,13 @@ void ABarBaseActor::CreateProceduralBoxMesh(float BarHeight)
 // 전체 커스텀 스태틱 메쉬 생성 루틴
 void ABarBaseActor::CreateCustomMeshRoutine(float BarHeight)
 {
+	// 커스텀 메시 유닛 높이 : 유닛 높이 * 로컬 스케일러
 	float UnitMeshHeight = GetStaticMeshBoxUnitSize(CustomStaticMeshComponent->GetStaticMesh()).Z * 
 		CustomStaticMeshComponent->GetRelativeScale3D().Z;
 
+	// 생성해야하는 메시 개수 : 
 	int32 UnitMeshAmount = BarHeight / UnitMeshHeight;
 	UE_LOG(LogTemp, Log, TEXT("BarBaseActor : Amount : %d, UnitSize : %f"), UnitMeshAmount, UnitMeshHeight);
-	float UnitMeshLeft = BarHeight / UnitMeshHeight - UnitMeshAmount;
 
 	// 타이머 실행, 0.5초 간격 하드코딩, 람다로 매개변수 있는 함수 캡쳐
 	GetWorldTimerManager().SetTimer(SpawnTimerHandle, [this, BarHeight, UnitMeshHeight, UnitMeshAmount]()
@@ -109,6 +110,12 @@ void ABarBaseActor::CreateCustomMeshRoutine(float BarHeight)
 	}, CustomMeshSpawnWaitingTime, true);
 }
 
+// 박스형태 메시 유닛 사이즈 리턴
+FVector ABarBaseActor::GetStaticMeshBoxUnitSize(UStaticMesh* TargetStaticMesh) const
+{
+	FVector BoundsExtent = TargetStaticMesh->GetBounds().BoxExtent;
+	return BoundsExtent * 2.0f;
+}
 
 // 커스텀 스태틱 메쉬 생성 함수
 void ABarBaseActor::CreateSingleCustomMeshComponent(float BarHeight, float UnitMeshHeight, int32 SpawnAmount)
@@ -130,12 +137,45 @@ void ABarBaseActor::CreateSingleCustomMeshComponent(float BarHeight, float UnitM
 	// 스폰 카운트
 	SpawnCount++;
 
-	// 스폰 카운트 제한 체크 및 타이머 종료
+	// 스폰 카운트 제한 체크, 
 	if (SpawnCount >= SpawnAmount)
 	{
-		GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
-		//타이머 종료 시 실행시킬 함수 (여기 말고 다른데다 하면 안됨. 비동기임)
+		// 타이머 켜져 있는지 체크
+		if (GetWorldTimerManager().IsTimerActive(SpawnTimerHandle))
+		{
+			// 타이머 종료
+			GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
+
+			// 나머지 BarHeight
+			float RestHeight = BarHeight - SpawnAmount*UnitMeshHeight;
+
+			// 나머지 추가적인 메시 생성
+			CreateAdditionalCustomMeshComponent(BarHeight, RestHeight, UnitMeshHeight);
+		}
 	}
+}
+
+// 단위로 나누고 나머지 남은 높이, 스케일링 된 유닛 상자 만들어 스폰
+void ABarBaseActor::CreateAdditionalCustomMeshComponent(float BarHeight, float RestHeight, float UnitMeshHeight)
+{	
+	// StaticMeshComponent를 동적으로 생성하고, 부모 액터에 속하도록 설정
+	UStaticMeshComponent* RestMeshComponent = NewObject<UStaticMeshComponent>(this);
+
+	// 물리 형질 복사
+	InitializeCustomStaticMeshPhysics(RestMeshComponent, CustomStaticMeshComponent);
+
+	// 스케일 조정
+	float scaler = RestHeight / UnitMeshHeight;
+	RestMeshComponent->SetRelativeScale3D(RestMeshComponent->GetRelativeScale3D() * FVector(1, 1, scaler));
+
+	// 부착
+	RestMeshComponent->AttachToComponent(CustomActorSceneComponent, FAttachmentTransformRules::KeepRelativeTransform);
+
+	// Z축 스폰 오프셋 조정
+	RestMeshComponent->AddWorldOffset(FVector(0, 0, BarHeight + UnitMeshHeight * 3));
+
+	// 월드에 컴포넌트를 등록하여 액터와 함께 관리되도록 설정 
+	RestMeshComponent->RegisterComponent();
 }
 
 void ABarBaseActor::InitializeCustomStaticMeshPhysics(UStaticMeshComponent* TargetStaticMesh, UStaticMeshComponent* TemplateComponent)
@@ -187,13 +227,6 @@ void ABarBaseActor::CreateMesh(float BarHeight)
 			UE_LOG(LogTemp, Warning, TEXT("BarBaseActor : CreateMesh : Specify Custom Static Mesh First"));
 		}
 	}
-}
-
-// 박스형태 메시 유닛 사이즈 리턴
-FVector ABarBaseActor::GetStaticMeshBoxUnitSize(UStaticMesh* TargetStaticMesh) const
-{
-	FVector BoundsExtent = TargetStaticMesh->GetBounds().BoxExtent;
-	return BoundsExtent * 2.0f;
 }
 
 // 라벨 텍스트 렌더러 설정

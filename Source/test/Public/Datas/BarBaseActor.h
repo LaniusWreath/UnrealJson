@@ -49,6 +49,9 @@ private:
 	void CreateSingleCustomMeshComponent(float BarHeight, float UnitMeshHeight, int32 SpawnAmount);
 
 	UFUNCTION()
+	void CreateAdditionalCustomMeshComponent(float BarHeight, float restHeight, float UnitMeshHeight);
+
+	UFUNCTION()
 	void InitializeCustomStaticMeshPhysics(UStaticMeshComponent* TargetStaticMesh,
 		UStaticMeshComponent* TemplateComponent);
 
