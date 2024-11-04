@@ -42,8 +42,8 @@ private:
 	UFUNCTION()
 	void OnAnimationUpdate(float Value);
 
-	UFUNCTION()
 	void CreateCustomMeshRoutine(float BarHeight);
+	void CreateCustomMeshRoutine(float BarHeight, int amount);
 
 	UFUNCTION()
 	void CreateSingleCustomMeshComponent(float BarHeight, float UnitMeshHeight, int32 SpawnAmount);
@@ -63,7 +63,11 @@ public:
 	// Sets default values for this actor's properties
 	ABarBaseActor();
 
-	UPROPERTY(EditDefaultsOnly, Category = "Chart")
+	// On : Spawning Custom Mesh, Off: Spawning Default Bar Mesh
+	UPROPERTY(EditAnywhere, Category = "Chart")
+	bool EnableSpawnCustomMesh;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Chart")
 	UProceduralMeshComponent* ProcMeshComponent;
 
 	// Specify Static Mesh to Generate, Don't For Get to Check off isProceduralMeshUsing
@@ -71,11 +75,11 @@ public:
 	UStaticMeshComponent* CustomStaticMeshComponent;
 
 	// Bar Procedural Mesh Material
-	UPROPERTY(EditAnywhere, Category = "Chart")
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "!EnableSpawnCustomMesh"), Category = "Chart")
 	UMaterialInstance* MeshMaterial;
 
 	// Bar Generate Animation Curve
-	UPROPERTY(EditAnywhere, Category = "Chart")
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "!EnableSpawnCustomMesh"), Category = "Chart")
 	UCurveFloat* AnimationCurve;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chart")
@@ -85,22 +89,24 @@ public:
 	UTextRenderComponent* TextRenderComponentLabel;
 
 	// Bar Mesh Width
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chart")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "!EnableSpawnCustomMesh"), Category = "Chart")
 	float Width_bar = 100.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chart")
+	// Scaling Mesh Unit Size. 1 is Default (You Can also Adjust its Mesh Scale with MeshTransform x,y,z)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "!EnableSpawnCustomMesh"), Category = "Chart")
 	int UnitSize = 1;
 
-	// Bar Text Unit Size : Label
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chart")
-	float ValueTextPadding = 15.f;
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "EnableSpawnCustomMesh"), Category = "Chart")
+	bool SpawnPerUnitValue;
 
-	// On : Spawning Custom Mesh, Off: Spawning Default Bar Mesh
-	UPROPERTY(EditAnywhere, Category = "Chart")
-	bool EnableSpawnCustomMesh;
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "SpawnPerUnitValue"), Category = "Chart")
+	float UnitValue=1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chart")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "EnableSpawnCustomMesh"), Category = "Chart")
 	float CustomMeshSpawnWaitingTime = 0.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chart")
+	float TextRenderComponentOffsetPadding = 10;
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	FVector GetStaticMeshBoxUnitSize(UStaticMesh* TargetStaticMesh) const;
@@ -114,7 +120,7 @@ public:
 	void CreateProceduralBoxMesh(float BarHeight);
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	void CreateMesh(float BarHeight);
+	void CreateMesh(float BarHeight, int Value);
 
 	// Initialize Lbel Text Mesh
 	UFUNCTION(BlueprintCallable, Category = " Chart")
@@ -122,7 +128,10 @@ public:
 
 	// Initialize Value Text Mesh
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	void InitializeTextMeshValue(const float& FloatValue, const float& BarHeight);
+	void InitializeTextMeshValue(const float& FloatValue);
+
+	void AdjustTextMeshValueOffset(const float& BarHeight);
+	void AdjustTextMeshValueOffset(const int& amount);
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	int32 GetResultCustomMeshSpawnedAmount() const

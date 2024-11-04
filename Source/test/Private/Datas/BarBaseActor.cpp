@@ -92,7 +92,7 @@ void ABarBaseActor::CreateProceduralBoxMesh(float BarHeight)
 	}
 }
 
-// 전체 커스텀 스태틱 메쉬 생성 루틴
+// 커스텀 스태틱 메쉬 생성 루틴 : 개수 자동 계산
 void ABarBaseActor::CreateCustomMeshRoutine(float BarHeight)
 {
 	// 커스텀 메시 유닛 높이 : 유닛 높이 * 로컬 스케일러
@@ -100,7 +100,8 @@ void ABarBaseActor::CreateCustomMeshRoutine(float BarHeight)
 		CustomStaticMeshComponent->GetRelativeScale3D().Z;
 
 	// 생성해야하는 메시 개수 : 
-	int32 UnitMeshAmount = BarHeight / UnitMeshHeight;
+	int32 UnitMeshAmount;
+	UnitMeshAmount = BarHeight / UnitMeshHeight;
 	UE_LOG(LogTemp, Log, TEXT("BarBaseActor : Amount : %d, UnitSize : %f"), UnitMeshAmount, UnitMeshHeight);
 
 	// 타이머 실행, 0.5초 간격 하드코딩, 람다로 매개변수 있는 함수 캡쳐
@@ -108,6 +109,24 @@ void ABarBaseActor::CreateCustomMeshRoutine(float BarHeight)
 	{
 		CreateSingleCustomMeshComponent(BarHeight, UnitMeshHeight, UnitMeshAmount); 
 	}, CustomMeshSpawnWaitingTime, true);
+}
+
+// 개수로 차트 메쉬 생성 : 사용자 정의 개수
+void ABarBaseActor::CreateCustomMeshRoutine(float BarHeight, int amount)
+{
+	// 커스텀 메시 유닛 높이 : 유닛 높이 * 로컬 스케일러
+	float UnitMeshHeight = GetStaticMeshBoxUnitSize(CustomStaticMeshComponent->GetStaticMesh()).Z *
+		CustomStaticMeshComponent->GetRelativeScale3D().Z;
+
+	// 생성해야하는 메시 개수 : 
+	int UnitMeshAmount = amount;
+	UE_LOG(LogTemp, Log, TEXT("BarBaseActor : Amount : %d, UnitSize : %f"), UnitMeshAmount, UnitMeshHeight);
+
+	// 타이머 실행, 0.5초 간격 하드코딩, 람다로 매개변수 있는 함수 캡쳐
+	GetWorldTimerManager().SetTimer(SpawnTimerHandle, [this, BarHeight, UnitMeshHeight, UnitMeshAmount]()
+		{
+			CreateSingleCustomMeshComponent(BarHeight, UnitMeshHeight, UnitMeshAmount);
+		}, CustomMeshSpawnWaitingTime, true);
 }
 
 // 박스형태 메시 유닛 사이즈 리턴
@@ -120,23 +139,6 @@ FVector ABarBaseActor::GetStaticMeshBoxUnitSize(UStaticMesh* TargetStaticMesh) c
 // 커스텀 스태틱 메쉬 생성 함수
 void ABarBaseActor::CreateSingleCustomMeshComponent(float BarHeight, float UnitMeshHeight, int32 SpawnAmount)
 {
-	// StaticMeshComponent를 동적으로 생성하고, 부모 액터에 속하도록 설정
-	UStaticMeshComponent* UnitMeshComponent = NewObject<UStaticMeshComponent>(this);
-
-	InitializeCustomStaticMeshPhysics(UnitMeshComponent, CustomStaticMeshComponent);
-
-	// 부착
-	UnitMeshComponent->AttachToComponent(CustomActorSceneComponent, FAttachmentTransformRules::KeepRelativeTransform);
-
-	// Z축 스폰 오프셋 조정
-	UnitMeshComponent->AddWorldOffset(FVector(0, 0, BarHeight + UnitMeshHeight * 3));
-
-	// 월드에 컴포넌트를 등록하여 액터와 함께 관리되도록 설정 
-	UnitMeshComponent->RegisterComponent();
-	
-	// 스폰 카운트
-	SpawnCount++;
-
 	// 스폰 카운트 제한 체크, 
 	if (SpawnCount >= SpawnAmount)
 	{
@@ -146,16 +148,38 @@ void ABarBaseActor::CreateSingleCustomMeshComponent(float BarHeight, float UnitM
 			// 타이머 종료
 			GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
 
-			// 나머지 BarHeight
-			float RestHeight = BarHeight - SpawnAmount*UnitMeshHeight;
-
-			// 나머지 추가적인 메시 생성
-			CreateAdditionalCustomMeshComponent(BarHeight, RestHeight, UnitMeshHeight);
+			// 타이머 종료시 호출할 함수는 여기에 작성
 		}
+	}
+	else
+	{
+		// StaticMeshComponent를 동적으로 생성하고, 부모 액터에 속하도록 설정
+		UStaticMeshComponent* UnitMeshComponent = NewObject<UStaticMeshComponent>(this);
+
+		InitializeCustomStaticMeshPhysics(UnitMeshComponent, CustomStaticMeshComponent);
+
+		// 부착
+		UnitMeshComponent->AttachToComponent(CustomActorSceneComponent, FAttachmentTransformRules::KeepRelativeTransform);
+
+		// Z축 스폰 오프셋 조정
+		if (SpawnPerUnitValue)
+		{
+			UnitMeshComponent->AddWorldOffset(FVector(0, 0, UnitMeshHeight * SpawnAmount + 1));
+		}
+		else {
+			UnitMeshComponent->AddWorldOffset(FVector(0, 0, BarHeight + UnitMeshHeight * 3));
+
+		}
+
+		// 월드에 컴포넌트를 등록하여 액터와 함께 관리되도록 설정 
+		UnitMeshComponent->RegisterComponent();
+
+		// 스폰 카운트
+		SpawnCount++;
 	}
 }
 
-// 단위로 나누고 나머지 남은 높이, 스케일링 된 유닛 상자 만들어 스폰
+// 단위로 나누고 나머지 남은 높이, 스케일링 된 유닛 상자 만들어 스폰 : 현재는 안씀
 void ABarBaseActor::CreateAdditionalCustomMeshComponent(float BarHeight, float RestHeight, float UnitMeshHeight)
 {	
 	// StaticMeshComponent를 동적으로 생성하고, 부모 액터에 속하도록 설정
@@ -178,6 +202,7 @@ void ABarBaseActor::CreateAdditionalCustomMeshComponent(float BarHeight, float R
 	RestMeshComponent->RegisterComponent();
 }
 
+// 템플릿 메쉬로부터 속성 복사
 void ABarBaseActor::InitializeCustomStaticMeshPhysics(UStaticMeshComponent* TargetStaticMesh, UStaticMeshComponent* TemplateComponent)
 {
 	// 템플릿의 속성을 UnitMeshComponent에 복사
@@ -208,19 +233,34 @@ void ABarBaseActor::InitializeCustomStaticMeshPhysics(UStaticMeshComponent* Targ
 }
 
 // 에디터 상에 Procedural Mesh 또는 커스텀 메시 생성 유무 bool로 추출해놓음 분기하여 메시 생성 함수 결정
-void ABarBaseActor::CreateMesh(float BarHeight)
+void ABarBaseActor::CreateMesh(float BarHeight, int Value)
 {
+	// 프로시저럴 메쉬
 	if (!EnableSpawnCustomMesh)
 	{
-		CreateProceduralBoxMesh(BarHeight);
-		UE_LOG(LogTemp, Log, TEXT("Work Done"));
+		CreateProceduralBoxMesh(BarHeight);	// 메쉬 생성
+		AdjustTextMeshValueOffset(BarHeight); // 텍스트 렌더 컴포넌트 오프셋 조정
 	}
+	// 커스텀 메쉬
 	else
 	{
 		if (CustomStaticMeshComponent)
 		{
 			UE_LOG(LogTemp, Log, TEXT("BarBaseActor : CreateMesh : Create Custom Static Mesh"));
-			CreateCustomMeshRoutine(BarHeight);
+			// 개수 지정하여 메쉬 생성
+			if (SpawnPerUnitValue)
+			{
+				// 사용자 정의 단위로 나눠 
+				int Amount = Value / UnitValue;
+				CreateCustomMeshRoutine(BarHeight, Amount);
+				AdjustTextMeshValueOffset(Amount);
+			}
+			// 개수 자동 계산하여 메쉬 생성
+			else
+			{
+				CreateCustomMeshRoutine(BarHeight);
+				AdjustTextMeshValueOffset(BarHeight);
+			}
 		}
 		else
 		{
@@ -237,16 +277,28 @@ void ABarBaseActor::InitializeTextMeshLabel(const FString& LabelName)
 }
 
 // 값 텍스트 렌더러 설정
-void ABarBaseActor::InitializeTextMeshValue(const float& FloatValue, const float& BarHeight)
+void ABarBaseActor::InitializeTextMeshValue(const float& FloatValue)
 {
-	int padding = 10;
-	
 	// 텍스트 내용
 	TextRenderComponentValue->SetText(FText::AsNumber(FloatValue));
+}
 
-	// 위치
-	TextRenderComponentValue->AddWorldOffset(FVector(0.f, 0.f, BarHeight + (TextRenderComponentValue->WorldSize)/2 
-		+ padding));
+// 정확한 높이에 텍스트 렌더 컴포넌트 배치
+void ABarBaseActor::AdjustTextMeshValueOffset(const float& BarHeight)
+{
+	TextRenderComponentValue->AddWorldOffset(FVector(0.f, 0.f, BarHeight + (TextRenderComponentValue->WorldSize) / 2
+			+ TextRenderComponentOffsetPadding));
+}
+
+// 커스텀메쉬 사이즈 단위로 나눈 높이에 텍스트 렌더 컴포넌트 배치
+void ABarBaseActor::AdjustTextMeshValueOffset(const int& amount)
+{
+	// 커스텀 메시 유닛 높이 : 유닛 높이 * 로컬 스케일러
+	float UnitMeshHeight = GetStaticMeshBoxUnitSize(CustomStaticMeshComponent->GetStaticMesh()).Z *
+			CustomStaticMeshComponent->GetRelativeScale3D().Z;
+
+	TextRenderComponentValue->AddWorldOffset(FVector(0.f, 0.f, (UnitMeshHeight*amount + (TextRenderComponentValue->WorldSize / 2)
+		+ TextRenderComponentOffsetPadding)));
 }
 
 // 애니메이션 실행 제어

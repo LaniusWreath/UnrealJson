@@ -168,11 +168,11 @@ bool UBarGenerator::CreateBar(const TArray<float>& ValueArray, const TArray<FStr
 					// 이동 : 이동 먼저 시켜줘야 생성 좌표가 고정됨
 					ChildBar->SetActorRelativeLocation(BarLocation);
 					// 바 프로시저럴 메쉬 생성
-					ChildBar->CreateMesh(ScaledHeight);
-					// 바 라벨 텍스트 렌더러 생성
+					ChildBar->CreateMesh(ScaledHeight, CurrentValue);
+					// 바 라벨 텍스트 렌더러 값 초기화
 					ChildBar->InitializeTextMeshLabel(LabelName); 
-					// 바 값 텍스트 렌더러 생성
-					ChildBar->InitializeTextMeshValue(CurrentValue, ScaledHeight);
+					// 바 값 텍스트 렌더러 값 초기화
+					ChildBar->InitializeTextMeshValue(CurrentValue);
 					// 애니메이션
 					ChildBar->PlayBarAnimation();
 				}
@@ -278,11 +278,11 @@ bool UBarGenerator::CreateBarAlongSplinePoint(const TArray<float>& ValueArray, c
 					// 이동 : 이동 먼저 시켜줘야 생성 좌표가 고정됨
 					ChildBar->SetActorRelativeLocation(BarLocation);
 					// 바 프로시저럴 메쉬 생성
-					ChildBar->CreateMesh(ScaledHeight);
-					// 바 라벨 텍스트 렌더러 생성
+					ChildBar->CreateMesh(ScaledHeight, CurrentValue);
+					// 바 라벨 텍스트 렌더러 초기화
 					ChildBar->InitializeTextMeshLabel(LabelName);
-					// 바 값 텍스트 렌더러 생성
-					ChildBar->InitializeTextMeshValue(CurrentValue, ScaledHeight);
+					// 바 값 텍스트 렌더러 초기화
+					ChildBar->InitializeTextMeshValue(CurrentValue);
 					// 애니메이션
 					ChildBar->PlayBarAnimation();
 				}
