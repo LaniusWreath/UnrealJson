@@ -10,6 +10,7 @@
 
 class UJsonHandler;
 class UCSVHandler;
+class UShapeChartBarClass;
 
 // Struct With String Header And Data
 USTRUCT(BlueprintType)
@@ -53,14 +54,9 @@ private:
 	// Instancing HTTPHandler and Get JsonObject Ptr
 	void FetchDataFromHTTP(const FString& URL);
 
-	// Container for Data Struct
-	//UPROPERTY()
-	//TArray<FDataInstancePair> ChartDataClassInstanceArray;
-
 	TSharedPtr<FJsonObject> DeserializeJsonStringToJsonObject(const FString& JsonString);
 
 public:
-
 	// JsonObject Ptr to Data Struct <String Header, UDataClasses* DataClassInstance>
 	FDataInstancePair InstancingDataClass(const TSharedPtr<FJsonObject> Data);
 
@@ -71,6 +67,8 @@ public:
 	// Getter Serialized JSON String Data
 	UFUNCTION(BlueprintCallable, Category = "Data")
 	const FString& GetJSONStringData() const;
-	
+
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	static UShapeChartBarClass* CreateShapeChartInstance(UObject* Owner);
 };
 

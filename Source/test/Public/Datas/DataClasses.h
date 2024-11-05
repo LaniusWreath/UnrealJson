@@ -29,27 +29,14 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Mapping Shape Chart Data 
-UCLASS(BlueprintType)
+UCLASS(Abstract)
 class UShapeChartClass : public UDataClasses
 {
 	GENERATED_BODY()
 
-private:
-	UPROPERTY()
-	FShapeChartData ShapeChartData;
-
 public:
-	// Getting Data Struct Member for Mapping
-	virtual bool SetChartData(const FString& ChartTitle, const FString& ChartTypeName, const FString& XName, const TArray<FString>& Labels, const FString& YName, const TArray<float>& Values);
-	UFUNCTION(BlueprintCallable, Category = "Chart")
-	virtual bool SetChartData(const FShapeChartData& InputData);
 
 	// Getter Data Struct Reference (const)
-	UFUNCTION(BlueprintCallable, Category = "Chart")
-	const FShapeChartData& GetShapeChartData() const
-	{
-		return ShapeChartData;
-	}
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,16 +48,24 @@ class UShapeChartBarClass : public UShapeChartClass
 
 private:
 	EChartTypes ChartType = EChartTypes::BAR;
+	FShapeChartData ShapeChartData;
 
 public:
-	virtual bool SetChartData(const FShapeChartData& InputData) override;
-	virtual bool SetChartData(const FString& ChartTitle, const FString& ChartTypeName, const FString& XName, const TArray<FString>& Labels,
-		const FString& YName, const TArray<float>& Values) override;
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UShapeChartBarClass* SetChartData(const FShapeChartData& InputData);
+	UShapeChartBarClass* SetChartData(const FString& ChartTitle, const FString& ChartTypeName, const FString& XName, const TArray<FString>& Labels,
+		const FString& YName, const TArray<float>& Values);
 
 	// Getter Enum Chart Type
 	virtual const EChartTypes GetChartType() const override
 	{
 		return ChartType;
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	const FShapeChartData& GetShapeChartData() const
+	{
+		return ShapeChartData;
 	}
 };
 

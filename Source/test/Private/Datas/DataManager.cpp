@@ -165,4 +165,10 @@ FDataInstancePair UDataManager::InstancingDataClass(const TSharedPtr<FJsonObject
 	return DataPair;
 }
 
+UDataClasses* UDataManager::CreateEmptyDataContainer()
+{
+
+	return nullptr;
+}
+
 

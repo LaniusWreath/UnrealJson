@@ -138,7 +138,7 @@ void AData3DActorBar::SetChartDefaultTexts()
 {
 	if (DataClassInstance)
 	{
-		UShapeChartClass* TempCastedDataClass = Cast<UShapeChartClass>(DataClassInstance);
+		UShapeChartBarClass* TempCastedDataClass = Cast<UShapeChartBarClass>(DataClassInstance);
 		//FString ChartTitle = TempCastedDataClass->GetChartTitle();
 		FString ChartTitle = TempCastedDataClass->GetShapeChartData().ChartTitle;
 

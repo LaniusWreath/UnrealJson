@@ -4,66 +4,13 @@
 #include "Datas/DataClasses.h"
 
 ///////////////////////////////////////// 데이터 Get ////////////////////////////////////////////////
-
 const EChartTypes UDataClasses::GetChartType() const
 {
     return ChartType;
 }
 
-///////////////////////////////////////// 데이터 Set ////////////////////////////////////////////////
+///////////////////////////////////////// 데이터 Set ///////////////////////////////////////////////
 
-bool UShapeChartClass::SetChartData(const FString& ChartTitle, const FString& ChartTypeName, const FString& XName, const TArray<FString>& Labels, const FString& YName, const TArray<float>& Values)
-{
-    bool result = true;
-
-    ShapeChartData.ChartTitle = ChartTitle;
-    ShapeChartData.ChartType = ChartTypeName;
-    ShapeChartData.XName = XName;
-    ShapeChartData.Labels = Labels;
-    ShapeChartData.YName = YName;
-    ShapeChartData.Values = Values;
-    
-    if (ShapeChartData.ChartType == "")
-    {
-        UE_LOG(LogTemp, Warning, TEXT("UBarShapeComponent.cpp : %s.ChartType is Empty"), *this->GetName());
-        result = false;
-    }
-    if (ShapeChartData.XName == "" || ShapeChartData.YName == "")
-    {
-        UE_LOG(LogTemp, Warning, TEXT("UBarShapeComponent.cpp : %s.Name is Empty"), *this->GetName());
-        result = false;
-    }
-    if (ShapeChartData.Labels.Num() == 0 || ShapeChartData.Values.Num() == 0)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("UBarShapeComponent.cpp : %s.Data is Empty"), *this->GetName());
-        result = false;
-    }
-
-    return result;
-}
-
-bool UShapeChartClass::SetChartData(const FShapeChartData& InputData)
-{
-    bool result = true;
-    ShapeChartData = InputData;
-    if (ShapeChartData.ChartType == "")
-    {
-        UE_LOG(LogTemp, Warning, TEXT("UBarShapeComponent.cpp : %s.ChartType is Empty"), *this->GetName());
-        result = false;
-    }
-    if (ShapeChartData.XName == "" || ShapeChartData.YName == "")
-    {
-        UE_LOG(LogTemp, Warning, TEXT("UBarShapeComponent.cpp : %s.Name is Empty"), *this->GetName());
-        result = false;
-    }
-    if (ShapeChartData.Labels.Num() == 0 || ShapeChartData.Values.Num() == 0)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("UBarShapeComponent.cpp : %s.Data is Empty"), *this->GetName());
-        result = false;
-    }
-
-    return false;
-}
 
 bool UXYChartClass::SetChartData(const FXYChartData& InputData)
 {
@@ -85,25 +32,52 @@ bool UXYZChartClass::SetChartData(const TArray<FString>& LabelNames, const TArra
     return false;
 }
 
-bool UShapeChartBarClass::SetChartData(const FShapeChartData& InputData)
+UShapeChartBarClass* UShapeChartBarClass::SetChartData(const FShapeChartData& InputData)
 {
-    bool result = false;
-    if (Super::SetChartData(InputData))
+    ShapeChartData = InputData;
+    if (ShapeChartData.ChartType == "")
     {
-        result = true;
+        UE_LOG(LogTemp, Warning, TEXT("UBarShapeComponent.cpp : %s.ChartType is Empty"), *this->GetName());
+        return nullptr;
+    }
+    if (ShapeChartData.XName == "" || ShapeChartData.YName == "")
+    {
+        UE_LOG(LogTemp, Warning, TEXT("UBarShapeComponent.cpp : %s.Name is Empty"), *this->GetName());
+        return nullptr;
+    }
+    if (ShapeChartData.Labels.Num() == 0 || ShapeChartData.Values.Num() == 0)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("UBarShapeComponent.cpp : %s.Data is Empty"), *this->GetName());
+        return nullptr;
     }
     
-    return result;
+    return this;
 }
 
-bool UShapeChartBarClass::SetChartData(const FString& ChartTitle, const FString& ChartTypeName, const FString& XName, const TArray<FString>& Labels, const FString& YName, const TArray<float>& Values)
+UShapeChartBarClass* UShapeChartBarClass::SetChartData(const FString& ChartTitle, const FString& ChartTypeName, const FString& XName, const TArray<FString>& Labels, const FString& YName, const TArray<float>& Values)
 {
-    bool result = false;
-    if (Super::SetChartData(ChartTitle, ChartTypeName, XName, Labels, YName, Values))
+    ShapeChartData.ChartTitle = ChartTitle;
+    ShapeChartData.ChartType = ChartTypeName;
+    ShapeChartData.XName = XName;
+    ShapeChartData.Labels = Labels;
+    ShapeChartData.YName = YName;
+    ShapeChartData.Values = Values;
+
+    if (ShapeChartData.ChartType == "")
     {
-        result = true;
+        UE_LOG(LogTemp, Warning, TEXT("UBarShapeComponent.cpp : %s.ChartType is Empty"), *this->GetName());
+        return nullptr;
+    }
+    if (ShapeChartData.XName == "" || ShapeChartData.YName == "")
+    {
+        UE_LOG(LogTemp, Warning, TEXT("UBarShapeComponent.cpp : %s.Name is Empty"), *this->GetName());
+        return nullptr;
+    }
+    if (ShapeChartData.Labels.Num() == 0 || ShapeChartData.Values.Num() == 0)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("UBarShapeComponent.cpp : %s.Data is Empty"), *this->GetName());
+        return nullptr;
     }
 
-    return result;
+    return this;
 }
-
