@@ -25,8 +25,6 @@ void UChartGenerator::BeginPlay()
 // Base에 붙은 액터 삭제
 void UChartGenerator::ClearChildrenActors()
 {
-	int32 ExistActors = ChildActorComponents.Num();
-
 	for (UChildActorComponent* ChildComponent : ChildActorComponents)
 	{
 		if (ChildComponent && ChildComponent->GetChildActor())
@@ -57,6 +55,33 @@ UBarGenerator::UBarGenerator()
 void UBarGenerator::SetBarSourceActor(const TSubclassOf<ABarBaseActor>& SourceActor)
 {
 	BarBaseActorBPClass = SourceActor;
+}
+
+// ChildActorComponent로 소유힌 BarBaseActor 인스턴스 삭제
+void UBarGenerator::ClearChildrenActors()
+{
+	for (UChildActorComponent* ChildComponent : ChildActorComponents)
+	{
+		// childActor컴포넌트 삭제
+		if (ChildComponent && ChildComponent->GetChildActor())
+		{
+			// !! 주의 : UChildActorComponent에 클래스를 배정했을 때, 해당 컴포넌트 자체가 배정된 클래스를 뜻하는 게 아님.
+			// UChildActorComponent가 배정한 클래스를 담는 컨테이너 클래스가 된 것. (따로 get함수로 인스턴스 호출해야 함.)
+			ABarBaseActor* ChildBarComponent = Cast<ABarBaseActor>(ChildComponent->GetChildActor());
+			ChildBarComponent->ClearCustomMeshes();
+			ChildBarComponent->ClearSpawnTimerHandle();
+
+			ChildComponent->GetChildActor()->Destroy();
+			ChildComponent->DestroyComponent();
+
+			/*UE_LOG(LogTemp, Log, TEXT("ChartGenerator : Children Actor %s cleard"), *ChildComponent->GetChildActor()->GetName());
+			ChildComponent->GetChildActor()->Destroy();
+			ChildComponent->DestroyComponent();*/
+		}
+	}
+	UE_LOG(LogTemp, Log, TEXT("All Children Actors cleard"));
+
+	ChildActorComponents.Empty();
 }
 
 // 바 차트 생성 함수

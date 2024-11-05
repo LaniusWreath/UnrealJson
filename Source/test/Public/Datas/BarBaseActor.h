@@ -106,7 +106,10 @@ public:
 	float CustomMeshSpawnWaitingTime = 0.5f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chart")
-	float TextRenderComponentOffsetPadding = 10;
+	float TextRenderComponentOffset_Value = 10;
+
+	void ClearCustomMeshes();
+	void ClearSpawnTimerHandle();
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	FVector GetStaticMeshBoxUnitSize(UStaticMesh* TargetStaticMesh) const;

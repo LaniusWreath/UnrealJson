@@ -23,7 +23,7 @@ ABarBaseActor::ABarBaseActor()
 	CustomActorSceneComponent->SetupAttachment(RootComponent);
 
 	CustomStaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LegacyMesh"));
-	CustomStaticMeshComponent->SetupAttachment(CustomActorSceneComponent);
+	CustomStaticMeshComponent->SetupAttachment(RootComponent);
 
 	CustomStaticMeshComponent->SetHiddenInGame(true);
 
@@ -122,7 +122,7 @@ void ABarBaseActor::CreateCustomMeshRoutine(float BarHeight, int amount)
 	int UnitMeshAmount = amount;
 	UE_LOG(LogTemp, Log, TEXT("BarBaseActor : Amount : %d, UnitSize : %f"), UnitMeshAmount, UnitMeshHeight);
 
-	// 타이머 실행, 0.5초 간격 하드코딩, 람다로 매개변수 있는 함수 캡쳐
+	// 타이머 실행, 람다로 매개변수 있는 함수 캡쳐
 	GetWorldTimerManager().SetTimer(SpawnTimerHandle, [this, BarHeight, UnitMeshHeight, UnitMeshAmount]()
 		{
 			CreateSingleCustomMeshComponent(BarHeight, UnitMeshHeight, UnitMeshAmount);
@@ -142,14 +142,7 @@ void ABarBaseActor::CreateSingleCustomMeshComponent(float BarHeight, float UnitM
 	// 스폰 카운트 제한 체크, 
 	if (SpawnCount >= SpawnAmount)
 	{
-		// 타이머 켜져 있는지 체크
-		if (GetWorldTimerManager().IsTimerActive(SpawnTimerHandle))
-		{
-			// 타이머 종료
-			GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
-
-			// 타이머 종료시 호출할 함수는 여기에 작성
-		}
+		ClearSpawnTimerHandle();
 	}
 	else
 	{
@@ -176,6 +169,38 @@ void ABarBaseActor::CreateSingleCustomMeshComponent(float BarHeight, float UnitM
 
 		// 스폰 카운트
 		SpawnCount++;
+	}
+}
+
+// 기존 생성한 스태틱 메쉬 컴포넌트 삭제
+void ABarBaseActor::ClearCustomMeshes()
+{
+	if (CustomActorSceneComponent->GetNumChildrenComponents() > 0)
+	{
+		TArray<USceneComponent*> AttachedComponents;
+		CustomActorSceneComponent->GetChildrenComponents(false, AttachedComponents);
+
+		for (USceneComponent* ChildComponent : AttachedComponents)
+		{
+			if (UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(ChildComponent))
+			{
+				MeshComponent->DestroyComponent();
+			}
+		}
+		UE_LOG(LogTemp, Warning, TEXT("All CustomStaticMesh Components cleard"));
+	}
+}
+
+// 메쉬 스폰 타이머 핸들 초기화 : BarBaseActor는 BarGenerator에서 Gernating 될 때 마다 새로운 인스턴스가 생성되어 기능함.
+// 따라서 기존 BarBaseActor의 메쉬 생성 타이머를 정지시키고 싶을 때는 인스턴스를 소유하고 있는 BarGenerator에서 직접 시켜줘야 함.
+void ABarBaseActor::ClearSpawnTimerHandle()
+{
+	if (GetWorldTimerManager().IsTimerActive(SpawnTimerHandle))
+	{
+		// 타이머 종료
+		GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
+
+		// 타이머 종료시 호출할 함수는 여기에 작성
 	}
 }
 
@@ -211,8 +236,8 @@ void ABarBaseActor::InitializeCustomStaticMeshPhysics(UStaticMeshComponent* Targ
 	TargetStaticMesh->SetRelativeScale3D(TemplateComponent->GetRelativeScale3D());
 
 	// 피직스 복사 : BodyInstance를 직접 복사할 수 있지만, 그 경우에는 AttachToComponent를 사용할 수 없음. -> 개별 복사 필요
-	TargetStaticMesh->SetSimulatePhysics(true); // 피직스 on
-	TargetStaticMesh->SetEnableGravity(true); // 중력 on
+	TargetStaticMesh->SetSimulatePhysics(true); // 피직스 여부 복사
+	TargetStaticMesh->SetEnableGravity(TemplateComponent->IsGravityEnabled()); // 중력 on
 	TargetStaticMesh->SetLinearDamping(TemplateComponent->GetLinearDamping()); // 선형 댐핑
 	TargetStaticMesh->SetAngularDamping(TemplateComponent->GetAngularDamping()); // 회전각 댐핑
 	//UnitMeshComponent->SetPhysMaterialOverride(CustomStaticMeshComponent->GetBodySetup()->GetPhysMaterial()); // 피지컬 머티리얼
@@ -287,7 +312,7 @@ void ABarBaseActor::InitializeTextMeshValue(const float& FloatValue)
 void ABarBaseActor::AdjustTextMeshValueOffset(const float& BarHeight)
 {
 	TextRenderComponentValue->AddWorldOffset(FVector(0.f, 0.f, BarHeight + (TextRenderComponentValue->WorldSize) / 2
-			+ TextRenderComponentOffsetPadding));
+			+ TextRenderComponentOffset_Value));
 }
 
 // 커스텀메쉬 사이즈 단위로 나눈 높이에 텍스트 렌더 컴포넌트 배치
@@ -298,7 +323,7 @@ void ABarBaseActor::AdjustTextMeshValueOffset(const int& amount)
 			CustomStaticMeshComponent->GetRelativeScale3D().Z;
 
 	TextRenderComponentValue->AddWorldOffset(FVector(0.f, 0.f, (UnitMeshHeight*amount + (TextRenderComponentValue->WorldSize / 2)
-		+ TextRenderComponentOffsetPadding)));
+		+ TextRenderComponentOffset_Value)));
 }
 
 // 애니메이션 실행 제어

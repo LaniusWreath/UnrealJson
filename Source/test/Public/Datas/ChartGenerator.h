@@ -25,7 +25,7 @@ protected:
 	TArray<UChildActorComponent*> ChildActorComponents;
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	void ClearChildrenActors();
+	virtual void ClearChildrenActors();
 
 	virtual void BeginPlay() override;
 
@@ -65,6 +65,9 @@ private:
 	// BP BarBase Actor Source to Display 
 	UPROPERTY()
 	TSubclassOf<ABarBaseActor> BarBaseActorBPClass;
+
+protected:
+	virtual void ClearChildrenActors() override;
 
 public:
 	UBarGenerator();
