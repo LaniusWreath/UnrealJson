@@ -27,12 +27,29 @@ public:
 
 	void SetJsonObject(const TSharedPtr<FJsonObject> JsonData);
 
+	void SetJsonString(const FString& JsonString);
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Chart")
 	FString CurrentChartType;
 	
 	// Call Json Request Function, Result Data will be stored in this  
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	void CallJsonObject(const FString& URL);
+	void RequestJsonObject(const FString& URL);
+
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	void RequestJsonString(const FString& URL);
+
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	const UHTTPRequestManager* GetHttpRequestHandler() const
+	{
+		if (RequestManagerInstance){
+			return RequestManagerInstance;
+		}
+		else
+			return nullptr;
+	}
+
+
 
 	// Visualization Chart Title
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chart")
@@ -70,6 +87,9 @@ protected:
 
 	UPROPERTY()
 	USceneComponent* RootSceneComponent;
+
+	UPROPERTY()
+	FString ResponsedJsonString;
 
 };
 

@@ -6,11 +6,18 @@
 #include "Serialization/JsonWriter.h"
 
 // json 로컬 파일 직접 읽고 처리하는 루틴
-UDataClasses* UDataManager::LocalJsonReadProcessRoutine(const FString& FilePath)
+UDataClasses* UDataManager::InstancingDataContainerFromLocalJson(const FString& FilePath)
 {
 	TSharedPtr<FJsonObject> Data = LoadDataFromJSON(FilePath);
 	FDataInstancePair NewChartData = InstancingDataClass(Data);
-	//ChartDataClassInstanceArray.Add(NewChartData);
+	return NewChartData.DataInstance;
+}
+
+// json FString 읽어 데이터 컨테이너 반환해주는 
+UDataClasses* UDataManager::InstancingDataContainerFromJsonString(const FString& JsonBody)
+{
+	TSharedPtr<FJsonObject> Data = DeserializeJsonStringToJsonObject(JsonBody);
+	FDataInstancePair NewChartData = InstancingDataClass(Data);
 	return NewChartData.DataInstance;
 }
 
@@ -70,6 +77,12 @@ const FString& UDataManager::GetJSONStringData() const
 		UE_LOG(LogTemp, Warning, TEXT("DataManager.cpp : DataString is null"));
 	}
 	return DataString;
+}
+
+// Create Emtpy BarType Data Container Instance
+UShapeChartBarClass* UDataManager::CreateEmptyShapeChartDataInstance()
+{
+	return NewObject<UShapeChartBarClass>();
 }
 
 // JSON -> FString
@@ -164,11 +177,4 @@ FDataInstancePair UDataManager::InstancingDataClass(const TSharedPtr<FJsonObject
 	}
 	return DataPair;
 }
-
-UDataClasses* UDataManager::CreateEmptyDataContainer()
-{
-
-	return nullptr;
-}
-
 

@@ -23,7 +23,6 @@ AData3DActor::AData3DActor()
 	UE_LOG(LogTemp, Log, TEXT("Data3DActor : Initializing %s"), *GetName());
 
 	RootSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponet"));
-
 	TextRenderComponent_chartTitle = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Text_title"));
 	TextRenderComponent_chartTitle->SetupAttachment(RootSceneComponent);
 	TextRenderComponent_chartTitle->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
@@ -38,9 +37,22 @@ void AData3DActor::BeginPlay()
 	InitializeDataManager();
 }
 
-void AData3DActor::CallJsonObject(const FString& URL)
+// JsonObjectPtr를 받는 함수
+void AData3DActor::RequestJsonObject(const FString& URL)
 {
 	InitializeRequestManager();
+	// Request 델리게이트 바인딩 함수 : DataClass 멤버변수 초기화 
+	// 멀티캐스트 델리게이트였다면 델리게이트 객체 매 번 청소해야 겠지만, 지금은 싱글캐스트. 객체 매 번 삭제 안해도 됨.
+	RequestManagerInstance->OnParsedJsonObjectPtrReady.BindUObject(this, &AData3DActor::SetJsonObject);
+	IsDataClassInstanceSet = false;
+	RequestManagerInstance->MakeGetRequest(URL, false);
+}
+
+// FString을 받는 함수
+void AData3DActor::RequestJsonString(const FString& URL)
+{
+	InitializeRequestManager();
+	RequestManagerInstance->OnRequestedJsonStringReady.BindUObject(this, &AData3DActor::SetJsonString);
 	IsDataClassInstanceSet = false;
 	RequestManagerInstance->MakeGetRequest(URL);
 }
@@ -68,14 +80,10 @@ void AData3DActor::InitializeDataManager()
 // url로 데이터를 리퀘스트 할 때 마다 기존 httpManager인스턴스를 삭제하고 새롭게 초기화.
 void AData3DActor::InitializeRequestManager()
 {
-	if (RequestManagerInstance)
+	if (!RequestManagerInstance)
 	{
-		RequestManagerInstance = nullptr;
+		RequestManagerInstance = NewObject<UHTTPRequestManager>();
 	}
-	RequestManagerInstance = NewObject<UHTTPRequestManager>();
-
-	// Request 델리게이트 바인딩 함수 : DataClass 멤버변수 초기화
-	RequestManagerInstance->OnParsedDataReady.AddUObject(this, &AData3DActor::SetJsonObject);
 }
 
 // FJsonObject 받아 UDataClasses*로 추출
@@ -100,6 +108,11 @@ void AData3DActor::SetJsonObject(const TSharedPtr<FJsonObject> JsonData)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Data3DActor : RequestManagerInstance is Invalid"));
 	}
+}
+
+void AData3DActor::SetJsonString(const FString& JsonString)
+{
+	ResponsedJsonString = JsonString;
 }
 
 

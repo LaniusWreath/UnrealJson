@@ -5,7 +5,7 @@
 
 #include "Datas/HTTPRequestManager.h"
 
-void UHTTPRequestManager::MakeGetRequest(const FString& Url)
+void UHTTPRequestManager::MakeGetRequest(const FString& Url, const bool GetResultWithFString)
 {
     FHttpModule* Http = &FHttpModule::Get();
     if (!Http) return;
@@ -23,7 +23,14 @@ void UHTTPRequestManager::MakeGetRequest(const FString& Url)
     //Request->SetHeader(TEXT("Authorization"), TEXT("Bearer YOUR_ACCESS_TOKEN"));
 
     // 응답 함수 델리게이트 바인딩
-    Request->OnProcessRequestComplete().BindUObject(this, &UHTTPRequestManager::OnResponseReceived);
+	if (GetResultWithFString)
+	{
+		Request->OnProcessRequestComplete().BindUObject(this, &UHTTPRequestManager::OnResponseReceived);
+	}
+	else
+	{
+		Request->OnProcessRequestComplete().BindUObject(this, &UHTTPRequestManager::OnResponseReceivedWithPtr);
+	}
 
 	// 응답 처리 함수 델리게이트 바인딩
 	//OnJsonDataReady.AddUObject(this, &UHTTPRequestManager::ExecuteCustomFucntion);
@@ -32,33 +39,50 @@ void UHTTPRequestManager::MakeGetRequest(const FString& Url)
     Request->ProcessRequest();
 }
 
-void UHTTPRequestManager::OnResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+void UHTTPRequestManager::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
-    if (bWasSuccessful && Response.IsValid())
-    {
-        // 응답 데이터 확인
-        FString ResponseString = Response->GetContentAsString();
-        UE_LOG(LogTemp, Log, TEXT("Response: %s"), *ResponseString);
+	if (bWasSuccessful && Response.IsValid())
+	{
+		// 응답 데이터 확인
+		ResultResponseString = Response->GetContentAsString();
+		UE_LOG(LogTemp, Log, TEXT("Response: %s"), *ResultResponseString);
 
 		TSharedPtr<FJsonObject> JsonData;
 
-        // JSON 파싱
-        TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResponseString);
-        if (FJsonSerializer::Deserialize(Reader, JsonData)&& JsonData.IsValid())
-        {
+		// JSON 파싱
+		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResultResponseString);
+		if (FJsonSerializer::Deserialize(Reader, JsonData) && JsonData.IsValid())
+		{
 			// 파싱 실행 함수 호출
 			ExecuteCustomParseFucntion(JsonData);
-        }
-        else
-        {
-            UE_LOG(LogTemp, Error, TEXT("Failed to parse JSON."));
-        }
-    }
-    else
-    {
-        UE_LOG(LogTemp, Error, TEXT("HTTP Request failed."));
-    }
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed to parse JSON."));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("HTTP Request failed."));
+	}
 }
+
+void UHTTPRequestManager::OnResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+	if (bWasSuccessful && Response.IsValid())
+	{
+		// 응답 데이터 확인
+		ResultResponseString = Response->GetContentAsString();
+		UE_LOG(LogTemp, Log, TEXT("Response: %s"), *ResultResponseString);
+		OnRequestedJsonStringReady.Execute(ResultResponseString);
+		OnRequestProcessDone.Broadcast();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("HTTP Request failed."));
+	}
+}
+
 
 // 데이터 형식에 맞는 커스텀 파싱 함수 호출.
 void UHTTPRequestManager::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject)
@@ -67,14 +91,14 @@ void UHTTPRequestManager::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> Ori
 	if (ParsedJsonData)
 	{
 		UE_LOG(LogTemp, Log, TEXT("HTTPRequestManager : DataParsing Complete"));
-		OnParsedDataReady.Broadcast(ParsedJsonData);
+		OnParsedJsonObjectPtrReady.Execute(ParsedJsonData);
+		OnRequestProcessDone.Broadcast();
 	}
 }
 
 TSharedPtr<FJsonObject> UHTTPRequestManager::ParseRequestBody(TSharedPtr<FJsonObject> RequestBody)
 {
 	const TArray<TSharedPtr<FJsonValue>>* DataArray;
-	const TArray<TSharedPtr<FJsonObject>> ResultContainer;
 
 	// data [] 값 가져오기
 	if (!RequestBody->TryGetArrayField(TEXT("data"), DataArray))

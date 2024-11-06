@@ -30,7 +30,7 @@ private:
 protected:
 	// Initializing Each Managers
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	void InitializeManagers();
+	UDataManager* InitializeManagers();
 
 public:
 

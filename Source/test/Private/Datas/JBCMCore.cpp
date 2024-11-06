@@ -18,11 +18,12 @@ UJBCMCore* UJBCMCore::GetJBCMCore()
 	return JBCMCoreInstance;
 }
 
-void UJBCMCore::InitializeManagers()
+UDataManager* UJBCMCore::InitializeManagers()
 {
 	// 각 Manager 인스턴스 생성 및 초기화
 	RequestManagerInstance = NewObject<UHTTPRequestManager>(this);
 	DataManagerInstance = NewObject<UDataManager>(this);
+	return DataManagerInstance;
 }
 
 void UJBCMCore::Destroy()

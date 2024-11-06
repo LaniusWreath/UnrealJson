@@ -14,7 +14,10 @@
  * 
  */
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnJsonDataReadyDelegate, const TSharedPtr<FJsonObject>);
+DECLARE_DELEGATE_OneParam(FOnJsonDataReadyDelegate, const TSharedPtr<FJsonObject>);
+DECLARE_DELEGATE_OneParam(FOneParamDelegate, const FString&);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDynamicRequestEvent);
+
 
 UCLASS(Blueprintable)
 class TEST_API UHTTPRequestManager : public UObject
@@ -24,8 +27,8 @@ class TEST_API UHTTPRequestManager : public UObject
 public:
 
 	// Call HTTP Get Request
-	UFUNCTION(BlueprintCallable, Category = "HTTP")
-	void MakeGetRequest(const FString& Url);
+	UFUNCTION(BlueprintCallable, meta = (AdvancedDisplay = "GetResultWithFString"), Category = "Chart")
+	void MakeGetRequest(const FString& Url, const bool GetResultWithFString = true);
 
 	// Return Serialized JsonString
 	UFUNCTION(BlueprintCallable, Category = "HTTP")
@@ -42,13 +45,18 @@ public:
 
 	// Delegate for Alarming Request Done, Data Ready
 	//FOnJsonDataReadyDelegate OnJsonDataReady;
-	FOnJsonDataReadyDelegate OnParsedDataReady;
+	FOnJsonDataReadyDelegate OnParsedJsonObjectPtrReady;
+	FOneParamDelegate OnRequestedJsonStringReady;
+
+	UPROPERTY(BlueprintAssignable, Category = "Chart")
+	FOnDynamicRequestEvent OnRequestProcessDone;
 
 private:
 	// HTTP Processing
 	void OnResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
-	UPROPERTY()
+	void OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+
 	FString ResultResponseString;
 
 	TSharedPtr<FJsonObject> ParsedJsonData;

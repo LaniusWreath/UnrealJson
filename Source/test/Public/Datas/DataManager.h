@@ -61,14 +61,17 @@ public:
 	FDataInstancePair InstancingDataClass(const TSharedPtr<FJsonObject> Data);
 
 	// Routine Function for Controlling Json Reading to Processing Functions
-	UFUNCTION(BlueprintCallable, Category = "Data Management")
-	UDataClasses* LocalJsonReadProcessRoutine(const FString& FilePath);
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UDataClasses* InstancingDataContainerFromLocalJson(const FString& FilePath);
+
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UDataClasses* InstancingDataContainerFromJsonString(const FString& JsonBody);
 
 	// Getter Serialized JSON String Data
 	UFUNCTION(BlueprintCallable, Category = "Data")
 	const FString& GetJSONStringData() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	static UShapeChartBarClass* CreateShapeChartInstance(UObject* Owner);
+	UShapeChartBarClass* CreateEmptyShapeChartDataInstance();
 };
 
