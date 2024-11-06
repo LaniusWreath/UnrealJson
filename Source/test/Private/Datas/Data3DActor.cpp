@@ -110,9 +110,9 @@ void AData3DActor::SetJsonObject(const TSharedPtr<FJsonObject> JsonData)
 	}
 }
 
-void AData3DActor::SetJsonString(const FString& JsonString)
+void AData3DActor::SetJsonString(const bool IsWorkDone)
 {
-	ResponsedJsonString = JsonString;
+	IsRequestJsonStringDone = IsWorkDone;
 }
 
 

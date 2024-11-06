@@ -27,7 +27,7 @@ public:
 
 	void SetJsonObject(const TSharedPtr<FJsonObject> JsonData);
 
-	void SetJsonString(const FString& JsonString);
+	void SetJsonString(const bool IsWorkDone);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Chart")
 	FString CurrentChartType;
@@ -48,8 +48,6 @@ public:
 		else
 			return nullptr;
 	}
-
-
 
 	// Visualization Chart Title
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chart")
@@ -88,8 +86,7 @@ protected:
 	UPROPERTY()
 	USceneComponent* RootSceneComponent;
 
-	UPROPERTY()
-	FString ResponsedJsonString;
+	bool IsRequestJsonStringDone;
 
 };
 

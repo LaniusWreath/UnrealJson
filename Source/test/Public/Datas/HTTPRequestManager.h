@@ -15,7 +15,7 @@
  */
 
 DECLARE_DELEGATE_OneParam(FOnJsonDataReadyDelegate, const TSharedPtr<FJsonObject>);
-DECLARE_DELEGATE_OneParam(FOneParamDelegate, const FString&);
+DECLARE_DELEGATE_OneParam(FOneParamDelegate, const bool);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDynamicRequestEvent);
 
 

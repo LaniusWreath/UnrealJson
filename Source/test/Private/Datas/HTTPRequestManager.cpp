@@ -74,7 +74,7 @@ void UHTTPRequestManager::OnResponseReceived(FHttpRequestPtr Request, FHttpRespo
 		// 응답 데이터 확인
 		ResultResponseString = Response->GetContentAsString();
 		UE_LOG(LogTemp, Log, TEXT("Response: %s"), *ResultResponseString);
-		OnRequestedJsonStringReady.Execute(ResultResponseString);
+		OnRequestedJsonStringReady.Execute(true);
 		OnRequestProcessDone.Broadcast();
 	}
 	else
