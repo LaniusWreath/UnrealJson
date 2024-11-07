@@ -40,6 +40,11 @@ void AJCM3DChartActor::BeginPlay()
 // JsonObjectPtr를 받는 함수
 void AJCM3DChartActor::RequestJsonObject(const FString& URL)
 {
+	if (!DataManagerInstance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("JCM3DChartActor : RequestJsonObject() Failed. Initialize JCMCore First"));
+		return;
+	}
 	InitializeRequestManager();
 	// Request 델리게이트 바인딩 함수 : DataClass 멤버변수 초기화 
 	// 멀티캐스트 델리게이트였다면 델리게이트 객체 매 번 청소해야 겠지만, 지금은 싱글캐스트. 객체 매 번 삭제 안해도 됨.
@@ -59,11 +64,9 @@ void AJCM3DChartActor::RequestJsonString(const FString& URL)
 
 void AJCM3DChartActor::InitializeDataManager()
 {	
-	UJCMCore* JCMCoreReference = UJCMCore::GetJCMCore();
-
-	if (JCMCoreReference)
+	if (UJCMCore::GetJCMCore())
 	{
-		DataManagerInstance = JCMCoreReference->GetDataManager();
+		DataManagerInstance = UJCMCore::GetJCMCore()->GetJCMDataManager();
 		if (!DataManagerInstance)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Data3DActor : Initialize Managers : Getting DataManager Reference Failed"));

@@ -26,7 +26,7 @@ private:
 	UPROPERTY()
 	UJCMHttpHandler* RequestManagerInstance;
 
-protected:
+public:
 	// Initializing Each Managers
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	UJCMDataManager* GetJCMDataManager();
@@ -34,10 +34,12 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	UJCMHttpHandler* GetJCMRequestManager();
 
-public:
-	// Core Approching Function
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	static UJCMCore* GetJCMCore();
+
+	// Core Approching Function
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	static UJCMCore* InitializeJCMCore();
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	// Core Deleting Function

@@ -11,18 +11,34 @@ UJCMHttpHandler* UJCMCore::GetJCMRequestManager()
 {
 	if (!RequestManagerInstance)
 	{
-		RequestManagerInstance = NewObject<UJCMHttpHandler>(this);
+		UE_LOG(LogTemp, Warning, TEXT("No JCM Core Instance. Please Initialize Core First"));
 	}
 	return RequestManagerInstance;
 }
 
 UJCMCore* UJCMCore::GetJCMCore()
 {
+	if (JCMCoreInstance)
+	{
+		return JCMCoreInstance;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No JCM Core Instance. Please Initialize Core First"));
+		return nullptr;
+	}
+}
+
+UJCMCore* UJCMCore::InitializeJCMCore()
+{
 	// SingletonInstance가 없으면 생성하고 초기화
 	if (!JCMCoreInstance)
 	{
 		JCMCoreInstance = NewObject<UJCMCore>();
 		JCMCoreInstance->AddToRoot();  // GC 방지
+
+		JCMCoreInstance->DataManagerInstance = NewObject<UJCMDataManager>();
+		JCMCoreInstance->RequestManagerInstance = NewObject<UJCMHttpHandler>();
 	}
 	return JCMCoreInstance;
 }
@@ -32,7 +48,7 @@ UJCMDataManager* UJCMCore::GetJCMDataManager()
 	// DataManager 인스턴스 생성 및 초기화
 	if (!DataManagerInstance)
 	{
-		DataManagerInstance = NewObject<UJCMDataManager>(this);
+		UE_LOG(LogTemp, Warning, TEXT("No JCM Core Instance. Please Initialize Core First"));
 	}
 	return DataManagerInstance;
 }
