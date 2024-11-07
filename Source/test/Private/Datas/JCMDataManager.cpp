@@ -1,12 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Datas/DataManager.h"
-#include "Datas/JsonHandler.h"
+#include "Datas/JCMDataManager.h"
+#include "Datas/JCMJsonHandler.h"
 #include "Datas/CSVHandler.h"
+#include "Datas/JCMDataContainer.h"
 #include "Serialization/JsonWriter.h"
 
 // json 로컬 파일 직접 읽고 처리하는 루틴
-UDataClasses* UDataManager::InstancingDataContainerFromLocalJson(const FString& FilePath)
+UJCMDataContainer* UJCMDataManager::InstancingDataContainerFromLocalJson(const FString& FilePath)
 {
 	TSharedPtr<FJsonObject> Data = LoadDataFromJSON(FilePath);
 	FDataInstancePair NewChartData = InstancingDataClass(Data);
@@ -14,7 +15,7 @@ UDataClasses* UDataManager::InstancingDataContainerFromLocalJson(const FString& 
 }
 
 // json FString 읽어 데이터 컨테이너 반환해주는 
-UDataClasses* UDataManager::InstancingDataContainerFromJsonString(const FString& JsonBody)
+UJCMDataContainer* UJCMDataManager::InstancingDataContainerFromJsonString(const FString& JsonBody)
 {
 	TSharedPtr<FJsonObject> Data = DeserializeJsonStringToJsonObject(JsonBody);
 	FDataInstancePair NewChartData = InstancingDataClass(Data);
@@ -22,7 +23,7 @@ UDataClasses* UDataManager::InstancingDataContainerFromJsonString(const FString&
 }
 
 // FString으로 Serialize된 Json문자열 객체로 다시 변환
-TSharedPtr<FJsonObject> UDataManager::DeserializeJsonStringToJsonObject(const FString& JsonString)
+TSharedPtr<FJsonObject> UJCMDataManager::DeserializeJsonStringToJsonObject(const FString& JsonString)
 {
 	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
 	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
@@ -41,11 +42,11 @@ TSharedPtr<FJsonObject> UDataManager::DeserializeJsonStringToJsonObject(const FS
 }
 
 // 탐색기 패스로 파일 읽기, 나중에 오버로딩 하던 뭘 하던 JSON만 넘겨받는 함수 만들 것
-TSharedPtr<FJsonObject> UDataManager::LoadDataFromJSON(const FString& FilePath)
+TSharedPtr<FJsonObject> UJCMDataManager::LoadDataFromJSON(const FString& FilePath)
 {
 	if (!JSONHandlerInstance)
 	{
-		JSONHandlerInstance = NewObject<UJsonHandler>(this);
+		JSONHandlerInstance = NewObject<UJCMJsonHandler>(this);
 	}
 	if (JSONHandlerInstance)
 	{
@@ -61,16 +62,16 @@ TSharedPtr<FJsonObject> UDataManager::LoadDataFromJSON(const FString& FilePath)
 	}
 }
 
-void UDataManager::LoadDataFromCSV(const FString& FilePath)
+void UJCMDataManager::LoadDataFromCSV(const FString& FilePath)
 {
 }
 
-void UDataManager::FetchDataFromHTTP(const FString& URL)
+void UJCMDataManager::FetchDataFromHTTP(const FString& URL)
 {
 }
 
 // Return JSON String Getter()
-const FString& UDataManager::GetJSONStringData() const
+const FString& UJCMDataManager::GetJSONStringData() const
 {
 	if (DataString == "")
 	{
@@ -80,13 +81,13 @@ const FString& UDataManager::GetJSONStringData() const
 }
 
 // Create Emtpy BarType Data Container Instance
-UShapeChartBarClass* UDataManager::CreateEmptyShapeChartDataInstance()
+UJCMDataContainerBar* UJCMDataManager::CreateEmptyShapeChartDataInstance()
 {
-	return NewObject<UShapeChartBarClass>();
+	return NewObject<UJCMDataContainerBar>();
 }
 
 // JSON -> FString
-FString UDataManager::SerializeJSONToString(const TSharedPtr<FJsonObject> JSONObject)
+FString UJCMDataManager::SerializeJSONToString(const TSharedPtr<FJsonObject> JSONObject)
 {
 	FString JsonString;
 	TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
@@ -104,7 +105,7 @@ FString UDataManager::SerializeJSONToString(const TSharedPtr<FJsonObject> JSONOb
 }
 
 // 데이터 입력 받아 파싱, DataClass 객체 생성 -> Chart
-FDataInstancePair UDataManager::InstancingDataClass(const TSharedPtr<FJsonObject> Data)
+FDataInstancePair UJCMDataManager::InstancingDataClass(const TSharedPtr<FJsonObject> Data)
 {
 	if (!Data.IsValid())
 	{
@@ -113,8 +114,8 @@ FDataInstancePair UDataManager::InstancingDataClass(const TSharedPtr<FJsonObject
 	}
 
 	FString ChartType = Data->GetStringField(TEXT("chartType"));
-	int32 ChartTypeNumber = DataTypes::MapChartTypes[ChartType.ToUpper()];
-	EChartTypes CurChartTypeEnum = DataTypes::MapChartTypes[ChartType];
+	int32 ChartTypeNumber = JCMDataTypes::JCMMapChartTypes[ChartType.ToUpper()];
+	EJCMChartTypes CurChartTypeEnum = JCMDataTypes::JCMMapChartTypes[ChartType];
 	FString ChartTitle = Data->GetStringField(TEXT("chartTitle"));
 
 	FDataInstancePair DataPair;
@@ -126,7 +127,7 @@ FDataInstancePair UDataManager::InstancingDataClass(const TSharedPtr<FJsonObject
 	case BAR:
 	{
 		// 데이터 객체 생성
-		UShapeChartBarClass* NewChartBarClass = NewObject<UShapeChartBarClass>(this);
+		UJCMDataContainerBar* NewChartBarClass = NewObject<UJCMDataContainerBar>(this);
 
 		FString ClassName = NewChartBarClass->GetClass()->GetName();
 

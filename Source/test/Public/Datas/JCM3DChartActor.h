@@ -4,23 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "DataTypes.h"
-#include "Data3DActor.generated.h"
+#include "JCMDataTypes.h"
+#include "JCM3DChartActor.generated.h"
 
-class UDataManager;
-class UDataClasses;
-class UShapeChartClass;
+class UJCMDataManager;
+class UJCMDataContainer;
+class UJCMDataContainerBar;
 class UChartGenerator;
 class UTextRenderComponent;
-class UHTTPRequestManager;
+class UHTTPRequestHandler;
 
 UCLASS()
-class TEST_API AData3DActor : public AActor
+class TEST_API AJCM3DChartActor : public AActor
 {
 	GENERATED_BODY()
 
 public:	
-	AData3DActor();
+	AJCM3DChartActor();
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -40,7 +40,7 @@ public:
 	void RequestJsonString(const FString& URL);
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	const UHTTPRequestManager* GetHttpRequestHandler() const
+	const UJCMHttpHandler* GetHttpRequestHandler() const
 	{
 		if (RequestManagerInstance){
 			return RequestManagerInstance;
@@ -74,14 +74,14 @@ protected:
 
 	// DataManager Reference
 	UPROPERTY()
-	UDataManager* DataManagerInstance;
+	UJCMDataManager* DataManagerInstance;
 
 	// Data Class Instance
 	UPROPERTY(VisibleAnywhere, Category = "Chart")
-	UDataClasses* DataClassInstance;
+	UJCMDataContainer* DataClassInstance;
 
 	UPROPERTY()
-	UHTTPRequestManager* RequestManagerInstance;
+	UJCMHttpHandler* RequestManagerInstance;
 
 	UPROPERTY()
 	USceneComponent* RootSceneComponent;
@@ -90,11 +90,11 @@ protected:
 
 };
 
-class UBarGenerator;
-class ABarBaseActor;
+class UJCMChartGeneratorBar;
+class AJCMBarBaseActor;
 
 UCLASS(Blueprintable)
-class AData3DActorBar : public AData3DActor
+class AJCM3DChartActorBar : public AJCM3DChartActor
 {
 	GENERATED_BODY()
 
@@ -108,7 +108,7 @@ protected:
 	virtual void GenerateChartRoutine() override;
 
 public:
-	AData3DActorBar();
+	AJCM3DChartActorBar();
 
 	// On : Spawn Chart Mesh At Each Spline Point / Off : Spawn Chart Mesh by Equally Deviding whole Spline
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chart")
@@ -116,11 +116,11 @@ public:
 
 	// Select Bar Blueprint Actor Source to Generate
 	UPROPERTY(EditAnywhere, BlueprintReadOnly ,Category = "Chart")
-	TSubclassOf<ABarBaseActor> BarBaseActorBPClass;
+	TSubclassOf<AJCMBarBaseActor> BarBaseActorBPClass;
 
 	// Controler Component for Generating 3D Bar Chart 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Chart")
-	UBarGenerator* BarGeneratorComponent;
+	UJCMChartGeneratorBar* BarGeneratorComponent;
 
 	// Visualization Chart Xaxis Name
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chart")
@@ -137,7 +137,7 @@ public:
 	
 	//Get Precessed Json Data Container Class
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	const UDataClasses* GetDataClassInstance() const
+	const UJCMDataContainer* GetDataClassInstance() const
 	{
 		if (IsDataClassInstanceSet)
 			return DataClassInstance;
@@ -147,7 +147,7 @@ public:
 	
 	// Set Processed Json Data Container Class Instance Directly : You have to get a reference from other Data3DActor Instance to use this function.
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	void SetDataClassInstance(UDataClasses* DataClassInstancePtr)
+	void SetDataClassInstance(UJCMDataContainer* DataClassInstancePtr)
 	{
 		DataClassInstance = DataClassInstancePtr;
 		IsDataClassInstanceSet = true;

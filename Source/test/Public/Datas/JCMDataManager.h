@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "DataClasses.h"
 #include "Templates/SharedPointer.h"
-#include "DataManager.generated.h"
+#include "JCMDataManager.generated.h"
 
-class UJsonHandler;
+class UJCMJsonHandler;
 class UCSVHandler;
-class UShapeChartBarClass;
+class UJCMDataContainer;
+class UJCMDataContainerBar;
 
 // Struct With String Header And Data
 USTRUCT(BlueprintType)
@@ -22,23 +22,23 @@ struct FDataInstancePair
 	FString ClassName;
 
 	UPROPERTY()
-	UDataClasses* DataInstance;
+	UJCMDataContainer* DataInstance;
 
 	FDataInstancePair() : ClassName(TEXT("")), DataInstance(nullptr) {}
-	FDataInstancePair(const FString& InClassName, UDataClasses* InInstance)
+	FDataInstancePair(const FString& InClassName, UJCMDataContainer* InInstance)
 		: ClassName(InClassName), DataInstance(InInstance) {}
 };
 
 // Manage Datas Class and Control those Member Function
 UCLASS(Blueprintable, BlueprintType)
-class TEST_API UDataManager : public UObject
+class TEST_API UJCMDataManager : public UObject
 {
 	GENERATED_BODY()
 
 private:
 
 	// DataHander Instances
-	UJsonHandler* JSONHandlerInstance;
+	UJCMJsonHandler* JSONHandlerInstance;
 	UCSVHandler* CSVHandlerInstance;
 
 	// JSON String Serialization Function
@@ -62,16 +62,16 @@ public:
 
 	// Routine Function for Controlling Json Reading to Processing Functions
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	UDataClasses* InstancingDataContainerFromLocalJson(const FString& FilePath);
+	UJCMDataContainer* InstancingDataContainerFromLocalJson(const FString& FilePath);
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	UDataClasses* InstancingDataContainerFromJsonString(const FString& JsonBody);
+	UJCMDataContainer* InstancingDataContainerFromJsonString(const FString& JsonBody);
 
 	// Getter Serialized JSON String Data
 	UFUNCTION(BlueprintCallable, Category = "Data")
 	const FString& GetJSONStringData() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	UShapeChartBarClass* CreateEmptyShapeChartDataInstance();
+	UJCMDataContainerBar* CreateEmptyShapeChartDataInstance();
 };
 

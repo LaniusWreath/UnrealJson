@@ -8,7 +8,7 @@
 #include "Http.h"
 #include "Json.h"
 #include "JsonUtilities.h"
-#include "HTTPRequestManager.generated.h"
+#include "JCMHttpHandler.generated.h"
 
 /**
  * 
@@ -18,9 +18,8 @@ DECLARE_DELEGATE_OneParam(FOnJsonDataReadyDelegate, const TSharedPtr<FJsonObject
 DECLARE_DELEGATE_OneParam(FOneParamDelegate, const bool);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDynamicRequestEvent);
 
-
 UCLASS(Blueprintable)
-class TEST_API UHTTPRequestManager : public UObject
+class TEST_API UJCMHttpHandler : public UObject
 {
 	GENERATED_BODY()
 	

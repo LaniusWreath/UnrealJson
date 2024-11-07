@@ -4,23 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "DataTypes.h"
-#include "DataClasses.generated.h"
+#include "JCMDataTypes.h"
+#include "JCMDataContainer.generated.h"
 
 // Mapping Chart Data and Returning Instance Factory Method : Abstract
 UCLASS(BlueprintType)
-class TEST_API UDataClasses : public UObject
+class TEST_API UJCMDataContainer : public UObject
 {
 	GENERATED_BODY()
 
 private:
 
 protected:
-	EChartTypes ChartType = EChartTypes::None;
+	EJCMChartTypes ChartType = EJCMChartTypes::None;
 
 public:
 	UFUNCTION()
-	virtual const EChartTypes GetChartType() const;
+	virtual const EJCMChartTypes GetChartType() const;
 };
 
 // 이 클래스의 객체는 DataManager에서 생성되고 관리 됨. 
@@ -28,67 +28,54 @@ public:
 // 처리된 데이터 원본이 필요하다면 각 자손 클래스의 Getter 함수를 사용할 것.
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Mapping Shape Chart Data 
-UCLASS(Abstract)
-class UShapeChartClass : public UDataClasses
-{
-	GENERATED_BODY()
-
-public:
-
-	// Getter Data Struct Reference (const)
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////
-
 UCLASS(BlueprintType)
-class UShapeChartBarClass : public UShapeChartClass
+class UJCMDataContainerBar : public UJCMDataContainer
 {
 	GENERATED_BODY()
 
 private:
-	EChartTypes ChartType = EChartTypes::BAR;
-	FShapeChartData ShapeChartData;
+	EJCMChartTypes ChartType = EJCMChartTypes::BAR;
+	FJCMChartDataShape ShapeChartData;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	UShapeChartBarClass* SetChartData(const FShapeChartData& InputData);
-	UShapeChartBarClass* SetChartData(const FString& ChartTitle, const FString& ChartTypeName, const FString& XName, const TArray<FString>& Labels,
+	UJCMDataContainerBar* SetChartData(const FJCMChartDataShape& InputData);
+	UJCMDataContainerBar* SetChartData(const FString& ChartTitle, const FString& ChartTypeName, const FString& XName, const TArray<FString>& Labels,
 		const FString& YName, const TArray<float>& Values);
 
 	// Getter Enum Chart Type
-	virtual const EChartTypes GetChartType() const override
+	virtual const EJCMChartTypes GetChartType() const override
 	{
 		return ChartType;
 	}
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	const FShapeChartData& GetShapeChartData() const
+	const FJCMChartDataShape& GetShapeChartData() const
 	{
 		return ShapeChartData;
 	}
 };
 
 UCLASS()
-class UShapeChartLineClass : public UShapeChartClass
+class UJCMDataContainerLine: public UJCMDataContainer
 {
 	GENERATED_BODY()
 	
 
 private:
-	EChartTypes ChartType = EChartTypes::LINE;
+	EJCMChartTypes ChartType = EJCMChartTypes::LINE;
 
 public:
 
 };
 
 UCLASS()
-class UShapeChartPieClass : public UShapeChartClass
+class UJCMDataContainerPie: public UJCMDataContainer
 {
 	GENERATED_BODY()
 
 private:
-	EChartTypes ChartType = EChartTypes::PIE;
+	EJCMChartTypes ChartType = EJCMChartTypes::PIE;
 
 public:
 
@@ -97,33 +84,32 @@ public:
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 UCLASS()
-class UXYChartClass : public UDataClasses
+class UJCMDataContainerXY : public UJCMDataContainer
 {
 	GENERATED_BODY()
 
 private:
-	EChartTypes ChartType = EChartTypes::XY;
-	FXYChartData XYChartData;
+	EJCMChartTypes ChartType = EJCMChartTypes::XY;
+	FJCMChartDataXY XYChartData;
 
 public:
 
 	virtual bool SetChartData(const FString& XName, const TArray<float>& XData, const FString& YName, const TArray<float>& YData);
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	virtual bool SetChartData(const FXYChartData& InputData);
+	virtual bool SetChartData(const FJCMChartDataXY& InputData);
 };
 
 UCLASS()
-class UXYZChartClass : public UDataClasses
+class UJCMDataContainerXYZ : public UJCMDataContainer
 {
 	GENERATED_BODY()
 
 private:
-	EChartTypes ChartType = EChartTypes::XYZ;
-	FXYZChartData XYZChartData;
+	EJCMChartTypes ChartType = EJCMChartTypes::XYZ;
+	FJCMChartDataXYZ XYZChartData;
 
 public:
-
 	virtual bool SetChartData(const TArray<FString>& LabelNames, const TArray<FVector>& VectorValues);
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	virtual bool SetChartData(const FXYZChartData& InputData);
+	virtual bool SetChartData(const FJCMChartDataXYZ& InputData);
 };

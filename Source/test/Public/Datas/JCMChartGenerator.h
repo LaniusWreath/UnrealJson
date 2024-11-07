@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h" 
-#include "DataTypes.h"
-#include "ChartGenerator.generated.h"
+#include "JCMDataTypes.h"
+#include "JCMChartGenerator.generated.h"
 /**
  * 
  */
@@ -14,7 +14,7 @@ class UTextRenderComponent;
 
 // ChartGenerator Abstract Component Class
 UCLASS(Abstract, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class TEST_API UChartGenerator : public USceneComponent
+class TEST_API UJCMChartGenerator : public USceneComponent
 {
 	GENERATED_BODY()
 
@@ -30,7 +30,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	UChartGenerator();
+	UJCMChartGenerator();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USceneComponent* ChildActorContainComponent;
@@ -38,10 +38,10 @@ public:
 };
 
 class USplineComponent;
-class ABarBaseActor;
+class AJCMBarBaseActor;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class UBarGenerator : public UChartGenerator
+class UJCMChartGeneratorBar : public UJCMChartGenerator
 {
 	GENERATED_BODY()
 
@@ -64,21 +64,21 @@ private:
 
 	// BP BarBase Actor Source to Display 
 	UPROPERTY()
-	TSubclassOf<ABarBaseActor> BarBaseActorBPClass;
+	TSubclassOf<AJCMBarBaseActor> BarBaseActorBPClass;
 
 protected:
 	virtual void ClearChildrenActors() override;
 
 public:
-	UBarGenerator();
+	UJCMChartGeneratorBar();
 
 	// Generate Bar Chart Routine Function
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	void GenerateBarChart(const FShapeChartData& CopiedData, bool bGenerateMeshAtSplinePoint);
+	void GenerateBarChart(const FJCMChartDataShape& CopiedData, bool bGenerateMeshAtSplinePoint);
 
 	// Set BP BarBase Actor Source to Display 
 	UFUNCTION()
-	void SetBarSourceActor(const TSubclassOf<ABarBaseActor>& SourceActor);
+	void SetBarSourceActor(const TSubclassOf<AJCMBarBaseActor>& SourceActor);
 
 	UFUNCTION()
 	void AddSplinePoint(USplineComponent* SplineComponent, int TargetCount);
@@ -91,7 +91,7 @@ public:
 };
 
 UCLASS(Blueprintable)
-class ULineGenerator : public UChartGenerator
+class UJCMChartGeneratorLine : public UJCMChartGenerator
 {
 	GENERATED_BODY()
 
@@ -99,7 +99,7 @@ public:
 };
 
 UCLASS(Blueprintable)
-class UPieGenerator : public UChartGenerator
+class UJCMChartGeneratorPie : public UJCMChartGenerator
 {
 	GENERATED_BODY()
 
@@ -107,7 +107,7 @@ public:
 };
 
 UCLASS(Blueprintable)
-class UXYGenerator : public UChartGenerator
+class UJCMChartGeneratorXY : public UJCMChartGenerator
 {
 	GENERATED_BODY()
 
@@ -115,7 +115,7 @@ public:
 };
 
 UCLASS(Blueprintable)
-class UXYZGenerator : public UChartGenerator
+class UJCMChartGeneratorXYZ : public UJCMChartGenerator
 {
 	GENERATED_BODY()
 

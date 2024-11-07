@@ -1,38 +1,36 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Datas/DataClasses.h"
+#include "Datas/JCMDataContainer.h"
 
 ///////////////////////////////////////// 데이터 Get ////////////////////////////////////////////////
-const EChartTypes UDataClasses::GetChartType() const
+const EJCMChartTypes UJCMDataContainer::GetChartType() const
 {
     return ChartType;
 }
-
 ///////////////////////////////////////// 데이터 Set ///////////////////////////////////////////////
 
-
-bool UXYChartClass::SetChartData(const FXYChartData& InputData)
+bool UJCMDataContainerXY::SetChartData(const FJCMChartDataXY& InputData)
 {
     return false;
 }
 
-bool UXYChartClass::SetChartData(const FString& XName, const TArray<float>& XData, const FString& YName, const TArray<float>& YData)
+bool UJCMDataContainerXY::SetChartData(const FString& XName, const TArray<float>& XData, const FString& YName, const TArray<float>& YData)
 {
     return false;
 }
 
-bool UXYZChartClass::SetChartData(const FXYZChartData& InputData)
+bool UJCMDataContainerXYZ::SetChartData(const FJCMChartDataXYZ& InputData)
 {
     return false;
 }
 
-bool UXYZChartClass::SetChartData(const TArray<FString>& LabelNames, const TArray<FVector>& VectorValues)
+bool UJCMDataContainerXYZ::SetChartData(const TArray<FString>& LabelNames, const TArray<FVector>& VectorValues)
 {
     return false;
 }
 
-UShapeChartBarClass* UShapeChartBarClass::SetChartData(const FShapeChartData& InputData)
+UJCMDataContainerBar* UJCMDataContainerBar::SetChartData(const FJCMChartDataShape& InputData)
 {
     ShapeChartData = InputData;
     if (ShapeChartData.ChartType == "")
@@ -54,7 +52,7 @@ UShapeChartBarClass* UShapeChartBarClass::SetChartData(const FShapeChartData& In
     return this;
 }
 
-UShapeChartBarClass* UShapeChartBarClass::SetChartData(const FString& ChartTitle, const FString& ChartTypeName, const FString& XName, const TArray<FString>& Labels, const FString& YName, const TArray<float>& Values)
+UJCMDataContainerBar* UJCMDataContainerBar::SetChartData(const FString& ChartTitle, const FString& ChartTypeName, const FString& XName, const TArray<FString>& Labels, const FString& YName, const TArray<float>& Values)
 {
     ShapeChartData.ChartTitle = ChartTitle;
     ShapeChartData.ChartType = ChartTypeName;

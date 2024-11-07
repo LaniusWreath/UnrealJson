@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "BarBaseActor.generated.h"
+#include "JCMBarBaseActor.generated.h"
 
 class UTextRenderComponent;
 class UTimelineComponent;
 class UProceduralMeshComponent;
 
 UCLASS()
-class TEST_API ABarBaseActor : public AActor
+class TEST_API AJCMBarBaseActor : public AActor
 {
 	GENERATED_BODY()
 
@@ -61,7 +61,7 @@ protected:
 
 public:	
 	// Sets default values for this actor's properties
-	ABarBaseActor();
+	AJCMBarBaseActor();
 
 	// On : Spawning Custom Mesh, Off: Spawning Default Bar Mesh
 	UPROPERTY(EditAnywhere, Category = "Chart")

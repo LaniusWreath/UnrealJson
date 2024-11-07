@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "JsonHandler.generated.h"
+#include "JCMJsonHandler.generated.h"
 
 UCLASS(Blueprintable, BlueprintType)
-class TEST_API UJsonHandler : public UObject
+class TEST_API UJCMJsonHandler : public UObject
 {
 	GENERATED_BODY()
 

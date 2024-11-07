@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Datas/JsonHandler.h"
+#include "Datas/JCMJsonHandler.h"
 
-TSharedPtr<FJsonObject> UJsonHandler::GetJsonObjectData(const FString& FilePath)
+TSharedPtr<FJsonObject> UJCMJsonHandler::GetJsonObjectData(const FString& FilePath)
 {
 	FString JsonData;
     TSharedPtr<FJsonObject> ParsedData;

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Datas/BarBaseActor.h"
+#include "Datas/JCMBarBaseActor.h"
 #include "ProceduralMeshComponent.h"
 #include "Components/TimelineComponent.h"
 #include "Components/TextRenderComponent.h"
@@ -11,7 +11,7 @@
 #include "TimerManager.h"
 
 // Sets default values
-ABarBaseActor::ABarBaseActor()
+AJCMBarBaseActor::AJCMBarBaseActor()
 {
 	DefaultSceneRootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 	RootComponent = DefaultSceneRootComponent;
@@ -49,7 +49,7 @@ ABarBaseActor::ABarBaseActor()
 }
 
 // Called when the game starts or when spawned
-void ABarBaseActor::BeginPlay()
+void AJCMBarBaseActor::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -58,7 +58,7 @@ void ABarBaseActor::BeginPlay()
 	CustomStaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
-void ABarBaseActor::CreateProceduralBoxMesh(float BarHeight)
+void AJCMBarBaseActor::CreateProceduralBoxMesh(float BarHeight)
 {
 	// 필요한 배열 선언
 	TArray<FVector> Vertices;
@@ -93,7 +93,7 @@ void ABarBaseActor::CreateProceduralBoxMesh(float BarHeight)
 }
 
 // 커스텀 스태틱 메쉬 생성 루틴 : 개수 자동 계산
-void ABarBaseActor::CreateCustomMeshRoutine(float BarHeight)
+void AJCMBarBaseActor::CreateCustomMeshRoutine(float BarHeight)
 {
 	// 커스텀 메시 유닛 높이 : 유닛 높이 * 로컬 스케일러
 	float UnitMeshHeight = GetStaticMeshBoxUnitSize(CustomStaticMeshComponent->GetStaticMesh()).Z * 
@@ -112,7 +112,7 @@ void ABarBaseActor::CreateCustomMeshRoutine(float BarHeight)
 }
 
 // 개수로 차트 메쉬 생성 : 사용자 정의 개수
-void ABarBaseActor::CreateCustomMeshRoutine(float BarHeight, int amount)
+void AJCMBarBaseActor::CreateCustomMeshRoutine(float BarHeight, int amount)
 {
 	// 커스텀 메시 유닛 높이 : 유닛 높이 * 로컬 스케일러
 	float UnitMeshHeight = GetStaticMeshBoxUnitSize(CustomStaticMeshComponent->GetStaticMesh()).Z *
@@ -130,14 +130,14 @@ void ABarBaseActor::CreateCustomMeshRoutine(float BarHeight, int amount)
 }
 
 // 박스형태 메시 유닛 사이즈 리턴
-FVector ABarBaseActor::GetStaticMeshBoxUnitSize(UStaticMesh* TargetStaticMesh) const
+FVector AJCMBarBaseActor::GetStaticMeshBoxUnitSize(UStaticMesh* TargetStaticMesh) const
 {
 	FVector BoundsExtent = TargetStaticMesh->GetBounds().BoxExtent;
 	return BoundsExtent * 2.0f;
 }
 
 // 커스텀 스태틱 메쉬 생성 함수
-void ABarBaseActor::CreateSingleCustomMeshComponent(float BarHeight, float UnitMeshHeight, int32 SpawnAmount)
+void AJCMBarBaseActor::CreateSingleCustomMeshComponent(float BarHeight, float UnitMeshHeight, int32 SpawnAmount)
 {
 	// 스폰 카운트 제한 체크, 
 	if (SpawnCount >= SpawnAmount)
@@ -173,7 +173,7 @@ void ABarBaseActor::CreateSingleCustomMeshComponent(float BarHeight, float UnitM
 }
 
 // 기존 생성한 스태틱 메쉬 컴포넌트 삭제
-void ABarBaseActor::ClearCustomMeshes()
+void AJCMBarBaseActor::ClearCustomMeshes()
 {
 	if (CustomActorSceneComponent->GetNumChildrenComponents() > 0)
 	{
@@ -193,7 +193,7 @@ void ABarBaseActor::ClearCustomMeshes()
 
 // 메쉬 스폰 타이머 핸들 초기화 : BarBaseActor는 BarGenerator에서 Gernating 될 때 마다 새로운 인스턴스가 생성되어 기능함.
 // 따라서 기존 BarBaseActor의 메쉬 생성 타이머를 정지시키고 싶을 때는 인스턴스를 소유하고 있는 BarGenerator에서 직접 시켜줘야 함.
-void ABarBaseActor::ClearSpawnTimerHandle()
+void AJCMBarBaseActor::ClearSpawnTimerHandle()
 {
 	if (GetWorldTimerManager().IsTimerActive(SpawnTimerHandle))
 	{
@@ -205,7 +205,7 @@ void ABarBaseActor::ClearSpawnTimerHandle()
 }
 
 // 단위로 나누고 나머지 남은 높이, 스케일링 된 유닛 상자 만들어 스폰 : 현재는 안씀
-void ABarBaseActor::CreateAdditionalCustomMeshComponent(float BarHeight, float RestHeight, float UnitMeshHeight)
+void AJCMBarBaseActor::CreateAdditionalCustomMeshComponent(float BarHeight, float RestHeight, float UnitMeshHeight)
 {	
 	// StaticMeshComponent를 동적으로 생성하고, 부모 액터에 속하도록 설정
 	UStaticMeshComponent* RestMeshComponent = NewObject<UStaticMeshComponent>(this);
@@ -228,7 +228,7 @@ void ABarBaseActor::CreateAdditionalCustomMeshComponent(float BarHeight, float R
 }
 
 // 템플릿 메쉬로부터 속성 복사
-void ABarBaseActor::InitializeCustomStaticMeshPhysics(UStaticMeshComponent* TargetStaticMesh, UStaticMeshComponent* TemplateComponent)
+void AJCMBarBaseActor::InitializeCustomStaticMeshPhysics(UStaticMeshComponent* TargetStaticMesh, UStaticMeshComponent* TemplateComponent)
 {
 	// 템플릿의 속성을 UnitMeshComponent에 복사
 	TargetStaticMesh->SetStaticMesh(TemplateComponent->GetStaticMesh());
@@ -258,7 +258,7 @@ void ABarBaseActor::InitializeCustomStaticMeshPhysics(UStaticMeshComponent* Targ
 }
 
 // 에디터 상에 Procedural Mesh 또는 커스텀 메시 생성 유무 bool로 추출해놓음 분기하여 메시 생성 함수 결정
-void ABarBaseActor::CreateMesh(float BarHeight, int Value)
+void AJCMBarBaseActor::CreateMesh(float BarHeight, int Value)
 {
 	// 프로시저럴 메쉬
 	if (!EnableSpawnCustomMesh)
@@ -295,28 +295,28 @@ void ABarBaseActor::CreateMesh(float BarHeight, int Value)
 }
 
 // 라벨 텍스트 렌더러 설정
-void ABarBaseActor::InitializeTextMeshLabel(const FString& LabelName)
+void AJCMBarBaseActor::InitializeTextMeshLabel(const FString& LabelName)
 {
 	// 텍스트 내용
 	TextRenderComponentLabel->SetText(FText::FromString(LabelName));
 }
 
 // 값 텍스트 렌더러 설정
-void ABarBaseActor::InitializeTextMeshValue(const float& FloatValue)
+void AJCMBarBaseActor::InitializeTextMeshValue(const float& FloatValue)
 {
 	// 텍스트 내용
 	TextRenderComponentValue->SetText(FText::AsNumber(FloatValue));
 }
 
 // 정확한 높이에 텍스트 렌더 컴포넌트 배치
-void ABarBaseActor::AdjustTextMeshValueOffset(const float& BarHeight)
+void AJCMBarBaseActor::AdjustTextMeshValueOffset(const float& BarHeight)
 {
 	TextRenderComponentValue->AddWorldOffset(FVector(0.f, 0.f, BarHeight + (TextRenderComponentValue->WorldSize) / 2
 			+ TextRenderComponentOffset_Value));
 }
 
 // 커스텀메쉬 사이즈 단위로 나눈 높이에 텍스트 렌더 컴포넌트 배치
-void ABarBaseActor::AdjustTextMeshValueOffset(const int& amount)
+void AJCMBarBaseActor::AdjustTextMeshValueOffset(const int& amount)
 {
 	// 커스텀 메시 유닛 높이 : 유닛 높이 * 로컬 스케일러
 	float UnitMeshHeight = GetStaticMeshBoxUnitSize(CustomStaticMeshComponent->GetStaticMesh()).Z *
@@ -327,7 +327,7 @@ void ABarBaseActor::AdjustTextMeshValueOffset(const int& amount)
 }
 
 // 애니메이션 실행 제어
-void ABarBaseActor::PlayBarAnimation()
+void AJCMBarBaseActor::PlayBarAnimation()
 {
 	if (EnableSpawnCustomMesh)
 	{
@@ -353,7 +353,7 @@ void ABarBaseActor::PlayBarAnimation()
 }
 
 // 막대 스케일 변경 애니메이션 실행
-void ABarBaseActor::OnAnimationUpdate(float Value)
+void AJCMBarBaseActor::OnAnimationUpdate(float Value)
 {
 	//UE_LOG(LogTemp, Log, TEXT("BarBaseActor : BarAnimation Executing, Current Height : %f"), Value);
 

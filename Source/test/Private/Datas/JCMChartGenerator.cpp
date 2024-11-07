@@ -1,15 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Datas/ChartGenerator.h"
+#include "Datas/JCMChartGenerator.h"
 #include "Components/SplineComponent.h"
-#include "Datas/BarBaseActor.h"
+#include "Datas/JCMBarBaseActor.h"
 #include "Algo/MaxElement.h"
 #include "Components/TextRenderComponent.h"
 
 
 // 기본 차트 베이스 초기화
-UChartGenerator::UChartGenerator()
+UJCMChartGenerator::UJCMChartGenerator()
 {
 	ChildActorContainComponent= CreateDefaultSubobject<USceneComponent>(TEXT("childActorContainComponent"));
 	ChildActorContainComponent->SetupAttachment(GetAttachParent());
@@ -17,13 +17,13 @@ UChartGenerator::UChartGenerator()
 	ChildActorContainComponent->SetMobility(EComponentMobility::Movable);
 }
 
-void UChartGenerator::BeginPlay()
+void UJCMChartGenerator::BeginPlay()
 {
 
 }
 
 // Base에 붙은 액터 삭제
-void UChartGenerator::ClearChildrenActors()
+void UJCMChartGenerator::ClearChildrenActors()
 {
 	for (UChildActorComponent* ChildComponent : ChildActorComponents)
 	{
@@ -41,7 +41,7 @@ void UChartGenerator::ClearChildrenActors()
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-UBarGenerator::UBarGenerator()
+UJCMChartGeneratorBar::UJCMChartGeneratorBar()
 {
 	// 차트 들어가는 각 컴포넌트 인스턴스 생성만, Attach는 Data3DActor에서 할 것
 	SplineComponent_length = CreateDefaultSubobject<USplineComponent>(TEXT("LengthSplineComponent"));
@@ -52,13 +52,13 @@ UBarGenerator::UBarGenerator()
 	SplineComponent_height->SetMobility(EComponentMobility::Movable);
 }
 
-void UBarGenerator::SetBarSourceActor(const TSubclassOf<ABarBaseActor>& SourceActor)
+void UJCMChartGeneratorBar::SetBarSourceActor(const TSubclassOf<AJCMBarBaseActor>& SourceActor)
 {
 	BarBaseActorBPClass = SourceActor;
 }
 
 // ChildActorComponent로 소유힌 BarBaseActor 인스턴스 삭제
-void UBarGenerator::ClearChildrenActors()
+void UJCMChartGeneratorBar::ClearChildrenActors()
 {
 	for (UChildActorComponent* ChildComponent : ChildActorComponents)
 	{
@@ -67,7 +67,7 @@ void UBarGenerator::ClearChildrenActors()
 		{
 			// !! 주의 : UChildActorComponent에 클래스를 배정했을 때, 해당 컴포넌트 자체가 배정된 클래스를 뜻하는 게 아님.
 			// UChildActorComponent가 배정한 클래스를 담는 컨테이너 클래스가 된 것. (따로 get함수로 인스턴스 호출해야 함.)
-			ABarBaseActor* ChildBarComponent = Cast<ABarBaseActor>(ChildComponent->GetChildActor());
+			AJCMBarBaseActor* ChildBarComponent = Cast<AJCMBarBaseActor>(ChildComponent->GetChildActor());
 			ChildBarComponent->ClearCustomMeshes();
 			ChildBarComponent->ClearSpawnTimerHandle();
 
@@ -85,7 +85,7 @@ void UBarGenerator::ClearChildrenActors()
 }
 
 // 바 차트 생성 함수
-void UBarGenerator::GenerateBarChart(const FShapeChartData& CopiedData, bool bGenerateMeshAtSplinePoint)
+void UJCMChartGeneratorBar::GenerateBarChart(const FJCMChartDataShape& CopiedData, bool bGenerateMeshAtSplinePoint)
 {
 	// 스플라인 총 길이 
 	float SplineLength = SplineComponent_length->GetSplineLength();
@@ -127,7 +127,7 @@ void UBarGenerator::GenerateBarChart(const FShapeChartData& CopiedData, bool bGe
 }
 
 // 바 차트 생성 전 전처리 함수
-void UBarGenerator::PrepareBarValues(const TArray<float>& ValueArray, float& BarHeightScalerResult, float& BarPaddingResult,
+void UJCMChartGeneratorBar::PrepareBarValues(const TArray<float>& ValueArray, float& BarHeightScalerResult, float& BarPaddingResult,
 	const float MaxHeight)
 {
 	UE_LOG(LogTemp, Log, TEXT("ChartGenerator : Preperating Bar Chart"));
@@ -144,7 +144,7 @@ void UBarGenerator::PrepareBarValues(const TArray<float>& ValueArray, float& Bar
 	// 로그 스케일링, 정규화 따로 파라미터 빼서 고를 수 있게 할 것
 }
 
-bool UBarGenerator::CreateBar(const TArray<float>& ValueArray, const TArray<FString>& LabelArray, const int BarSpacing, 
+bool UJCMChartGeneratorBar::CreateBar(const TArray<float>& ValueArray, const TArray<FString>& LabelArray, const int BarSpacing,
 	const float BarPaddingScaler, const float BarHeightScaler)
 {
 	ClearChildrenActors();
@@ -187,7 +187,7 @@ bool UBarGenerator::CreateBar(const TArray<float>& ValueArray, const TArray<FStr
 			if (NewChildActorComponent->GetChildActor())
 			{
 				// ABarBaseAcotr로 UChildActorComponent 캐스팅
-				ABarBaseActor* ChildBar = Cast<ABarBaseActor>(NewChildActorComponent->GetChildActor());
+				AJCMBarBaseActor* ChildBar = Cast<AJCMBarBaseActor>(NewChildActorComponent->GetChildActor());
 				if (ChildBar)
 				{
 					// 이동 : 이동 먼저 시켜줘야 생성 좌표가 고정됨
@@ -219,7 +219,7 @@ bool UBarGenerator::CreateBar(const TArray<float>& ValueArray, const TArray<FStr
 }
 
 // 스플라인 컴포넌트의 점 개수 모자랄 때 target만큼 맞춰줌
-void UBarGenerator::AddSplinePoint(USplineComponent* SplineComponent, int TargetCount)
+void UJCMChartGeneratorBar::AddSplinePoint(USplineComponent* SplineComponent, int TargetCount)
 {
 	int32 SplinePointCount = SplineComponent->GetNumberOfSplinePoints();
 	if (TargetCount > SplinePointCount)
@@ -249,7 +249,7 @@ void UBarGenerator::AddSplinePoint(USplineComponent* SplineComponent, int Target
 }
 
 
-bool UBarGenerator::CreateBarAlongSplinePoint(const TArray<float>& ValueArray, const TArray<FString>& LabelArray, 
+bool UJCMChartGeneratorBar::CreateBarAlongSplinePoint(const TArray<float>& ValueArray, const TArray<FString>& LabelArray,
 	const float BarPaddingScaler, const float BarHeightScaler)
 {
 	// 기존 bar 객체 삭제
@@ -297,7 +297,7 @@ bool UBarGenerator::CreateBarAlongSplinePoint(const TArray<float>& ValueArray, c
 			if (NewChildActorComponent->GetChildActor())
 			{
 				// ABarBaseAcotr로 UChildActorComponent 캐스팅
-				ABarBaseActor* ChildBar = Cast<ABarBaseActor>(NewChildActorComponent->GetChildActor());
+				AJCMBarBaseActor* ChildBar = Cast<AJCMBarBaseActor>(NewChildActorComponent->GetChildActor());
 				if (ChildBar)
 				{
 					// 이동 : 이동 먼저 시켜줘야 생성 좌표가 고정됨

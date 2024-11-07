@@ -4,39 +4,40 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "JBCMCore.generated.h"
+#include "JCMCore.generated.h"
 
-class UDataManager;
-class UHTTPRequestManager;
+class UJCMDataManager;
+class UJCMHttpHandler;
 
 /**
  * 
  */
 UCLASS(Blueprintable)
-class TEST_API UJBCMCore : public UObject
+class TEST_API UJCMCore : public UObject
 {
 	GENERATED_BODY()
 
 private:
-
-	static UJBCMCore* JBCMCoreInstance;
-
-	UPROPERTY()
-	UDataManager* DataManagerInstance;
+	static UJCMCore* JCMCoreInstance;
 
 	UPROPERTY()
-	UHTTPRequestManager* RequestManagerInstance;
+	UJCMDataManager* DataManagerInstance;
+
+	UPROPERTY()
+	UJCMHttpHandler* RequestManagerInstance;
 
 protected:
 	// Initializing Each Managers
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	UDataManager* InitializeManagers();
+	UJCMDataManager* GetJCMDataManager();
+
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UJCMHttpHandler* GetJCMRequestManager();
 
 public:
-
 	// Core Approching Function
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	static UJBCMCore* GetJBCMCore();
+	static UJCMCore* GetJCMCore();
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	// Core Deleting Function
@@ -44,9 +45,9 @@ public:
 
 	// Each Manager Getter Function
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	UHTTPRequestManager* GetHttpRequestManager() const { return RequestManagerInstance; }
+	UJCMHttpHandler* GetHttpRequestManager() const { return RequestManagerInstance; }
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	UDataManager* GetDataManager() const { return DataManagerInstance; }
+	UJCMDataManager* GetDataManager() const { return DataManagerInstance; }
 
 };

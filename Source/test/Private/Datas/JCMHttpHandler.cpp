@@ -3,9 +3,9 @@
 // 블루프린트로 뽑은 뒤, 레벨에 따로 인스턴싱 해야함.
 // 인스턴스마다 하나의 json url과 response json 객체를 저장함.
 
-#include "Datas/HTTPRequestManager.h"
+#include "Datas/JCMHttpHandler.h"
 
-void UHTTPRequestManager::MakeGetRequest(const FString& Url, const bool GetResultWithFString)
+void UJCMHttpHandler::MakeGetRequest(const FString& Url, const bool GetResultWithFString)
 {
     FHttpModule* Http = &FHttpModule::Get();
     if (!Http) return;
@@ -14,32 +14,21 @@ void UHTTPRequestManager::MakeGetRequest(const FString& Url, const bool GetResul
     Request->SetURL(Url);
     Request->SetVerb(TEXT("GET"));
 
-    // 기본 헤더 설정 (주석 해제)
-    /*Request->SetHeader(TEXT("User-Agent"), TEXT("UnrealEngine/5.4"));
-    Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
-    Request->SetHeader(TEXT("Accept"), TEXT("application/json"));*/
-
-    // 인증이 필요한 경우 추가 예시 (주석 해제)
-    //Request->SetHeader(TEXT("Authorization"), TEXT("Bearer YOUR_ACCESS_TOKEN"));
-
     // 응답 함수 델리게이트 바인딩
 	if (GetResultWithFString)
 	{
-		Request->OnProcessRequestComplete().BindUObject(this, &UHTTPRequestManager::OnResponseReceived);
+		Request->OnProcessRequestComplete().BindUObject(this, &UJCMHttpHandler::OnResponseReceived);
 	}
 	else
 	{
-		Request->OnProcessRequestComplete().BindUObject(this, &UHTTPRequestManager::OnResponseReceivedWithPtr);
+		Request->OnProcessRequestComplete().BindUObject(this, &UJCMHttpHandler::OnResponseReceivedWithPtr);
 	}
-
-	// 응답 처리 함수 델리게이트 바인딩
-	//OnJsonDataReady.AddUObject(this, &UHTTPRequestManager::ExecuteCustomFucntion);
 
     // 요청 실행
     Request->ProcessRequest();
 }
 
-void UHTTPRequestManager::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+void UJCMHttpHandler::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
 	if (bWasSuccessful && Response.IsValid())
 	{
@@ -67,7 +56,7 @@ void UHTTPRequestManager::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHt
 	}
 }
 
-void UHTTPRequestManager::OnResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+void UJCMHttpHandler::OnResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
 	if (bWasSuccessful && Response.IsValid())
 	{
@@ -85,7 +74,7 @@ void UHTTPRequestManager::OnResponseReceived(FHttpRequestPtr Request, FHttpRespo
 
 
 // 데이터 형식에 맞는 커스텀 파싱 함수 호출.
-void UHTTPRequestManager::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject)
+void UJCMHttpHandler::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject)
 {
 	ParsedJsonData = ParseRequestBody(OriginJsonObject);
 	if (ParsedJsonData)
@@ -96,7 +85,7 @@ void UHTTPRequestManager::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> Ori
 	}
 }
 
-TSharedPtr<FJsonObject> UHTTPRequestManager::ParseRequestBody(TSharedPtr<FJsonObject> RequestBody)
+TSharedPtr<FJsonObject> UJCMHttpHandler::ParseRequestBody(TSharedPtr<FJsonObject> RequestBody)
 {
 	const TArray<TSharedPtr<FJsonValue>>* DataArray;
 
@@ -177,4 +166,3 @@ TSharedPtr<FJsonObject> UHTTPRequestManager::ParseRequestBody(TSharedPtr<FJsonOb
 
 	return OutputJsonObject;
 }
-

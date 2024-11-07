@@ -3,21 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DataTypes.generated.h"
+#include "JCMDataTypes.generated.h"
 
 // DataClasses Child Class Names for SetDataClassInstance()
-namespace ChartClassNames
-{
-	static const FString NAME_BARCHART = TEXT("ShapeChartBarClass");
-	static const FString NAME_LINECHART = TEXT("ShapeChartLineClass");
-	static const FString NAME_PIECHART = TEXT("ShapeChartPieClass");
-	static const FString NAME_XYCHART = TEXT("XYChartClass");
-	static const FString NAME_XYZCHART = TEXT("XYZChartClass");
-}
+//namespace ChartClassNames
+//{
+//	static const FString NAME_BARCHART = TEXT("ShapeChartBarClass");
+//	static const FString NAME_LINECHART = TEXT("ShapeChartLineClass");
+//	static const FString NAME_PIECHART = TEXT("ShapeChartPieClass");
+//	static const FString NAME_XYCHART = TEXT("XYChartClass");
+//	static const FString NAME_XYZCHART = TEXT("XYZChartClass");
+//}
 
 // Struct for Shape Chart Data
 USTRUCT(BlueprintType)
-struct FShapeChartData
+struct FJCMChartDataShape
 {
 	GENERATED_BODY()
 
@@ -44,7 +44,7 @@ struct FShapeChartData
 };
 
 USTRUCT(BlueprintType)
-struct FXYChartData
+struct FJCMChartDataXY
 {
 	GENERATED_BODY()
 
@@ -65,7 +65,7 @@ struct FXYChartData
 };
 
 USTRUCT(BlueprintType)
-struct FXYZChartData
+struct FJCMChartDataXYZ
 {
 	GENERATED_BODY()
 
@@ -81,7 +81,7 @@ struct FXYZChartData
 
 // ¿­°ÅÇü
 UENUM(BlueprintType)
-enum EChartTypes : uint8
+enum EJCMChartTypes : uint8
 {
 	None = 0 UMETA(DisplayName = "None"),
 	BAR = 1 UMETA(DisplayName = "BAR"),
@@ -90,18 +90,17 @@ enum EChartTypes : uint8
 	XY = 4 UMETA(DisplayName = "XY"),
 	XYZ = 5 UMETA(DisplayName = "XYZ"),
 	FREE = 6 UMETA(DisplayName = "FREE"),
-
 };
 
-class TEST_API DataTypes
+class TEST_API JCMDataTypes
 {
 public:
-	DataTypes();
+	JCMDataTypes();
 
 	UPROPERTY(VisibleAnywhere)
-	static TMap<FString, EChartTypes> MapChartTypes ;
+	static TMap<FString, EJCMChartTypes> JCMMapChartTypes ;
 
-	~DataTypes();
+	~JCMDataTypes();
 };
 
 
