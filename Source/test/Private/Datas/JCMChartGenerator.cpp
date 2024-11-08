@@ -12,14 +12,13 @@
 UJCMChartGenerator::UJCMChartGenerator()
 {
 	ChildActorContainComponent= CreateDefaultSubobject<USceneComponent>(TEXT("childActorContainComponent"));
-	ChildActorContainComponent->SetupAttachment(GetAttachParent());
-	UE_LOG(LogTemp, Log, TEXT("%s"), *(GetAttachmentRoot()->GetName()));
+	ChildActorContainComponent->SetupAttachment(this);
 	ChildActorContainComponent->SetMobility(EComponentMobility::Movable);
 }
 
 void UJCMChartGenerator::BeginPlay()
 {
-
+	Super::BeginPlay();
 }
 
 // Base에 붙은 액터 삭제
@@ -46,15 +45,29 @@ UJCMChartGeneratorBar::UJCMChartGeneratorBar()
 	// 차트 들어가는 각 컴포넌트 인스턴스 생성만, Attach는 Data3DActor에서 할 것
 	SplineComponent_length = CreateDefaultSubobject<USplineComponent>(TEXT("LengthSplineComponent"));
 	SplineComponent_length->SetMobility(EComponentMobility::Movable);
+	SplineComponent_length->SetupAttachment(this);
 
 	SplineComponent_height = CreateDefaultSubobject<USplineComponent>(TEXT("HeightSplineComponent"));
 	SplineComponent_height->SetRelativeRotation(FRotator(90.f, 0.f, 0.f));
 	SplineComponent_height->SetMobility(EComponentMobility::Movable);
+	SplineComponent_height->SetupAttachment(this);
 }
 
 void UJCMChartGeneratorBar::SetBarSourceActor(const TSubclassOf<AJCMBarBaseActor>& SourceActor)
 {
+	if (!SourceActor)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("JCMChartGenrator : Setting BarSource Actor Failed"));
+		return;
+	}
 	BarBaseActorBPClass = SourceActor;
+}
+
+void UJCMChartGeneratorBar::SetAttachComponents(USceneComponent* TargetComponentInstance)
+{
+	ChildActorContainComponent->SetupAttachment(TargetComponentInstance);
+	SplineComponent_height->SetupAttachment(TargetComponentInstance);
+	SplineComponent_length->SetupAttachment(TargetComponentInstance);
 }
 
 // ChildActorComponent로 소유힌 BarBaseActor 인스턴스 삭제
@@ -329,5 +342,3 @@ bool UJCMChartGeneratorBar::CreateBarAlongSplinePoint(const TArray<float>& Value
 
 	return false;
 }
-
-

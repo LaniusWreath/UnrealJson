@@ -33,18 +33,12 @@ AJCM3DChartActor::AJCM3DChartActor()
 void AJCM3DChartActor::BeginPlay()
 {
 	Super::BeginPlay();
-
-	InitializeDataManager();
 }
 
 // JsonObjectPtr를 받는 함수
 void AJCM3DChartActor::RequestJsonObject(const FString& URL)
 {
-	if (!DataManagerInstance)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("JCM3DChartActor : RequestJsonObject() Failed. Initialize JCMCore First"));
-		return;
-	}
+	SetJCMDataManagerRef();
 	InitializeRequestManager();
 	// Request 델리게이트 바인딩 함수 : DataClass 멤버변수 초기화 
 	// 멀티캐스트 델리게이트였다면 델리게이트 객체 매 번 청소해야 겠지만, 지금은 싱글캐스트. 객체 매 번 삭제 안해도 됨.
@@ -56,25 +50,51 @@ void AJCM3DChartActor::RequestJsonObject(const FString& URL)
 // FString을 받는 함수
 void AJCM3DChartActor::RequestJsonString(const FString& URL)
 {
+	SetJCMDataManagerRef();
 	InitializeRequestManager();
 	RequestManagerInstance->OnRequestedJsonStringReady.BindUObject(this, &AJCM3DChartActor::SetJsonString);
 	IsDataClassInstanceSet = false;
 	RequestManagerInstance->MakeGetRequest(URL);
 }
 
-void AJCM3DChartActor::InitializeDataManager()
-{	
-	if (UJCMCore::GetJCMCore())
+bool AJCM3DChartActor::CheckJCMActorIntegrity()
+{
+	bool bIsValid= true;
+	if (!DataManagerInstanceRef)
 	{
-		DataManagerInstance = UJCMCore::GetJCMCore()->GetJCMDataManager();
-		if (!DataManagerInstance)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Data3DActor : Initialize Managers : Getting DataManager Reference Failed"));
-		}
+		UE_LOG(LogTemp, Warning, TEXT("Integrity Check : %s : DataManager Invalid "), *this->GetName());
+		bIsValid = false;
 	}
-	else
+	if (!DataClassInstance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Couldn't find GameInstance or DataManager"));
+		UE_LOG(LogTemp, Warning, TEXT("Integrity Check : %s : DataContainer Invalid"), *this->GetName());
+		bIsValid = false;
+	}
+	if (!RequestManagerInstance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Integrity Check : %s : HttpHandler Instance Invalid"), *this->GetName());
+		bIsValid = false;
+	}
+
+	return bIsValid;
+}
+
+void AJCM3DChartActor::SetJCMDataManagerRef()
+{	
+	if (!DataManagerInstanceRef)
+	{
+		if (UJCMCore::GetJCMCore())
+		{
+			DataManagerInstanceRef = UJCMCore::GetJCMCore()->GetJCMDataManager();
+			if (!DataManagerInstanceRef)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Data3DActor : Initialize Managers : Getting DataManager Reference Failed"));
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Couldn't find JCMCore"));
+		}
 	}
 }
 
@@ -95,7 +115,7 @@ void AJCM3DChartActor::SetJsonObject(const TSharedPtr<FJsonObject> JsonData)
 	if (RequestManagerInstance)
 	{
 		TSharedPtr<FJsonObject> Data = RequestManagerInstance->GetJsonData();
-		FDataInstancePair ResultData = DataManagerInstance->InstancingDataClass(Data);
+		FDataInstancePair ResultData = DataManagerInstanceRef->InstancingDataClass(Data);
 		UE_LOG(LogTemp, Log, TEXT("Data3DChartActor : DataClass Set, Response Chart Class is : %s"), *ResultData.ClassName);
 		DataClassInstance = ResultData.DataInstance;
 		if (!DataClassInstance)
@@ -127,16 +147,11 @@ void AJCM3DChartActor::Tick(float DeltaTime)
 
 AJCM3DChartActorBar::AJCM3DChartActorBar()
 {
-	BarGeneratorComponent = CreateDefaultSubobject<UJCMChartGeneratorBar>(TEXT("barGeneratorComponent"));
-	if (RootSceneComponent)
-	{
-		// 처음에는 ChartGenerator 생성자에서 각각 컴포넌트 붙였으나, 계층 구조만 변경될 뿐 실제로 붙지 않는 문제 발생.
-		// -> 액터에서 직접 컴포넌트의 구성 컴포넌트들 액터의 RootComponent에 Attach
-		BarGeneratorComponent->SetupAttachment(RootSceneComponent);
-		BarGeneratorComponent->SplineComponent_height->SetupAttachment(BarGeneratorComponent);
-		BarGeneratorComponent->SplineComponent_length->SetupAttachment(BarGeneratorComponent);
-		BarGeneratorComponent->ChildActorContainComponent->SetupAttachment(BarGeneratorComponent);
-	}
+	EnableGenerateMeshAtSplinePoint = false;
+	BarGeneratorComponent = CreateDefaultSubobject<UJCMChartGeneratorBar>(TEXT("BarGeneratorComponent"));
+	// 처음에는 ChartGenerator 생성자에서 각각 컴포넌트 붙였으나, 계층 구조만 변경될 뿐 실제로 붙지 않는 문제 발생.
+	BarGeneratorComponent->SetupAttachment(RootSceneComponent);
+	BarGeneratorComponent->SetAttachComponents(BarGeneratorComponent);
 
 	TextRenderComponent_chartXaxisName = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Text_xAxis"));
 	TextRenderComponent_chartXaxisName->SetupAttachment(RootSceneComponent);
@@ -182,13 +197,13 @@ void AJCM3DChartActorBar::GenerateChartRoutine()
 	SetChartDefaultTexts();
 
 	// 생성할 바 소스 액터 BarGenerator에 전달
-	if (BarBaseActorBPClass)
+	if (BarGeneratorComponent && BarBaseActorBPClass)
 	{
 		BarGeneratorComponent->SetBarSourceActor(BarBaseActorBPClass);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Data3DActor : BarBaseActorBPClass is null"));
+		UE_LOG(LogTemp, Warning, TEXT("Data3DActor : BarBaseActorBPClass or BarGeneratorComponent is null"));
 		return;
 	}
 
@@ -202,5 +217,23 @@ void AJCM3DChartActorBar::GenerateChartRoutine()
 	// GenerateBarChart() : 데이터 입력 받아 차트 생성 루틴 함수 호출 / GetShapeChartData() : Bar(모양)차트 데이터 Get
 	BarGeneratorComponent->GenerateBarChart(BarDataClassInstance->GetShapeChartData(), EnableGenerateMeshAtSplinePoint);
 
+}
+
+bool AJCM3DChartActorBar::CheckJCMActorIntegrity()
+{
+	bool bIsValid = Super::CheckJCMActorIntegrity();
+
+	if (!BarGeneratorComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Integrity Check : %s : BarGeneratorComponent Invalid"), *this->GetName());
+		bIsValid = false;
+	}
+	if (!BarBaseActorBPClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Integrity Check : %s : BarBaseActorBPClass Invalid"), *this->GetName());
+		bIsValid = false;
+	}
+
+	return bIsValid;
 }
 

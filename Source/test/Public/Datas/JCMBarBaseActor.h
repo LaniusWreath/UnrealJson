@@ -30,10 +30,7 @@ private:
 	// Custome Static Mesh Spawn Timer
 	FTimerHandle SpawnTimerHandle;
 
-	int32 SpawnCount;
-
-	UPROPERTY()
-	int32 ResultCustomStaticMeshSpawnedAmount;
+	int32 SpawnCount = 0;
 
 	UPROPERTY()
 	float ResultCustomStaticMeshSpawnedValue;
@@ -97,7 +94,7 @@ public:
 	int UnitSize = 1;
 
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "EnableSpawnCustomMesh"), Category = "Chart")
-	bool SpawnPerUnitValue;
+	bool SpawnPerUnitValue= false;
 
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "SpawnPerUnitValue"), Category = "Chart")
 	float UnitValue=1;
@@ -135,12 +132,6 @@ public:
 
 	void AdjustTextMeshValueOffset(const float& BarHeight);
 	void AdjustTextMeshValueOffset(const int& amount);
-
-	UFUNCTION(BlueprintCallable, Category = "Chart")
-	int32 GetResultCustomMeshSpawnedAmount() const
-	{
-		return ResultCustomStaticMeshSpawnedAmount;
-	}
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	float GetResultCustomMeshSpawnedValue() const

@@ -63,18 +63,21 @@ protected:
 
 	// Initializing Data Manager Getting from Game Instance
 	UFUNCTION()
-	void InitializeDataManager();
+	void SetJCMDataManagerRef();
 
 	// Initializing Request Manager Instance : this instance have to be initialized in every CallJsonRoutine()
 	UFUNCTION()
 	void InitializeRequestManager();
+
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	virtual bool CheckJCMActorIntegrity();
 
 	// Pure Virtual Routine for Generate Chart
 	virtual void GenerateChartRoutine() PURE_VIRTUAL(UDataFetcherBase::FetchData, ;);
 
 	// DataManager Reference
 	UPROPERTY()
-	UJCMDataManager* DataManagerInstance;
+	UJCMDataManager* DataManagerInstanceRef;
 
 	// Data Class Instance
 	UPROPERTY(VisibleAnywhere, Category = "Chart")
@@ -107,6 +110,8 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	virtual void GenerateChartRoutine() override;
 
+	virtual bool CheckJCMActorIntegrity() override;
+
 public:
 	AJCM3DChartActorBar();
 
@@ -119,7 +124,7 @@ public:
 	TSubclassOf<AJCMBarBaseActor> BarBaseActorBPClass;
 
 	// Controler Component for Generating 3D Bar Chart 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Chart")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Chart")
 	UJCMChartGeneratorBar* BarGeneratorComponent;
 
 	// Visualization Chart Xaxis Name

@@ -13,7 +13,8 @@
 class UTextRenderComponent;
 
 // ChartGenerator Abstract Component Class
-UCLASS(Abstract, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class TEST_API UJCMChartGenerator : public USceneComponent
 {
 	GENERATED_BODY()
@@ -34,7 +35,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USceneComponent* ChildActorContainComponent;
-
 };
 
 class USplineComponent;
@@ -62,6 +62,8 @@ private:
 	bool CreateBarAlongSplinePoint(const TArray<float>& ValueArray, const TArray<FString>& LabelArray,
 		const float BarPaddingScaler, const float BarHeightScaler);
 
+	void AddSplinePoint(USplineComponent* SplineComponent, int TargetCount);
+
 	// BP BarBase Actor Source to Display 
 	UPROPERTY()
 	TSubclassOf<AJCMBarBaseActor> BarBaseActorBPClass;
@@ -77,11 +79,9 @@ public:
 	void GenerateBarChart(const FJCMChartDataShape& CopiedData, bool bGenerateMeshAtSplinePoint);
 
 	// Set BP BarBase Actor Source to Display 
-	UFUNCTION()
 	void SetBarSourceActor(const TSubclassOf<AJCMBarBaseActor>& SourceActor);
 
-	UFUNCTION()
-	void AddSplinePoint(USplineComponent* SplineComponent, int TargetCount);
+	void SetAttachComponents(USceneComponent* TargetComponentInstance);
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Component")
 	USplineComponent* SplineComponent_length;
