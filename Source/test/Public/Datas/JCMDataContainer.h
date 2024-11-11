@@ -23,11 +23,6 @@ public:
 	virtual const EJCMChartTypes GetChartType() const;
 };
 
-// 이 클래스의 객체는 DataManager에서 생성되고 관리 됨. 
-// 처리된 데이터 구조는 DataTypes의 구조를 따라가며, 포인터가 아닌 실제 값을 멤버 변수로 지정했음.
-// 처리된 데이터 원본이 필요하다면 각 자손 클래스의 Getter 함수를 사용할 것.
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
 UCLASS(BlueprintType)
 class UJCMDataContainerBar : public UJCMDataContainer
 {

@@ -106,6 +106,37 @@ TSharedPtr<FJsonObject> UJCMHttpHandler::ParseRequestBody(TSharedPtr<FJsonObject
 	return DataObject;
 }
 
+void UJCMHttpHandler::MappingJsonObject(TSharedPtr<FJsonObject> RequestBody)
+{
+	const TSharedPtr<FJsonObject> DataObject = RequestBody->GetObjectField(TEXT("data"));
+
+	if (DataObject.IsValid())
+	{
+		// JSON 객체의 키-값 쌍을 순회하며 TMap에 저장
+		for (const auto& Pair : DataObject->Values)
+		{
+			FString Key = Pair.Key;
+			FString StringValue;
+
+			// 값의 타입에 따라 문자열로 변환 후 저장
+			if (Pair.Value->Type == EJson::String)
+			{
+				StringValue = Pair.Value->AsString();
+			}
+			else
+			{
+				// 문자열이 아닌 경우 JSON 형식으로 직렬화
+				TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&StringValue);
+				FJsonSerializer::Serialize(Pair.Value.ToSharedRef(), Writer);
+			}
+
+			// TMap에 추가
+			JsonMap.Add(Key, Value);
+		}
+	}
+}
+
+
 // 공공데이터 url 파싱 함수
 /*
 TSharedPtr<FJsonObject> UJCMHttpHandler::ParseRequestBody(TSharedPtr<FJsonObject> RequestBody)

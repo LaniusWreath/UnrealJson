@@ -60,8 +60,12 @@ private:
 
 	TSharedPtr<FJsonObject> ParsedJsonData;
 	
+	TMap<FString, FString> JsonMap;
+
 	// Custom JsonParsing Function.
 	TSharedPtr<FJsonObject> ParseRequestBody(TSharedPtr<FJsonObject> RequestBody);
 
 	void ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject);
+
+	void MappingJsonObject(TSharedPtr<FJsonObject> RequestBody);
 };

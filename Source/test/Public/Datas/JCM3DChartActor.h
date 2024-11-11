@@ -39,8 +39,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	const UJCMHttpHandler* GetHttpRequestHandler() const
 	{
-		if (RequestManagerInstance) {
-			return RequestManagerInstance;
+		if (RequestHandlerInstance) {
+			return RequestHandlerInstance;
 		}
 		else
 			return nullptr;
@@ -62,8 +62,8 @@ protected:
 	void SetJCMDataManagerRef();
 
 	// Initializing Request Manager Instance : this instance have to be initialized in every CallJsonRoutine()
-	UFUNCTION()
-	void InitializeRequestManager();
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	const UJCMHttpHandler* InitializeRequestHandler();
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	virtual bool CheckJCMActorIntegrity();
@@ -80,7 +80,7 @@ protected:
 	UJCMDataContainer* DataClassInstance;
 
 	UPROPERTY()
-	UJCMHttpHandler* RequestManagerInstance;
+	UJCMHttpHandler* RequestHandlerInstance;
 
 	UPROPERTY()
 	USceneComponent* RootSceneComponent;
@@ -148,9 +148,9 @@ public:
 	
 	// Set Processed Json Data Container Class Instance Directly : You have to get a reference from other Data3DActor Instance to use this function.
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	void SetDataClassInstance(UJCMDataContainer* DataClassInstancePtr)
+	void SetDataClassInstance(UJCMDataContainer* DataClassInstanceRef)
 	{
-		DataClassInstance = DataClassInstancePtr;
+		DataClassInstance = DataClassInstanceRef;
 		IsDataClassInstanceSet = true;
 	}
 	

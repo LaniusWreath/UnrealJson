@@ -39,22 +39,22 @@ void AJCM3DChartActor::BeginPlay()
 void AJCM3DChartActor::RequestJsonObject(const FString& URL)
 {
 	SetJCMDataManagerRef();
-	InitializeRequestManager();
+	InitializeRequestHandler();
 	// Request 델리게이트 바인딩 함수 : DataClass 멤버변수 초기화 
 	// 멀티캐스트 델리게이트였다면 델리게이트 객체 매 번 청소해야 겠지만, 지금은 싱글캐스트. 객체 매 번 삭제 안해도 됨.
-	RequestManagerInstance->OnParsedJsonObjectPtrReady.BindUObject(this, &AJCM3DChartActor::SetJsonObject);
+	RequestHandlerInstance->OnParsedJsonObjectPtrReady.BindUObject(this, &AJCM3DChartActor::SetJsonObject);
 	IsDataClassInstanceSet = false;
-	RequestManagerInstance->MakeGetRequest(URL, false);
+	RequestHandlerInstance->MakeGetRequest(URL, false);
 }
 
 // FString을 받는 함수
 void AJCM3DChartActor::RequestJsonString(const FString& URL)
 {
 	SetJCMDataManagerRef();
-	InitializeRequestManager();
-	RequestManagerInstance->OnRequestedJsonStringReady.BindUObject(this, &AJCM3DChartActor::SetJsonString);
+	InitializeRequestHandler();
+	RequestHandlerInstance->OnRequestedJsonStringReady.BindUObject(this, &AJCM3DChartActor::SetJsonString);
 	IsDataClassInstanceSet = false;
-	RequestManagerInstance->MakeGetRequest(URL);
+	RequestHandlerInstance->MakeGetRequest(URL);
 }
 
 // 로컬 Json 읽어 데이터 컨테이너 세팅
@@ -79,7 +79,7 @@ bool AJCM3DChartActor::CheckJCMActorIntegrity()
 		UE_LOG(LogTemp, Warning, TEXT("Integrity Check : %s : DataContainer Invalid"), *this->GetName());
 		bIsValid = false;
 	}
-	if (!RequestManagerInstance)
+	if (!RequestHandlerInstance)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Integrity Check : %s : HttpHandler Instance Invalid"), *this->GetName());
 		bIsValid = false;
@@ -110,18 +110,19 @@ void AJCM3DChartActor::SetJCMDataManagerRef()
 // RequestManager의 인스턴스는 각각 request를 담당하는 액터에서 직접 생성. 
 // 각 인스턴스의 델리게이트는 각 액터의 url에 대한 리퀘스트만 감지하여 각 액터 인스턴스의 함수와 1:1 바인딩
 // url로 데이터를 리퀘스트 할 때 마다 기존 httpManager인스턴스를 삭제하고 새롭게 초기화.
-void AJCM3DChartActor::InitializeRequestManager()
+const UJCMHttpHandler* AJCM3DChartActor::InitializeRequestHandler()
 {
-	if (!RequestManagerInstance)
+	if (!RequestHandlerInstance)
 	{
-		RequestManagerInstance = NewObject<UJCMHttpHandler>();
+		RequestHandlerInstance = NewObject<UJCMHttpHandler>();
 	}
+	return RequestHandlerInstance;
 }
 
 // FJsonObject 받아 UDataClasses*로 추출
 void AJCM3DChartActor::SetJsonObject(const TSharedPtr<FJsonObject> JsonData)
 {
-	if (RequestManagerInstance)
+	if (RequestHandlerInstance)
 	{
 		//TSharedPtr<FJsonObject> Data = RequestManagerInstance->GetJsonData();
 		FDataInstancePair ResultData = DataManagerInstanceRef->InstancingDataClass(JsonData);
