@@ -9,17 +9,14 @@
 
 class UJCMDataManager;
 class UJCMDataContainer;
-class UJCMDataContainerBar;
-class UChartGenerator;
 class UTextRenderComponent;
-class UHTTPRequestHandler;
 
 UCLASS()
 class TEST_API AJCM3DChartActor : public AActor
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	AJCM3DChartActor();
 
 	// Called every frame
@@ -29,9 +26,6 @@ public:
 
 	void SetJsonString(const bool IsWorkDone);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Chart")
-	FString CurrentChartType;
-	
 	// Call Json Request Function, Result Data will be stored in this  
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	void RequestJsonObject(const FString& URL);
@@ -40,9 +34,12 @@ public:
 	void RequestJsonString(const FString& URL);
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
+	void LoadFromLocalJsonFile(const FString& FilePath);
+
+	UFUNCTION(BlueprintCallable, Category = "Chart")
 	const UJCMHttpHandler* GetHttpRequestHandler() const
 	{
-		if (RequestManagerInstance){
+		if (RequestManagerInstance) {
 			return RequestManagerInstance;
 		}
 		else
@@ -55,7 +52,6 @@ public:
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Chart")
 	bool IsDataClassInstanceSet;
-
 
 protected:
 	// Called when the game starts or when spawned
@@ -80,7 +76,7 @@ protected:
 	UJCMDataManager* DataManagerInstanceRef;
 
 	// Data Class Instance
-	UPROPERTY(VisibleAnywhere, Category = "Chart")
+	UPROPERTY(VisibleInstanceOnly, Category = "Chart")
 	UJCMDataContainer* DataClassInstance;
 
 	UPROPERTY()
@@ -124,7 +120,7 @@ public:
 	TSubclassOf<AJCMBarBaseActor> BarBaseActorBPClass;
 
 	// Controler Component for Generating 3D Bar Chart 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Chart")
+	UPROPERTY(BlueprintReadOnly, Category = "Chart")
 	UJCMChartGeneratorBar* BarGeneratorComponent;
 
 	// Visualization Chart Xaxis Name

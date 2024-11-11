@@ -26,24 +26,22 @@ private:
 	UPROPERTY()
 	UJCMHttpHandler* RequestManagerInstance;
 
-public:
-	// Initializing Each Managers
-	UFUNCTION(BlueprintCallable, Category = "Chart")
 	UJCMDataManager* GetJCMDataManager();
 
-	UFUNCTION(BlueprintCallable, Category = "Chart")
 	UJCMHttpHandler* GetJCMRequestManager();
 
+public:
+	// Initializing Each Managers
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	static UJCMCore* GetJCMCore();
 
 	// Core Approching Function
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	static UJCMCore* InitializeJCMCore();
+	static const UJCMCore* InitializeJCMCore();
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	// Core Deleting Function
-	static void Destroy();
+	static void JCMCoreDestroy();
 
 	// Each Manager Getter Function
 	UFUNCTION(BlueprintCallable, Category = "Chart")

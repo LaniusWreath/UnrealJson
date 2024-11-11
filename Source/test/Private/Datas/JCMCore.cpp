@@ -6,30 +6,8 @@
 
 UJCMCore* UJCMCore::JCMCoreInstance = nullptr;
 
-// RequestHandler를 싱글톤으로 매니저처럼 사용
-UJCMHttpHandler* UJCMCore::GetJCMRequestManager()
-{
-	if (!RequestManagerInstance)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No JCM Core Instance. Please Initialize Core First"));
-	}
-	return RequestManagerInstance;
-}
-
-UJCMCore* UJCMCore::GetJCMCore()
-{
-	if (JCMCoreInstance)
-	{
-		return JCMCoreInstance;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No JCM Core Instance. Please Initialize Core First"));
-		return nullptr;
-	}
-}
-
-UJCMCore* UJCMCore::InitializeJCMCore()
+// Initializing JCMCore static
+const UJCMCore* UJCMCore::InitializeJCMCore()
 {
 	// SingletonInstance가 없으면 생성하고 초기화
 	if (!JCMCoreInstance)
@@ -43,6 +21,31 @@ UJCMCore* UJCMCore::InitializeJCMCore()
 	return JCMCoreInstance;
 }
 
+// Get JCMCore Instance
+UJCMCore* UJCMCore::GetJCMCore()
+{
+	if (JCMCoreInstance)
+	{
+		return JCMCoreInstance;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No JCM Core Instance. Please Initialize Core First"));
+		return nullptr;
+	}
+}
+
+// RequestHandler를 싱글톤으로 매니저처럼 사용 : 소스용
+UJCMHttpHandler* UJCMCore::GetJCMRequestManager()
+{
+	if (!RequestManagerInstance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No JCM Core Instance. Please Initialize Core First"));
+	}
+	return RequestManagerInstance;
+}
+
+// Get JCMDataManager static Instance : 소스용
 UJCMDataManager* UJCMCore::GetJCMDataManager()
 {
 	// DataManager 인스턴스 생성 및 초기화
@@ -53,7 +56,8 @@ UJCMDataManager* UJCMCore::GetJCMDataManager()
 	return DataManagerInstance;
 }
 
-void UJCMCore::Destroy()
+// 코어 인스턴스 삭제 및 GC 방지 해제
+void UJCMCore::JCMCoreDestroy()
 {
 	if (JCMCoreInstance)
 	{

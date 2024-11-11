@@ -64,14 +64,13 @@ void UJCMHttpHandler::OnResponseReceived(FHttpRequestPtr Request, FHttpResponseP
 		ResultResponseString = Response->GetContentAsString();
 		UE_LOG(LogTemp, Log, TEXT("Response: %s"), *ResultResponseString);
 		OnRequestedJsonStringReady.Execute(true);
-		OnRequestProcessDone.Broadcast();
+		OnRequestingProcessDone.Broadcast();
 	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("HTTP Request failed."));
 	}
 }
-
 
 // 데이터 형식에 맞는 커스텀 파싱 함수 호출.
 void UJCMHttpHandler::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject)
@@ -81,10 +80,34 @@ void UJCMHttpHandler::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJ
 	{
 		UE_LOG(LogTemp, Log, TEXT("HTTPRequestManager : DataParsing Complete"));
 		OnParsedJsonObjectPtrReady.Execute(ParsedJsonData);
-		OnRequestProcessDone.Broadcast();
+		OnRequestingProcessDone.Broadcast();
 	}
 }
 
+TSharedPtr<FJsonObject> UJCMHttpHandler::ParseRequestBody(TSharedPtr<FJsonObject> RequestBody)
+{
+	const TSharedPtr<FJsonObject> DataObject = RequestBody->GetObjectField(TEXT("data"));
+
+	if (DataObject.IsValid())
+	{
+		// JSON 객체를 문자열로 인코딩하여 JSON 형식으로 출력
+		FString JsonString;
+		TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
+		FJsonSerializer::Serialize(DataObject.ToSharedRef(), Writer);
+
+		// 디버깅 출력
+		UE_LOG(LogTemp, Log, TEXT("DataObject JSON: %s"), *JsonString);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DataObject is invalid"));
+	}
+
+	return DataObject;
+}
+
+// 공공데이터 url 파싱 함수
+/*
 TSharedPtr<FJsonObject> UJCMHttpHandler::ParseRequestBody(TSharedPtr<FJsonObject> RequestBody)
 {
 	const TArray<TSharedPtr<FJsonValue>>* DataArray;
@@ -165,4 +188,4 @@ TSharedPtr<FJsonObject> UJCMHttpHandler::ParseRequestBody(TSharedPtr<FJsonObject
 	}
 
 	return OutputJsonObject;
-}
+}*/

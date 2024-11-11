@@ -57,6 +57,15 @@ void AJCM3DChartActor::RequestJsonString(const FString& URL)
 	RequestManagerInstance->MakeGetRequest(URL);
 }
 
+// 로컬 Json 읽어 데이터 컨테이너 세팅
+void AJCM3DChartActor::LoadFromLocalJsonFile(const FString& FilePath)
+{
+	SetJCMDataManagerRef();
+	IsDataClassInstanceSet = false;
+	DataClassInstance = DataManagerInstanceRef->InstancingDataContainerFromLocalJson(FilePath);
+}
+
+// 기본 액터 무결성 체크 함수
 bool AJCM3DChartActor::CheckJCMActorIntegrity()
 {
 	bool bIsValid= true;
@@ -85,7 +94,7 @@ void AJCM3DChartActor::SetJCMDataManagerRef()
 	{
 		if (UJCMCore::GetJCMCore())
 		{
-			DataManagerInstanceRef = UJCMCore::GetJCMCore()->GetJCMDataManager();
+			DataManagerInstanceRef = UJCMCore::GetJCMCore()->GetDataManager();
 			if (!DataManagerInstanceRef)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Data3DActor : Initialize Managers : Getting DataManager Reference Failed"));
@@ -114,8 +123,8 @@ void AJCM3DChartActor::SetJsonObject(const TSharedPtr<FJsonObject> JsonData)
 {
 	if (RequestManagerInstance)
 	{
-		TSharedPtr<FJsonObject> Data = RequestManagerInstance->GetJsonData();
-		FDataInstancePair ResultData = DataManagerInstanceRef->InstancingDataClass(Data);
+		//TSharedPtr<FJsonObject> Data = RequestManagerInstance->GetJsonData();
+		FDataInstancePair ResultData = DataManagerInstanceRef->InstancingDataClass(JsonData);
 		UE_LOG(LogTemp, Log, TEXT("Data3DChartActor : DataClass Set, Response Chart Class is : %s"), *ResultData.ClassName);
 		DataClassInstance = ResultData.DataInstance;
 		if (!DataClassInstance)
@@ -151,6 +160,7 @@ AJCM3DChartActorBar::AJCM3DChartActorBar()
 	BarGeneratorComponent = CreateDefaultSubobject<UJCMChartGeneratorBar>(TEXT("BarGeneratorComponent"));
 	// 처음에는 ChartGenerator 생성자에서 각각 컴포넌트 붙였으나, 계층 구조만 변경될 뿐 실제로 붙지 않는 문제 발생.
 	BarGeneratorComponent->SetupAttachment(RootSceneComponent);
+	// ChartGenerator의 멤버 컴포넌트 따로 부착해주는 함수 작성
 	BarGeneratorComponent->SetAttachComponents(BarGeneratorComponent);
 
 	TextRenderComponent_chartXaxisName = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Text_xAxis"));
@@ -219,6 +229,7 @@ void AJCM3DChartActorBar::GenerateChartRoutine()
 
 }
 
+// Bar 액터 무결성 체크 함수
 bool AJCM3DChartActorBar::CheckJCMActorIntegrity()
 {
 	bool bIsValid = Super::CheckJCMActorIntegrity();
@@ -236,4 +247,3 @@ bool AJCM3DChartActorBar::CheckJCMActorIntegrity()
 
 	return bIsValid;
 }
-

@@ -30,11 +30,11 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	UPROPERTY(BlueprintReadOnly)
+	USceneComponent* ChildActorContainComponent;
+
 public:
 	UJCMChartGenerator();
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	USceneComponent* ChildActorContainComponent;
 };
 
 class USplineComponent;
@@ -75,7 +75,6 @@ public:
 	UJCMChartGeneratorBar();
 
 	// Generate Bar Chart Routine Function
-	UFUNCTION(BlueprintCallable, Category = "Chart")
 	void GenerateBarChart(const FJCMChartDataShape& CopiedData, bool bGenerateMeshAtSplinePoint);
 
 	// Set BP BarBase Actor Source to Display 

@@ -48,7 +48,7 @@ public:
 	FOneParamDelegate OnRequestedJsonStringReady;
 
 	UPROPERTY(BlueprintAssignable, Category = "Chart")
-	FOnDynamicRequestEvent OnRequestProcessDone;
+	FOnDynamicRequestEvent OnRequestingProcessDone;
 
 private:
 	// HTTP Processing

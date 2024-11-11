@@ -87,9 +87,6 @@ void UJCMChartGeneratorBar::ClearChildrenActors()
 			ChildComponent->GetChildActor()->Destroy();
 			ChildComponent->DestroyComponent();
 
-			/*UE_LOG(LogTemp, Log, TEXT("ChartGenerator : Children Actor %s cleard"), *ChildComponent->GetChildActor()->GetName());
-			ChildComponent->GetChildActor()->Destroy();
-			ChildComponent->DestroyComponent();*/
 		}
 	}
 	UE_LOG(LogTemp, Log, TEXT("All Children Actors cleard"));

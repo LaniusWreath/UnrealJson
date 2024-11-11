@@ -2,7 +2,6 @@
 
 #include "Datas/JCMDataManager.h"
 #include "Datas/JCMJsonHandler.h"
-#include "Datas/CSVHandler.h"
 #include "Datas/JCMDataContainer.h"
 #include "Serialization/JsonWriter.h"
 
@@ -105,7 +104,7 @@ FString UJCMDataManager::SerializeJSONToString(const TSharedPtr<FJsonObject> JSO
 }
 
 // 데이터 입력 받아 파싱, DataClass 객체 생성 -> Chart
-FDataInstancePair UJCMDataManager::InstancingDataClass(const TSharedPtr<FJsonObject> Data)
+FDataInstancePair UJCMDataManager::InstancingDataClass(const TSharedPtr<FJsonObject> Data) 
 {
 	if (!Data.IsValid())
 	{
@@ -127,6 +126,7 @@ FDataInstancePair UJCMDataManager::InstancingDataClass(const TSharedPtr<FJsonObj
 	case BAR:
 	{
 		// 데이터 객체 생성
+		UJCMDataContainerBar* NewChartV = NewObject<UJCMDataContainerBar>();
 		UJCMDataContainerBar* NewChartBarClass = NewObject<UJCMDataContainerBar>(this);
 
 		FString ClassName = NewChartBarClass->GetClass()->GetName();
@@ -137,7 +137,7 @@ FDataInstancePair UJCMDataManager::InstancingDataClass(const TSharedPtr<FJsonObj
 
 		// x축 데이터 배열 추출
 		TArray<FString> XLabels;
-		TArray<TSharedPtr<FJsonValue>> LabelArray = XAxisObject->GetArrayField(TEXT("data"));
+		TArray<TSharedPtr<FJsonValue>> LabelArray = XAxisObject->GetArrayField(TEXT("label"));
 		for (const TSharedPtr<FJsonValue>& Value : LabelArray)
 		{
 			XLabels.Add(Value->AsString());
@@ -149,7 +149,7 @@ FDataInstancePair UJCMDataManager::InstancingDataClass(const TSharedPtr<FJsonObj
 
 		// Y축 데이터 배열 추출
 		TArray<float> YValues;
-		TArray<TSharedPtr<FJsonValue>> ValueArray = YAxisObject->GetArrayField(TEXT("data"));
+		TArray<TSharedPtr<FJsonValue>> ValueArray = YAxisObject->GetArrayField(TEXT("value"));
 		for (const TSharedPtr<FJsonValue>& Value : ValueArray)
 		{
 			YValues.Add(Value->AsNumber());

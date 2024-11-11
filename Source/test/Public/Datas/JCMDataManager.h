@@ -8,7 +8,6 @@
 #include "JCMDataManager.generated.h"
 
 class UJCMJsonHandler;
-class UCSVHandler;
 class UJCMDataContainer;
 class UJCMDataContainerBar;
 
@@ -39,7 +38,6 @@ private:
 
 	// DataHander Instances
 	UJCMJsonHandler* JSONHandlerInstance;
-	UCSVHandler* CSVHandlerInstance;
 
 	// JSON String Serialization Function
 	FString SerializeJSONToString(const TSharedPtr<FJsonObject> JSONObject);
