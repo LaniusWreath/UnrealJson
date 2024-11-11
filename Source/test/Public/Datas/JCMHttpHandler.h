@@ -25,6 +25,14 @@ class TEST_API UJCMHttpHandler : public UObject
 	
 public:
 
+	// Delegate for Alarming Request Done, Data Ready
+	//FOnJsonDataReadyDelegate OnJsonDataReady;
+	FOnJsonDataReadyDelegate OnParsedJsonObjectPtrReady;
+	FOneParamDelegate OnRequestedJsonStringReady;
+
+	UPROPERTY(BlueprintAssignable, Category = "Chart")
+	FOnDynamicRequestEvent OnRequestingProcessDone;
+
 	// Call HTTP Get Request
 	UFUNCTION(BlueprintCallable, meta = (AdvancedDisplay = "GetResultWithFString"), Category = "Chart")
 	void MakeGetRequest(const FString& Url, const bool GetResultWithFString = true);
@@ -42,13 +50,8 @@ public:
 		return ParsedJsonData;
 	}
 
-	// Delegate for Alarming Request Done, Data Ready
-	//FOnJsonDataReadyDelegate OnJsonDataReady;
-	FOnJsonDataReadyDelegate OnParsedJsonObjectPtrReady;
-	FOneParamDelegate OnRequestedJsonStringReady;
-
-	UPROPERTY(BlueprintAssignable, Category = "Chart")
-	FOnDynamicRequestEvent OnRequestingProcessDone;
+	UFUNCTION(BlueprintCallable, Category = "JSON Parsing")
+	static TMap<FString, FString> ParseJsonStringToMap(const FString& JsonString);
 
 private:
 	// HTTP Processing
@@ -67,5 +70,4 @@ private:
 
 	void ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject);
 
-	void MappingJsonObject(TSharedPtr<FJsonObject> RequestBody);
 };

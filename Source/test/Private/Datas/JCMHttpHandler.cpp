@@ -106,35 +106,54 @@ TSharedPtr<FJsonObject> UJCMHttpHandler::ParseRequestBody(TSharedPtr<FJsonObject
 	return DataObject;
 }
 
-void UJCMHttpHandler::MappingJsonObject(TSharedPtr<FJsonObject> RequestBody)
+TMap<FString, FString> UJCMHttpHandler::ParseJsonStringToMap(const FString& JsonString)
 {
-	const TSharedPtr<FJsonObject> DataObject = RequestBody->GetObjectField(TEXT("data"));
+	TMap<FString, FString> ParsedMap;
+	TSharedPtr<FJsonObject> JsonObject;
+	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
 
-	if (DataObject.IsValid())
+	if (FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
 	{
-		// JSON 객체의 키-값 쌍을 순회하며 TMap에 저장
-		for (const auto& Pair : DataObject->Values)
+		for (auto& Elem : JsonObject->Values)
 		{
-			FString Key = Pair.Key;
-			FString StringValue;
-
-			// 값의 타입에 따라 문자열로 변환 후 저장
-			if (Pair.Value->Type == EJson::String)
+			// FJsonValue의 타입에 따라 처리
+			if (Elem.Value->Type == EJson::String)
 			{
-				StringValue = Pair.Value->AsString();
+				ParsedMap.Add(Elem.Key, Elem.Value->AsString());
+			}
+			else if (Elem.Value->Type == EJson::Number)
+			{
+				ParsedMap.Add(Elem.Key, FString::SanitizeFloat(Elem.Value->AsNumber()));
+			}
+			else if (Elem.Value->Type == EJson::Object)
+			{
+				// 중첩된 JSON 객체는 FString으로 변환
+				TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&ParsedMap.Add(Elem.Key));
+				FJsonSerializer::Serialize(Elem.Value->AsObject().ToSharedRef(), Writer);
+			}
+			else if (Elem.Value->Type == EJson::Array)
+			{
+				// 배열은 FString으로 변환
+				TArray<TSharedPtr<FJsonValue>> ArrayValues = Elem.Value->AsArray();
+				FString ArrayAsString;
+				TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&ArrayAsString);
+				FJsonSerializer::Serialize(ArrayValues, Writer);
+				ParsedMap.Add(Elem.Key, ArrayAsString);
 			}
 			else
 			{
-				// 문자열이 아닌 경우 JSON 형식으로 직렬화
-				TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&StringValue);
-				FJsonSerializer::Serialize(Pair.Value.ToSharedRef(), Writer);
+				ParsedMap.Add(Elem.Key, TEXT("")); // 기타 경우 빈 문자열
 			}
-
-			// TMap에 추가
-			JsonMap.Add(Key, Value);
 		}
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed Json Parsing"));
+	}
+
+	return ParsedMap;
 }
+
 
 
 // 공공데이터 url 파싱 함수
