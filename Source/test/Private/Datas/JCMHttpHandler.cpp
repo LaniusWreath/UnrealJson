@@ -4,7 +4,7 @@
 // 인스턴스마다 하나의 json url과 response json 객체를 저장함.
 
 #include "Datas/JCMHttpHandler.h"
-
+// Object / String 공통 Request 함수
 void UJCMHttpHandler::MakeGetRequest(const FString& Url, const bool GetResultWithFString)
 {
     FHttpModule* Http = &FHttpModule::Get();
@@ -28,6 +28,7 @@ void UJCMHttpHandler::MakeGetRequest(const FString& Url, const bool GetResultWit
     Request->ProcessRequest();
 }
 
+// Object Response 함수
 void UJCMHttpHandler::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
 	if (bWasSuccessful && Response.IsValid())
@@ -56,11 +57,13 @@ void UJCMHttpHandler::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpRe
 	}
 }
 
+// String Response 함수
 void UJCMHttpHandler::OnResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
+	// 응답 데이터 확인
 	if (bWasSuccessful && Response.IsValid())
 	{
-		// 응답 데이터 확인
+		// 결과는 HttpHandler 인스턴스의 ResultResponseString에 저장
 		ResultResponseString = Response->GetContentAsString();
 		UE_LOG(LogTemp, Log, TEXT("Response: %s"), *ResultResponseString);
 		OnRequestedJsonStringReady.Execute(true);
@@ -72,7 +75,7 @@ void UJCMHttpHandler::OnResponseReceived(FHttpRequestPtr Request, FHttpResponseP
 	}
 }
 
-// 데이터 형식에 맞는 커스텀 파싱 함수 호출.
+// 데이터 형식에 맞는 커스텀 파싱 함수 호출. (Object Response 전용)
 void UJCMHttpHandler::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject)
 {
 	ParsedJsonData = ParseRequestBody(OriginJsonObject);
@@ -84,6 +87,7 @@ void UJCMHttpHandler::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJ
 	}
 }
 
+// 실제 파싱 함수
 TSharedPtr<FJsonObject> UJCMHttpHandler::ParseRequestBody(TSharedPtr<FJsonObject> RequestBody)
 {
 	const TSharedPtr<FJsonObject> DataObject = RequestBody->GetObjectField(TEXT("data"));
@@ -106,6 +110,7 @@ TSharedPtr<FJsonObject> UJCMHttpHandler::ParseRequestBody(TSharedPtr<FJsonObject
 	return DataObject;
 }
 
+// JsonString을 Map으로 반환하는 함수
 TMap<FString, FString> UJCMHttpHandler::ParseJsonStringToMap(const FString& JsonString)
 {
 	TMap<FString, FString> ParsedMap;
@@ -154,7 +159,50 @@ TMap<FString, FString> UJCMHttpHandler::ParseJsonStringToMap(const FString& Json
 	return ParsedMap;
 }
 
+// "[1,2,3,4,5]" 형태 문자열 배열로 추출
+TArray<float> UJCMHttpHandler::ParseStringToFloatArray(const FString& ArrayString)
+{
+	TArray<float> FloatArray;
 
+	// 1. `[` 및 `]` 제거
+	FString CleanString = ArrayString;
+	CleanString.RemoveFromStart("[");
+	CleanString.RemoveFromEnd("]");
+
+	// 2. 쉼표를 기준으로 문자열을 분리
+	TArray<FString> StringArray;
+	CleanString.ParseIntoArray(StringArray, TEXT(","), true);
+
+	// 3. 각 문자열 요소를 float로 변환하여 배열에 추가
+	for (const FString& Str : StringArray)
+	{
+		FloatArray.Add(FCString::Atof(*Str));
+	}
+
+	return FloatArray;
+}
+
+// "[a,b,c,d,e]" 형태 문자열 배열로 추출
+TArray<FString> UJCMHttpHandler::ParseStringToStringArray(const FString& ArrayString)
+{
+	TArray<FString> StringArray;
+
+	// 1. `[` 및 `]` 제거
+	FString CleanString = ArrayString;
+	CleanString.RemoveFromStart("[");
+	CleanString.RemoveFromEnd("]");
+
+	// 2. 쉼표를 기준으로 문자열을 분리
+	CleanString.ParseIntoArray(StringArray, TEXT(","), true);
+
+	// 3. 각 요소의 앞뒤 공백 제거
+	for (FString& Str : StringArray)
+	{
+		Str = Str.TrimStartAndEnd();
+	}
+
+	return StringArray;
+}
 
 // 공공데이터 url 파싱 함수
 /*

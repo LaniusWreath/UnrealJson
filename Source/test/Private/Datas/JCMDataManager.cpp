@@ -10,7 +10,15 @@ UJCMDataContainer* UJCMDataManager::InstancingDataContainerFromLocalJson(const F
 {
 	TSharedPtr<FJsonObject> Data = LoadDataFromJSON(FilePath);
 	FDataInstancePair NewChartData = InstancingDataClass(Data);
-	return NewChartData.DataInstance;
+	if (NewChartData.IsValid)
+	{
+		return NewChartData.DataInstance;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("InstancingDataContainerFromLocalJson was Failed"));
+		return nullptr;
+	}
 }
 
 // json FString 읽어 데이터 컨테이너 반환해주는 
@@ -80,9 +88,34 @@ const FString& UJCMDataManager::GetJSONStringData() const
 }
 
 // Create Emtpy BarType Data Container Instance
-UJCMDataContainerBar* UJCMDataManager::CreateEmptyShapeChartDataInstance()
+UJCMDataContainer* UJCMDataManager::CreateEmptyDataContainer(EJCMChartTypes ChartType)
 {
-	return NewObject<UJCMDataContainerBar>();
+	switch (ChartType)
+	{
+	case None:
+		break;
+	case BAR:
+		return NewObject<UJCMDataContainerBar>();
+		break;
+	case LINE:
+		return NewObject<UJCMDataContainerLine>();
+		break;
+	case PIE:
+		return NewObject<UJCMDataContainerPie>();
+		break;
+	case XY:
+		return NewObject<UJCMDataContainerXY>();
+		break;
+	case XYZ:
+		return NewObject<UJCMDataContainerXYZ>();
+		break;
+	case FREE:
+		return NewObject<UJCMDataContainer>();
+		break;
+	default:
+		break;
+	}
+	return nullptr;
 }
 
 // JSON -> FString
@@ -106,18 +139,31 @@ FString UJCMDataManager::SerializeJSONToString(const TSharedPtr<FJsonObject> JSO
 // 데이터 입력 받아 파싱, DataClass 객체 생성 -> Chart
 FDataInstancePair UJCMDataManager::InstancingDataClass(const TSharedPtr<FJsonObject> Data) 
 {
+	bool isFieldValid = true;
+
 	if (!Data.IsValid())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("DataManager : InstancingDataClass : Input Data is invalid"));
-		return FDataInstancePair();
+		isFieldValid = false;
 	}
 
-	FString ChartType = Data->GetStringField(TEXT("chartType"));
-	int32 ChartTypeNumber = JCMDataTypes::JCMMapChartTypes[ChartType.ToUpper()];
-	EJCMChartTypes CurChartTypeEnum = JCMDataTypes::JCMMapChartTypes[ChartType];
-	FString ChartTitle = Data->GetStringField(TEXT("chartTitle"));
+	// 언리얼은 예외처리 비활성화됨. 하나 씩 필드 유효한지 검사
+	FString ChartType;
+	if (!Data->TryGetStringField(TEXT("chartType"), ChartType))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'chartType' is missing or invalid"));
+		isFieldValid = false;
+	}
+
+	FString ChartTitle;
+	if (!Data->TryGetStringField(TEXT("chartTitle"), ChartTitle))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'ChartTitle' is missing or invalid"));
+		isFieldValid = false;
+	}
 
 	FDataInstancePair DataPair;
+	EJCMChartTypes CurChartTypeEnum = JCMDataTypes::JCMMapChartTypes[ChartType];
 
 	switch (CurChartTypeEnum)
 	{
@@ -126,40 +172,85 @@ FDataInstancePair UJCMDataManager::InstancingDataClass(const TSharedPtr<FJsonObj
 	case BAR:
 	{
 		// 데이터 객체 생성
-		UJCMDataContainerBar* NewChartV = NewObject<UJCMDataContainerBar>();
-		UJCMDataContainerBar* NewChartBarClass = NewObject<UJCMDataContainerBar>(this);
+		UJCMDataContainerBar* NewChartBarClass = NewObject<UJCMDataContainerBar>();
 
-		FString ClassName = NewChartBarClass->GetClass()->GetName();
-
-		// X축 라벨 이름 추출
-		const TSharedPtr<FJsonObject> XAxisObject = Data->GetObjectField(TEXT("xAxis"));
-		FString XName = XAxisObject->GetStringField(TEXT("key"));
-
-		// x축 데이터 배열 추출
+		// X축 데이터 추출
+		const TSharedPtr<FJsonObject>* XAxisObject; 
+		FString XName;
 		TArray<FString> XLabels;
-		TArray<TSharedPtr<FJsonValue>> LabelArray = XAxisObject->GetArrayField(TEXT("label"));
-		for (const TSharedPtr<FJsonValue>& Value : LabelArray)
+		const TArray<TSharedPtr<FJsonValue>>* LabelArray;
+
+		if (!Data->TryGetObjectField(TEXT("xAxis"), XAxisObject))
 		{
-			XLabels.Add(Value->AsString());
+			UE_LOG(LogTemp, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'xAxis' is missing or invalid"));
+			isFieldValid = false;
+		}
+		else
+		{
+			// X축 라벨 이름 추출
+			if (!XAxisObject->Get()->TryGetStringField(TEXT("key"), XName))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'key (x)' is missing or invalid"));
+				isFieldValid = false;
+			}
+
+			// x축 데이터 배열 추출
+			if (!XAxisObject->Get()->TryGetArrayField(TEXT("label"), LabelArray))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'label' is missing or invalid"));
+				isFieldValid = false;
+			}
+			else
+			{
+				for (const TSharedPtr<FJsonValue>& Value : *LabelArray)
+				{
+					XLabels.Add(Value->AsString());
+				}
+			}
 		}
 
-		// Y축 라벨 이름 추출
-		const TSharedPtr<FJsonObject> YAxisObject = Data->GetObjectField(TEXT("yAxis"));
-		FString YName = YAxisObject->GetStringField(TEXT("key"));
-
-		// Y축 데이터 배열 추출
+		// Y축 데이터 추출
+		const TSharedPtr<FJsonObject>* YAxisObject;
+		FString YName;
 		TArray<float> YValues;
-		TArray<TSharedPtr<FJsonValue>> ValueArray = YAxisObject->GetArrayField(TEXT("value"));
-		for (const TSharedPtr<FJsonValue>& Value : ValueArray)
+		const TArray<TSharedPtr<FJsonValue>>* ValueArray;
+
+		if (!Data->TryGetObjectField(TEXT("yAxis"), YAxisObject))
 		{
-			YValues.Add(Value->AsNumber());
+			UE_LOG(LogTemp, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'yAxis' is missing or invalid"));
+			isFieldValid = false;
 		}
+		else
+		{
+			// Y축 데이터 이름 추출
+			if (!YAxisObject->Get()->TryGetStringField(TEXT("key"), YName))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'key (y)' is missing or invalid"));
+				isFieldValid = false;
+			}
+			// Y축 데이터 배열 추출
+			if (!YAxisObject->Get()->TryGetArrayField(TEXT("value"), ValueArray))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'value' is missing or invalid"));
+				isFieldValid = false;
+			}
+			else
+			{
+				for (const TSharedPtr<FJsonValue>& Value : *ValueArray)
+				{
+					YValues.Add(Value->AsNumber());
+				}
+			}
+		}
+		
 		NewChartBarClass->SetChartData(ChartTitle, ChartType, XName, XLabels, YName, YValues);
+		UE_LOG(LogTemp, Log, TEXT("%s"), *NewChartBarClass->GetChartDataStruct().ChartTitle);
+		UE_LOG(LogTemp, Log, TEXT("%s"), *NewChartBarClass->GetChartDataStruct().ChartType);
+		UE_LOG(LogTemp, Log, TEXT("%s"), *NewChartBarClass->GetChartDataStruct().XName);
+		UE_LOG(LogTemp, Log, TEXT("%s"), *NewChartBarClass->GetChartDataStruct().YName);
 
-		DataPair.ClassName = ClassName;
+		DataPair.IsValid = isFieldValid;
 		DataPair.DataInstance = NewChartBarClass;
-
-		UE_LOG(LogTemp, Log, TEXT("DataManager : DataClass Instanced"));
 		return DataPair;
 	}
 		

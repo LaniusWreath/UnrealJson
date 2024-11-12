@@ -21,6 +21,7 @@ protected:
 public:
 	UFUNCTION()
 	virtual const EJCMChartTypes GetChartType() const;
+
 };
 
 UCLASS(BlueprintType)
@@ -45,7 +46,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	const FJCMChartDataShape& GetShapeChartData() const
+	const FJCMChartDataShape& GetChartDataStruct() const
 	{
 		return ShapeChartData;
 	}

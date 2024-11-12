@@ -36,21 +36,20 @@ private:
 	float ResultCustomStaticMeshSpawnedValue;
 
 	// TimeLine Animation Binding Function
-	UFUNCTION()
 	void OnAnimationUpdate(float Value);
 
 	void CreateCustomMeshRoutine(float BarHeight);
 	void CreateCustomMeshRoutine(float BarHeight, int amount);
 
-	UFUNCTION()
 	void CreateSingleCustomMeshComponent(float BarHeight, float UnitMeshHeight, int32 SpawnAmount);
 
-	UFUNCTION()
 	void CreateAdditionalCustomMeshComponent(float BarHeight, float restHeight, float UnitMeshHeight);
 
-	UFUNCTION()
 	void InitializeCustomStaticMeshPhysics(UStaticMeshComponent* TargetStaticMesh,
 		UStaticMeshComponent* TemplateComponent);
+
+
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -64,10 +63,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Chart")
 	bool EnableSpawnCustomMesh;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Chart")
+	UPROPERTY(VisibleAnywhere, Category = "Chart")
 	UProceduralMeshComponent* ProcMeshComponent;
 
-	// Specify Static Mesh to Generate, Don't For Get to Check off isProceduralMeshUsing
+	// Specify Static Mesh to Generate, Don't Forget to Check off isProceduralMeshUsing
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chart")
 	UStaticMeshComponent* CustomStaticMeshComponent;
 
@@ -138,5 +137,4 @@ public:
 	{
 		return ResultCustomStaticMeshSpawnedValue;
 	}
-
 };

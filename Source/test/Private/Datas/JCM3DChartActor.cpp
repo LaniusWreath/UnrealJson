@@ -63,6 +63,8 @@ void AJCM3DChartActor::LoadFromLocalJsonFile(const FString& FilePath)
 	SetJCMDataManagerRef();
 	IsDataClassInstanceSet = false;
 	DataClassInstance = DataManagerInstanceRef->InstancingDataContainerFromLocalJson(FilePath);
+	if (DataClassInstance)
+		IsDataClassInstanceSet = true;
 }
 
 // 기본 액터 무결성 체크 함수
@@ -77,11 +79,6 @@ bool AJCM3DChartActor::CheckJCMActorIntegrity()
 	if (!DataClassInstance)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Integrity Check : %s : DataContainer Invalid"), *this->GetName());
-		bIsValid = false;
-	}
-	if (!RequestHandlerInstance)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Integrity Check : %s : HttpHandler Instance Invalid"), *this->GetName());
 		bIsValid = false;
 	}
 
@@ -126,7 +123,6 @@ void AJCM3DChartActor::SetJsonObject(const TSharedPtr<FJsonObject> JsonData)
 	{
 		//TSharedPtr<FJsonObject> Data = RequestManagerInstance->GetJsonData();
 		FDataInstancePair ResultData = DataManagerInstanceRef->InstancingDataClass(JsonData);
-		UE_LOG(LogTemp, Log, TEXT("Data3DChartActor : DataClass Set, Response Chart Class is : %s"), *ResultData.ClassName);
 		DataClassInstance = ResultData.DataInstance;
 		if (!DataClassInstance)
 		{
@@ -175,6 +171,20 @@ AJCM3DChartActorBar::AJCM3DChartActorBar()
 	TextRenderComponent_chartYaxisName->SetVerticalAlignment(EVerticalTextAligment::EVRTA_TextCenter);
 }
 
+const UJCMDataContainerBar* AJCM3DChartActorBar::GetDataContainerRef()
+{
+	if (IsDataClassInstanceSet)
+	{
+		UJCMDataContainerBar* Container = Cast<UJCMDataContainerBar>(DataClassInstance);
+		return Container;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s : GetDataContainerRef Failed"), *this->GetName());
+		return nullptr;
+	}
+}
+
 // 차트 타이틀, X축, Y축 이름 초기화 함수
 void AJCM3DChartActorBar::SetChartDefaultTexts()
 {
@@ -182,15 +192,15 @@ void AJCM3DChartActorBar::SetChartDefaultTexts()
 	{
 		UJCMDataContainerBar* TempCastedDataClass = Cast<UJCMDataContainerBar>(DataClassInstance);
 		//FString ChartTitle = TempCastedDataClass->GetChartTitle();
-		FString ChartTitle = TempCastedDataClass->GetShapeChartData().ChartTitle;
+		FString ChartTitle = TempCastedDataClass->GetChartDataStruct().ChartTitle;
 
 		TextRenderComponent_chartTitle->SetText(FText::FromString(ChartTitle));
 		UE_LOG(LogTemp, Log, TEXT("Data3DActor : Chart Title : %s"), *ChartTitle);
 
-		FString ChartXAxisName = TempCastedDataClass->GetShapeChartData().XName;
+		FString ChartXAxisName = TempCastedDataClass->GetChartDataStruct().XName;
 		TextRenderComponent_chartXaxisName->SetText(FText::FromString(ChartXAxisName));
 
-		FString ChartYAxisName = TempCastedDataClass->GetShapeChartData().YName;
+		FString ChartYAxisName = TempCastedDataClass->GetChartDataStruct().YName;
 		TextRenderComponent_chartYaxisName->SetText(FText::FromString(ChartYAxisName));
 	}
 }
@@ -226,7 +236,7 @@ void AJCM3DChartActorBar::GenerateChartRoutine()
 	UJCMDataContainerBar* BarDataClassInstance = Cast<UJCMDataContainerBar>(DataClassInstance);
 
 	// GenerateBarChart() : 데이터 입력 받아 차트 생성 루틴 함수 호출 / GetShapeChartData() : Bar(모양)차트 데이터 Get
-	BarGeneratorComponent->GenerateBarChart(BarDataClassInstance->GetShapeChartData(), EnableGenerateMeshAtSplinePoint);
+	BarGeneratorComponent->GenerateBarChart(BarDataClassInstance->GetChartDataStruct(), EnableGenerateMeshAtSplinePoint);
 
 }
 

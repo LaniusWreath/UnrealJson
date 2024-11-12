@@ -50,8 +50,14 @@ public:
 		return ParsedJsonData;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "JSON Parsing")
+	UFUNCTION(BlueprintCallable, Category = "Chart")
 	static TMap<FString, FString> ParseJsonStringToMap(const FString& JsonString);
+
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	static TArray<float> ParseStringToFloatArray(const FString& ArrayString);
+
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	static TArray<FString> ParseStringToStringArray(const FString& ArrayString);
 
 private:
 	// HTTP Processing

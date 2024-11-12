@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "Templates/SharedPointer.h"
+#include "JCMDataTypes.h"
 #include "JCMDataManager.generated.h"
 
 class UJCMJsonHandler;
@@ -18,14 +19,14 @@ struct FDataInstancePair
 	GENERATED_BODY()
 
 	UPROPERTY()
-	FString ClassName;
+	bool IsValid;
 
 	UPROPERTY()
 	UJCMDataContainer* DataInstance;
 
-	FDataInstancePair() : ClassName(TEXT("")), DataInstance(nullptr) {}
-	FDataInstancePair(const FString& InClassName, UJCMDataContainer* InInstance)
-		: ClassName(InClassName), DataInstance(InInstance) {}
+	FDataInstancePair() : IsValid(false), DataInstance(nullptr) {}
+	//FDataInstancePair(const FString& InClassName, UJCMDataContainer* InInstance)
+	//	: (InClassName), DataInstance(InInstance) {}
 };
 
 // Manage Datas Class and Control those Member Function
@@ -54,6 +55,7 @@ private:
 
 	TSharedPtr<FJsonObject> DeserializeJsonStringToJsonObject(const FString& JsonString);
 
+
 public:
 	// JsonObject Ptr to Data Struct <String Header, UDataClasses* DataClassInstance>
 	FDataInstancePair InstancingDataClass(const TSharedPtr<FJsonObject> Data);
@@ -70,6 +72,6 @@ public:
 	const FString& GetJSONStringData() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	UJCMDataContainerBar* CreateEmptyShapeChartDataInstance();
+	UJCMDataContainer* CreateEmptyDataContainer(EJCMChartTypes ChartType);
 };
 

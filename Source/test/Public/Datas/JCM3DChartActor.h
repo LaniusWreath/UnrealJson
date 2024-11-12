@@ -58,7 +58,6 @@ protected:
 	virtual void BeginPlay() override;
 
 	// Initializing Data Manager Getting from Game Instance
-	UFUNCTION()
 	void SetJCMDataManagerRef();
 
 	// Initializing Request Manager Instance : this instance have to be initialized in every CallJsonRoutine()
@@ -75,10 +74,11 @@ protected:
 	UPROPERTY()
 	UJCMDataManager* DataManagerInstanceRef;
 
-	// Data Class Instance
-	UPROPERTY(VisibleInstanceOnly, Category = "Chart")
+	// Data Class Instance Reference
+	UPROPERTY()
 	UJCMDataContainer* DataClassInstance;
 
+	// HttpRequest Handler
 	UPROPERTY()
 	UJCMHttpHandler* RequestHandlerInstance;
 
@@ -138,25 +138,20 @@ public:
 	
 	//Get Precessed Json Data Container Class
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	const UJCMDataContainer* GetDataClassInstance() const
-	{
-		if (IsDataClassInstanceSet)
-			return DataClassInstance;
-		else
-			return nullptr;
-	}
+	const UJCMDataContainerBar* GetDataContainerRef();
 	
 	// Set Processed Json Data Container Class Instance Directly : You have to get a reference from other Data3DActor Instance to use this function.
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	void SetDataClassInstance(UJCMDataContainer* DataClassInstanceRef)
+	void SetDataContainerInstance(UJCMDataContainerBar* DataContainerInstanceRef)
 	{
-		DataClassInstance = DataClassInstanceRef;
+		UJCMDataContainer* Container = Cast<UJCMDataContainer>(DataContainerInstanceRef);
+		DataClassInstance = Container;
 		IsDataClassInstanceSet = true;
 	}
 	
 	// Delete Data Container Class Instance
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	void DeleteClassInstance()
+	void DeleteDataContainerInstance()
 	{
 		DataClassInstance = nullptr;
 		IsDataClassInstanceSet = false;
