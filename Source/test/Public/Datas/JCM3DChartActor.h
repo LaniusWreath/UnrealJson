@@ -120,7 +120,7 @@ public:
 	TSubclassOf<AJCMBarBaseActor> BarBaseActorBPClass;
 
 	// Controler Component for Generating 3D Bar Chart 
-	UPROPERTY(BlueprintReadOnly, Category = "Chart")
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Chart")
 	UJCMChartGeneratorBar* BarGeneratorComponent;
 
 	// Visualization Chart Xaxis Name

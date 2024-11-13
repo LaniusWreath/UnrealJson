@@ -31,7 +31,6 @@ AJCMBarBaseActor::AJCMBarBaseActor()
 	// 안끄면 Navigation system에서 화냄. (계속 감시중)
 	ProcMeshComponent->SetCanEverAffectNavigation(false);
 	BarAnimationTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("BarAnimationTimeline"));
-	PrimaryActorTick.bCanEverTick = true;
 
 	// 텍스트 렌더러 - 값
 	TextRenderComponentValue = CreateDefaultSubobject<UTextRenderComponent>(TEXT("TextRenderComponentValue"));
@@ -55,23 +54,9 @@ void AJCMBarBaseActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// 애니메이션 초기화
-	if (AnimationCurve && !EnableSpawnCustomMesh)
-	{
-		FOnTimelineFloat TimelineCallBack;
-		// 타임라인에 함수 바인딩
-		TimelineCallBack.BindUFunction(this, FName("OnAnimationUpdate"));
-
-		// Timeline에 Curve와 Curve를 사용할 Callback 함수 추가
-		BarAnimationTimeline->AddInterpFloat(AnimationCurve, TimelineCallBack);
-		BarAnimationTimeline->SetLooping(false);
-		BarAnimationTimeline->Play();
-		UE_LOG(LogTemp, Warning, TEXT("BarBaseActor : PlayingAnimation"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("BarBaseActor : Failed finding Animation Cuvrve"));
-	}
+	// 템플릿으로 둔 커스텀 스태틱 메시의 콜리전 제거
+	CustomStaticMeshComponent->SetSimulatePhysics(false);
+	CustomStaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AJCMBarBaseActor::CreateProceduralBoxMesh(float BarHeight)
@@ -273,8 +258,6 @@ void AJCMBarBaseActor::InitializeCustomStaticMeshPhysics(UStaticMeshComponent* T
 	TargetStaticMesh->bApplyImpulseOnDamage = TemplateComponent->bApplyImpulseOnDamage;
 }
 
-
-
 // 에디터 상에 Procedural Mesh 또는 커스텀 메시 생성 유무 bool로 추출해놓음 분기하여 메시 생성 함수 결정
 void AJCMBarBaseActor::CreateMesh(float BarHeight, int Value)
 {
@@ -344,7 +327,25 @@ void AJCMBarBaseActor::AdjustTextMeshValueOffset(const int& amount)
 		+ TextRenderComponentOffset_Value)));
 }
 
+void AJCMBarBaseActor::BindTimelineAnimation()
+{
+	// 애니메이션 초기화
+	if (AnimationCurve && !EnableSpawnCustomMesh)
+	{
+		FOnTimelineFloat TimelineCallBack;
+		// 타임라인에 함수 바인딩
+		TimelineCallBack.BindUFunction(this, FName("OnAnimationUpdate"));
 
+		// Timeline에 Curve와 Curve를 사용할 Callback 함수 추가
+		BarAnimationTimeline->AddInterpFloat(AnimationCurve, TimelineCallBack);
+		BarAnimationTimeline->SetLooping(false);
+		BarAnimationTimeline->Play();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("BarBaseActor : Failed finding Animation Cuvrve"));
+	}
+}
 
 // 애니메이션 실행 제어
 void AJCMBarBaseActor::PlayBarAnimation()
@@ -354,18 +355,14 @@ void AJCMBarBaseActor::PlayBarAnimation()
 		UE_LOG(LogTemp, Warning, TEXT("BarBaseActor : Creating Custom Mesh doesn't have animation"));
 		return;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("BarBaseActor : ContolAnimation"));
-
 	BarAnimationTimeline->PlayFromStart();
 }
 
 // 막대 스케일 변경 애니메이션 실행
 void AJCMBarBaseActor::OnAnimationUpdate(float Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("BarBaseActor : BarAnimation Executing, Current Height : %f"), Value);
-
 	FVector CurrentScale = GetActorScale();
-	SetActorScale3D(FVector(CurrentScale.X, CurrentScale.Y, CurrentScale.Z*Value));
+	SetActorScale3D(FVector(CurrentScale.X, CurrentScale.Y, Value));
 }
 
 

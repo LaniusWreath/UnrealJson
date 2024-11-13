@@ -36,7 +36,8 @@ private:
 	float ResultCustomStaticMeshSpawnedValue;
 
 	// TimeLine Animation Binding Function
-	void OnAnimationUpdate(float Value);
+	UFUNCTION()
+	void OnAnimationUpdate(float Value); // 타임라인에 바인딩될 함수는 UFUNCTION() 안붙이면 안됨
 
 	void CreateCustomMeshRoutine(float BarHeight);
 	void CreateCustomMeshRoutine(float BarHeight, int amount);
@@ -47,9 +48,6 @@ private:
 
 	void InitializeCustomStaticMeshPhysics(UStaticMeshComponent* TargetStaticMesh,
 		UStaticMeshComponent* TemplateComponent);
-
-
-
 
 protected:
 	// Called when the game starts or when spawned
@@ -137,4 +135,6 @@ public:
 	{
 		return ResultCustomStaticMeshSpawnedValue;
 	}
+
+	void BindTimelineAnimation();
 };
