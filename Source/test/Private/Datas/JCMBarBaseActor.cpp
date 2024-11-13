@@ -81,7 +81,6 @@ void AJCMBarBaseActor::CreateProceduralBoxMesh(float BarHeight)
 
 	// 박스 높이만큼 스케일 계산해서 높이 올림.
 	float zScaler = BarHeight / (UnitSize*BarWidth);
-	UE_LOG(JCMlog, Log, TEXT("ABarBaseActor : Calculate ZScaler : zScaler : %f, BarHeight : %f, UnitSIZE : %d, BarWidth : %f"), zScaler, BarHeight, UnitSize, BarWidth);
 	//UE_LOG(LogTemp, Log, TEXT("BarBaseActor : zScaler is %f"), zScaler);
 	ProcMeshComponent->SetWorldScale3D(FVector(1.f, 1.f, zScaler));
 	ProcMeshComponent->AddWorldOffset(FVector(0, 0, (BarHeight / 2)));
@@ -105,7 +104,6 @@ void AJCMBarBaseActor::CreateCustomMeshRoutine(float BarHeight)
 	// 생성해야하는 메시 개수 : 
 	int32 UnitMeshAmount;
 	UnitMeshAmount = BarHeight / UnitMeshHeight;
-	UE_LOG(JCMlog, Log, TEXT("BarBaseActor : Amount : %d, UnitSize : %f"), UnitMeshAmount, UnitMeshHeight);
 
 	// 타이머 실행, 람다로 매개변수 있는 함수 캡쳐
 	GetWorldTimerManager().SetTimer(SpawnTimerHandle, [this, BarHeight, UnitMeshHeight, UnitMeshAmount]()
@@ -122,7 +120,6 @@ void AJCMBarBaseActor::CreateCustomMeshRoutine(float BarHeight, int amount)
 
 	// 생성해야하는 메시 개수 : 
 	int UnitMeshAmount = amount;
-	UE_LOG(JCMlog, Log, TEXT("BarBaseActor : Amount : %d, UnitSize : %f"), UnitMeshAmount, UnitMeshHeight);
 
 	// 타이머 실행, 람다로 매개변수 있는 함수 캡쳐
 	GetWorldTimerManager().SetTimer(SpawnTimerHandle, [this, BarHeight, UnitMeshHeight, UnitMeshAmount]()
@@ -189,7 +186,7 @@ void AJCMBarBaseActor::ClearCustomMeshes()
 				MeshComponent->DestroyComponent();
 			}
 		}
-		UE_LOG(JCMlog, Warning, TEXT("All CustomStaticMesh Components cleard"));
+		UE_LOG(JCMlog, Log, TEXT("%s : All customStaticmesh components cleard"), *this->GetName());
 	}
 }
 
@@ -273,7 +270,6 @@ void AJCMBarBaseActor::CreateMesh(float BarHeight, int Value)
 	{
 		if (CustomStaticMeshTemplateComponent)
 		{
-			UE_LOG(JCMlog, Log, TEXT("BarBaseActor : CreateMesh : Create Custom Static Mesh"));
 			// 개수 지정하여 메쉬 생성
 			if (SpawnPerUnitValue)
 			{
@@ -296,7 +292,7 @@ void AJCMBarBaseActor::CreateMesh(float BarHeight, int Value)
 		}
 		else
 		{
-			UE_LOG(JCMlog, Warning, TEXT("BarBaseActor : CreateMesh : Specify Custom Static Mesh First"));
+			UE_LOG(JCMlog, Warning, TEXT("%s : Specify custom static mesh first"), *this->GetName());
 		}
 	}
 }
@@ -348,7 +344,7 @@ void AJCMBarBaseActor::BindTimelineAnimation()
 	}
 	else
 	{
-		UE_LOG(JCMlog, Warning, TEXT("BarBaseActor : Failed finding Animation Cuvrve"));
+		UE_LOG(JCMlog, Warning, TEXT("%s : Failed finding animation cuvrve"), *this->GetName());
 	}
 }
 
@@ -361,7 +357,7 @@ float AJCMBarBaseActor::GetCustomMeshUnitHeight()
 	}	
 	else
 	{
-		UE_LOG(JCMlog, Warning, TEXT("%s CustomStaticMesh is Invalid"), *this->GetName());
+		UE_LOG(JCMlog, Warning, TEXT("%s : CustomStaticMesh is invalid"), *this->GetName());
 		return 1;
 	}
 }
@@ -371,7 +367,6 @@ void AJCMBarBaseActor::PlayBarAnimation()
 {
 	if (EnableSpawnCustomMesh)
 	{
-		UE_LOG(JCMlog, Warning, TEXT("BarBaseActor : Creating Custom Mesh doesn't have animation"));
 		return;
 	}
 	BarAnimationTimeline->PlayFromStart();

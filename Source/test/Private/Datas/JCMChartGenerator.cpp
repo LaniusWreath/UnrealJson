@@ -29,12 +29,12 @@ void UJCMChartGenerator::ClearChildrenActors()
 	{
 		if (ChildComponent && ChildComponent->GetChildActor())
 		{
-			UE_LOG(JCMlog, Log, TEXT("ChartGenerator : Children Actor %s cleard"), *ChildComponent->GetChildActor()->GetName());
+			//UE_LOG(JCMlog, Log, TEXT("%s : Children Actor %s cleard"), *this->getparent,*ChildComponent->GetChildActor()->GetName());
 			ChildComponent->GetChildActor()->Destroy();
 			ChildComponent->DestroyComponent();
 		}
 	}
-	UE_LOG(JCMlog, Log, TEXT("All Children Actors cleard"));
+	//UE_LOG(JCMlog, Log, TEXT("All Children Actors cleard"));
 
 	ChildActorComponents.Empty();
 }
@@ -90,7 +90,7 @@ void UJCMChartGeneratorBar::ClearChildrenActors()
 
 		}
 	}
-	UE_LOG(JCMlog, Log, TEXT("All Children Actors cleard"));
+	//UE_LOG(JCMlog, Log, TEXT("All Children Actors cleard"));
 
 	ChildActorComponents.Empty();
 }
@@ -100,11 +100,11 @@ void UJCMChartGeneratorBar::GenerateBarChart(const FJCMChartDataShape& CopiedDat
 {
 	// 스플라인 총 길이 
 	float SplineLength = SplineComponent_length->GetSplineLength();
-	UE_LOG(JCMlog, Log, TEXT("ChartGenerator : SplineComponent is %f"), SplineLength);
+	//UE_LOG(JCMlog, Log, TEXT("ChartGenerator : SplineComponent is %f"), SplineLength);
 
 	// 차트 최대 높이
 	float MaxHeight = SplineComponent_height->GetSplineLength();
-	UE_LOG(JCMlog, Log, TEXT("ChartGenerator : SplineHeight is %f"), MaxHeight);
+	//UE_LOG(JCMlog, Log, TEXT("ChartGenerator : SplineHeight is %f"), MaxHeight);
 
 	TArray<float> ValueArray = CopiedData.Values;
 	TArray<FString> LabelAarray = CopiedData.Labels;
@@ -116,7 +116,7 @@ void UJCMChartGeneratorBar::GenerateBarChart(const FJCMChartDataShape& CopiedDat
 	float BarHeightScaler = 0;
 	float BarPadding = 0;
 	PrepareBarValues(ValueArray, BarHeightScaler, BarPadding, MaxHeight);
-	UE_LOG(JCMlog, Log, TEXT("ChartGenerator: PrepareBarValues() result, BarHeightScaler : %f"), BarHeightScaler);
+	//UE_LOG(JCMlog, Log, TEXT("ChartGenerator: PrepareBarValues() result, BarHeightScaler : %f"), BarHeightScaler);
 
 	bool isGenerateDone;
 	if (!bGenerateMeshAtSplinePoint)
@@ -132,7 +132,7 @@ void UJCMChartGeneratorBar::GenerateBarChart(const FJCMChartDataShape& CopiedDat
 	// 바 메시 생성
 	if (!isGenerateDone)
 	{
-		UE_LOG(JCMlog, Log, TEXT("ChartGenerator : Generating Bar Failed"));
+		//UE_LOG(JCMlog, Log, TEXT("ChartGenerator : Generating Bar Failed"));
 		return;
 	}
 }
@@ -141,7 +141,7 @@ void UJCMChartGeneratorBar::GenerateBarChart(const FJCMChartDataShape& CopiedDat
 void UJCMChartGeneratorBar::PrepareBarValues(const TArray<float>& ValueArray, float& BarHeightScalerResult, float& BarPaddingResult,
 	const float MaxHeight)
 {
-	UE_LOG(JCMlog, Log, TEXT("ChartGenerator : Preperating Bar Chart"));
+	//UE_LOG(JCMlog, Log, TEXT("ChartGenerator : Preperating Bar Chart"));
 
 	int32 Numbers = ValueArray.Num();
 
@@ -149,7 +149,7 @@ void UJCMChartGeneratorBar::PrepareBarValues(const TArray<float>& ValueArray, fl
 	//UE_LOG(LogTemp, Log, TEXT("ChartGenerator : Range is : %f - %f = %f"), , *Algo::MinElement(ValueArray), Range);
 	// 100 * 0.9 / 500
 	BarHeightScalerResult = MaxHeight * CustomScaleValue / Range;
-	UE_LOG(JCMlog, Log, TEXT("ChartGenerator : Preparing Bar Height Scaler : %f * %f / %f"), MaxHeight, CustomScaleValue, Range);
+	//UE_LOG(JCMlog, Log, TEXT("ChartGenerator : Preparing Bar Height Scaler : %f * %f / %f"), MaxHeight, CustomScaleValue, Range);
 
 	BarPaddingResult = MaxHeight * CustomPaddingScaleValue;
 	// 로그 스케일링, 정규화 따로 파라미터 빼서 고를 수 있게 할 것
@@ -167,8 +167,8 @@ bool UJCMChartGeneratorBar::CreateBar(const TArray<float>& ValueArray, const TAr
 	{
 		float CurrentValue = ValueArray[i];
 		float ScaledHeight = CurrentValue * BarHeightScaler;
-		UE_LOG(JCMlog, Log, TEXT("ChartGenerator : CurrentValue : %f, BarHeightScaler : %f, ScaledHeight : %f"), 
-			CurrentValue, BarHeightScaler ,ScaledHeight);
+		//UE_LOG(JCMlog, Log, TEXT("ChartGenerator : CurrentValue : %f, BarHeightScaler : %f, ScaledHeight : %f"), 
+			//CurrentValue, BarHeightScaler ,ScaledHeight);
 		float Distance = i * BarSpacing;
 
 		// 스플라인 로컬 좌표를 따야 레벨에 배치했을 때 차트 메시의 좌표에 월드 오프셋이 추가 안됨.
@@ -190,8 +190,8 @@ bool UJCMChartGeneratorBar::CreateBar(const TArray<float>& ValueArray, const TAr
 			// 자손 액터 생성
 			NewChildActorComponent->CreateChildActor();
 
-			UE_LOG(JCMlog, Log, TEXT("ChartGenerator : Creating Bar Child Object : %s"), 
-				*NewChildActorComponent->GetChildActorClass()->GetName());
+			//UE_LOG(JCMlog, Log, TEXT("ChartGenerator : Creating Bar Child Object : %s"), 
+				//*NewChildActorComponent->GetChildActorClass()->GetName());
 
 			// 배열에 추가
 			ChildActorComponents.Add(NewChildActorComponent);
@@ -220,17 +220,17 @@ bool UJCMChartGeneratorBar::CreateBar(const TArray<float>& ValueArray, const TAr
 				}
 				else
 				{
-					UE_LOG(JCMlog, Error, TEXT("ChartGenerator: Failed Casting ChildBarBaseActor"));
+					UE_LOG(JCMlog, Error, TEXT("ChartGenerator: failed casting childBarBaseActor"));
 					return false;
 				}
 			}
 			else
 			{
-				UE_LOG(JCMlog, Error, TEXT("ChartGenerator : Failed NewChildActorComponent->GetChildActor()"));
+				UE_LOG(JCMlog, Error, TEXT("ChartGenerator : Failed finding ChartGenerator childActor"));
 				return false;
 			}
 		}
-		UE_LOG(JCMlog, Log, TEXT("ChartGenerator: Created bar Number with Height: %f"), ScaledHeight);
+		//UE_LOG(JCMlog, Log, TEXT("ChartGenerator: Created bar Number with Height: %f"), ScaledHeight);
 	}
 	return true;
 }
@@ -242,20 +242,20 @@ void UJCMChartGeneratorBar::AddSplinePoint(USplineComponent* SplineComponent, in
 	if (TargetCount > SplinePointCount)
 	{
 		UE_LOG(JCMlog, Warning,
-			TEXT("ChartGenerator : CreateBarAlongSplinePoint Value Count %d dosen't same as SplinePoint Count %d"),
+			TEXT("ChartGenerator : CreateBarAlongSplinePoint Value Count %d dosen't match SplinePoint Count %d"),
 			TargetCount, SplinePointCount);
-		UE_LOG(JCMlog, Warning,
-			TEXT("Adding Extra Spline Point Automatically"));
+		UE_LOG(JCMlog, Log,
+			TEXT("Adding Extra Spline Point"));
 
 		FVector LastSplinePointVector = SplineComponent_length->
 			GetLocationAtSplinePoint(SplinePointCount - 1, ESplineCoordinateSpace::Local);
-		UE_LOG(JCMlog, Log, TEXT("LastSplinePointVector : %f, %f, %f"),
-			LastSplinePointVector.X, LastSplinePointVector.Y, LastSplinePointVector.Z);
+		//UE_LOG(JCMlog, Log, TEXT("LastSplinePointVector : %f, %f, %f"),
+			//LastSplinePointVector.X, LastSplinePointVector.Y, LastSplinePointVector.Z);
 
 		FVector UnitOffsetVector =
 			LastSplinePointVector - SplineComponent_length->
 			GetLocationAtSplinePoint(SplinePointCount - 2, ESplineCoordinateSpace::Local);
-		UE_LOG(JCMlog, Log, TEXT("UnitOffsetVector : %f, %f, %f"), UnitOffsetVector.X, UnitOffsetVector.Y, UnitOffsetVector.Z);
+		//UE_LOG(JCMlog, Log, TEXT("UnitOffsetVector : %f, %f, %f"), UnitOffsetVector.X, UnitOffsetVector.Y, UnitOffsetVector.Z);
 
 		for (int i = 0; i < TargetCount - SplinePointCount; i++)
 		{
@@ -283,8 +283,8 @@ bool UJCMChartGeneratorBar::CreateBarAlongSplinePoint(const TArray<float>& Value
 	{
 		float CurrentValue = ValueArray[i];
 		float ScaledHeight = CurrentValue * BarHeightScaler;
-		UE_LOG(JCMlog, Log, TEXT("ChartGenerator : CurrentValue : %f, BarHeightScaler : %f, ScaledHeight : %f"),
-			CurrentValue, BarHeightScaler, ScaledHeight);
+		//UE_LOG(JCMlog, Log, TEXT("ChartGenerator : CurrentValue : %f, BarHeightScaler : %f, ScaledHeight : %f"),
+			//CurrentValue, BarHeightScaler, ScaledHeight);
 
 		// 스플라인 로컬 좌표를 따야 레벨에 배치했을 때 차트 메시의 좌표에 월드 오프셋이 추가 안됨.
 		FVector BarLocation = SplineComponent_length->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::Local);
@@ -305,8 +305,8 @@ bool UJCMChartGeneratorBar::CreateBarAlongSplinePoint(const TArray<float>& Value
 			// 자손 액터 생성
 			NewChildActorComponent->CreateChildActor();
 
-			UE_LOG(JCMlog, Log, TEXT("ChartGenerator : Creating Bar Child Object : %s"),
-				*NewChildActorComponent->GetChildActorClass()->GetName());
+			//UE_LOG(JCMlog, Log, TEXT("ChartGenerator : Creating Bar Child Object : %s"),
+				//*NewChildActorComponent->GetChildActorClass()->GetName());
 
 			// 배열에 추가
 			ChildActorComponents.Add(NewChildActorComponent);
@@ -332,18 +332,18 @@ bool UJCMChartGeneratorBar::CreateBarAlongSplinePoint(const TArray<float>& Value
 				}
 				else
 				{
-					UE_LOG(JCMlog, Error, TEXT("ChartGenerator: Failed Casting ChildBarBaseActor"));
+					UE_LOG(JCMlog, Error, TEXT("ChartGenerator: failed casting childBarBaseActor"));
 					return false;
 				}
 			}
 			else
 			{
-				UE_LOG(JCMlog, Error, TEXT("ChartGenerator : Failed NewChildActorComponent->GetChildActor()"));
+				UE_LOG(JCMlog, Error, TEXT("ChartGenerator : Failed finding ChartGenerator childActor"));
 			}
 
 		}
 
-		UE_LOG(JCMlog, Log, TEXT("ChartGenerator: Created bar Number with Height: %f"), ScaledHeight);
+		//UE_LOG(JCMlog, Log, TEXT("ChartGenerator: Created bar Number with Height: %f"), ScaledHeight);
 	}
 
 	return false;

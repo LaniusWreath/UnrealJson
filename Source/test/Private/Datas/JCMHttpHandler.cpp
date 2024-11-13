@@ -38,7 +38,7 @@ void UJCMHttpHandler::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpRe
 	{
 		// 응답 데이터 확인
 		ResultResponseString = Response->GetContentAsString();
-		UE_LOG(JCMlog, Log, TEXT("Response: %s"), *ResultResponseString);
+		//UE_LOG(JCMlog, Log, TEXT("Response: %s"), *ResultResponseString);
 
 		TSharedPtr<FJsonObject> JsonData;
 
@@ -51,12 +51,12 @@ void UJCMHttpHandler::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpRe
 		}
 		else
 		{
-			UE_LOG(JCMlog, Error, TEXT("Failed to parse JSON."));
+			UE_LOG(JCMlog, Error, TEXT("%s : Failed to parse JSON."), *this->GetName());
 		}
 	}
 	else
 	{
-		UE_LOG(JCMlog, Error, TEXT("HTTP Request failed."));
+		UE_LOG(JCMlog, Error, TEXT("%s : HTTP Request failed."), *this->GetName());
 	}
 }
 
@@ -68,13 +68,13 @@ void UJCMHttpHandler::OnResponseReceived(FHttpRequestPtr Request, FHttpResponseP
 	{
 		// 결과는 HttpHandler 인스턴스의 ResultResponseString에 저장
 		ResultResponseString = Response->GetContentAsString();
-		UE_LOG(JCMlog, Log, TEXT("Response: %s"), *ResultResponseString);
+		//UE_LOG(JCMlog, Log, TEXT("Response: %s"), *ResultResponseString);
 		OnRequestedJsonStringReady.Execute(true);
 		OnRequestingProcessDone.Broadcast();
 	}
 	else
 	{
-		UE_LOG(JCMlog, Error, TEXT("HTTP Request failed."));
+		UE_LOG(JCMlog, Error, TEXT("%s : HTTP Request failed."), *this->GetName());
 	}
 }
 
@@ -84,7 +84,7 @@ void UJCMHttpHandler::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJ
 	ParsedJsonData = ParseRequestBody(OriginJsonObject);
 	if (ParsedJsonData)
 	{
-		UE_LOG(JCMlog, Log, TEXT("HTTPRequestManager : DataParsing Complete"));
+		//UE_LOG(JCMlog, Log, TEXT("%s : DataParsing Complete"), *this->GetName());
 		OnParsedJsonObjectPtrReady.Execute(ParsedJsonData);
 		OnRequestingProcessDone.Broadcast();
 	}
@@ -103,11 +103,11 @@ TSharedPtr<FJsonObject> UJCMHttpHandler::ParseRequestBody(TSharedPtr<FJsonObject
 		FJsonSerializer::Serialize(DataObject.ToSharedRef(), Writer);
 
 		// 디버깅 출력
-		UE_LOG(JCMlog, Log, TEXT("DataObject JSON: %s"), *JsonString);
+		//UE_LOG(JCMlog, Log, TEXT("DataObject JSON: %s"), *JsonString);
 	}
 	else
 	{
-		UE_LOG(JCMlog, Warning, TEXT("DataObject is invalid"));
+		UE_LOG(JCMlog, Warning, TEXT("%s : DataObject is invalid"), *this->GetName());
 	}
 
 	return DataObject;

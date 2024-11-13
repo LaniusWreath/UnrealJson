@@ -18,7 +18,7 @@ UJCMDataContainer* UJCMDataManager::InstancingDataContainerFromLocalJson(const F
 	}
 	else
 	{
-		UE_LOG(JCMlog, Warning, TEXT("InstancingDataContainerFromLocalJson was Failed"));
+		UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : 'InstancingDataContainerFromLocalJson()' Failed"));
 		return nullptr;
 	}
 }
@@ -40,12 +40,11 @@ TSharedPtr<FJsonObject> UJCMDataManager::DeserializeJsonStringToJsonObject(const
 	// JSON 문자열을 FJsonObject로 파싱
 	if (FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
 	{
-		UE_LOG(JCMlog, Log, TEXT("Successfully deserialized JSON string to FJsonObject."));
 		return JsonObject;
 	}
 	else
 	{
-		UE_LOG(JCMlog, Error, TEXT("Failed to deserialize JSON string."));
+		UE_LOG(JCMlog, Error, TEXT("JCMDataManager : Failed to deserialize JSON string."));
 		return nullptr;
 	}
 }
@@ -84,7 +83,7 @@ const FString& UJCMDataManager::GetJSONStringData() const
 {
 	if (DataString == "")
 	{
-		UE_LOG(JCMlog, Warning, TEXT("DataManager.cpp : DataString is null"));
+		UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : String Data is null"));
 	}
 	return DataString;
 }
@@ -128,11 +127,11 @@ FString UJCMDataManager::SerializeJSONToString(const TSharedPtr<FJsonObject> JSO
 
 	if (FJsonSerializer::Serialize(JSONObject.ToSharedRef(), Writer))
 	{
-		UE_LOG(JCMlog, Log, TEXT("DataManager: JSONToString Serialized"));
+		UE_LOG(JCMlog, Log, TEXT("JCMDataManager : JSONToString serialized"));
 	}
 	else
 	{
-		UE_LOG(JCMlog, Log, TEXT("DataManager: JSONToString Serialize Failed"));
+		UE_LOG(JCMlog, Log, TEXT("JCMDataManager : SONToString serialize failed"));
 	}
 
 	return JsonString;
@@ -145,7 +144,7 @@ FDataInstancePair UJCMDataManager::InstancingDataClass(const TSharedPtr<FJsonObj
 
 	if (!Data.IsValid())
 	{
-		UE_LOG(JCMlog, Warning, TEXT("DataManager : InstancingDataClass : Input Data is invalid"));
+		UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : Input Data is invalid"));
 		isFieldValid = false;
 	}
 
@@ -153,14 +152,14 @@ FDataInstancePair UJCMDataManager::InstancingDataClass(const TSharedPtr<FJsonObj
 	FString ChartType;
 	if (!Data->TryGetStringField(TEXT("chartType"), ChartType))
 	{
-		UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'chartType' is missing or invalid"));
+		UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : 'chartType' is missing or invalid"));
 		isFieldValid = false;
 	}
 
 	FString ChartTitle;
 	if (!Data->TryGetStringField(TEXT("chartTitle"), ChartTitle))
 	{
-		UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'ChartTitle' is missing or invalid"));
+		UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : 'ChartTitle' is missing or invalid"));
 		isFieldValid = false;
 	}
 
@@ -267,7 +266,7 @@ FDataInstancePair UJCMDataManager::InstancingDataClass(const TSharedPtr<FJsonObj
 	case FREE:
 		break;
 	default:
-		UE_LOG(JCMlog, Warning, TEXT("DataManager.cpp : Instancing Data Class was failed"));
+		UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : Instancing Data Class was failed"));
 	}
 	return DataPair;
 }

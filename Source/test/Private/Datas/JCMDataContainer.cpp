@@ -42,17 +42,17 @@ UJCMDataContainerBar* UJCMDataContainerBar::SetChartData(const FJCMChartDataShap
     ShapeChartData = InputData;
     if (ShapeChartData.ChartType == "")
     {
-        UE_LOG(JCMlog, Warning, TEXT("UBarShapeComponent.cpp : %s.ChartType is Empty"), *this->GetName());
+        UE_LOG(JCMlog, Warning, TEXT("%s : ChartType is Empty"), *this->GetName());
         return nullptr;
     }
     if (ShapeChartData.XName == "" || ShapeChartData.YName == "")
     {
-        UE_LOG(JCMlog, Warning, TEXT("UBarShapeComponent.cpp : %s.Name is Empty"), *this->GetName());
+        UE_LOG(JCMlog, Warning, TEXT("%s : Name is Empty"), *this->GetName());
         return nullptr;
     }
     if (ShapeChartData.Labels.Num() == 0 || ShapeChartData.Values.Num() == 0)
     {
-        UE_LOG(JCMlog, Warning, TEXT("UBarShapeComponent.cpp : %s.Data is Empty"), *this->GetName());
+        UE_LOG(JCMlog, Warning, TEXT("%s : Data is Empty"), *this->GetName());
         return nullptr;
     }
     
@@ -70,17 +70,17 @@ UJCMDataContainerBar* UJCMDataContainerBar::SetChartData(const FString& ChartTit
 
     if (ShapeChartData.ChartType == "")
     {
-        UE_LOG(JCMlog, Warning, TEXT("UBarShapeComponent.cpp : %s.ChartType is Empty"), *this->GetName());
+        UE_LOG(JCMlog, Warning, TEXT("%s ChartType is empty"), *this->GetName());
         return nullptr;
     }
     if (ShapeChartData.XName == "" || ShapeChartData.YName == "")
     {
-        UE_LOG(JCMlog, Warning, TEXT("UBarShapeComponent.cpp : %s.Name is Empty"), *this->GetName());
+        UE_LOG(JCMlog, Warning, TEXT("%s Name is empty"), *this->GetName());
         return nullptr;
     }
     if (ShapeChartData.Labels.Num() == 0 || ShapeChartData.Values.Num() == 0)
     {
-        UE_LOG(JCMlog, Warning, TEXT("UBarShapeComponent.cpp : %s.Data is Empty"), *this->GetName());
+        UE_LOG(JCMlog, Warning, TEXT("%s Data is empty"), *this->GetName());
         return nullptr;
     }
 

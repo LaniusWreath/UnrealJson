@@ -14,18 +14,18 @@ TSharedPtr<FJsonObject> UJCMJsonHandler::GetJsonObjectData(const FString& FilePa
         // Json ÀÐ±â
         if (FJsonSerializer::Deserialize(Reader, ParsedData))
         {
-            UE_LOG(JCMlog, Log, TEXT("JSONHandler : JSON Data Parsed Successfully"));
+           // UE_LOG(JCMlog, Log, TEXT("JSONHandler : JSON Data Parsed Successfully"));
             return ParsedData;
         }
         else
         {
-            UE_LOG(JCMlog, Error, TEXT("JSONHander : Failed to Parse JSON Data"));
+            UE_LOG(JCMlog, Error, TEXT("JCMDataManager : JSONHander : Failed to Parse JSON Data"));
             return nullptr;
         }
     }
     else
     {
-        UE_LOG(JCMlog, Error, TEXT("JSONHandler : Failed to Read JSON Data"));
+        UE_LOG(JCMlog, Error, TEXT("JCMDataManager : JSONHandler : Failed to Read JSON Data"));
         return nullptr;
     }
 }
