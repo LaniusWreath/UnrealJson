@@ -344,7 +344,8 @@ void AJCMBarBaseActor::BindTimelineAnimation()
 	}
 	else
 	{
-		UE_LOG(JCMlog, Warning, TEXT("%s : Failed finding animation cuvrve"), *this->GetName());
+		if(!EnableSpawnCustomMesh)
+			UE_LOG(JCMlog, Warning, TEXT("%s : Failed finding animation cuvrve"), *this->GetName());
 	}
 }
 

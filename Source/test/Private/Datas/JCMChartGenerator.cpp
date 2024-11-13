@@ -58,7 +58,7 @@ void UJCMChartGeneratorBar::SetBarSourceActor(const TSubclassOf<AJCMBarBaseActor
 {
 	if (!SourceActor)
 	{
-		UE_LOG(JCMlog, Warning, TEXT("JCMChartGenrator : Setting BarSource Actor Failed"));
+		UE_LOG(JCMlog, Warning, TEXT("%s : Setting BarSource Actor Failed"), *this->GetAttachParentActor()->GetActorLabel());
 		return;
 	}
 	BarBaseActorBPClass = SourceActor;
@@ -220,13 +220,13 @@ bool UJCMChartGeneratorBar::CreateBar(const TArray<float>& ValueArray, const TAr
 				}
 				else
 				{
-					UE_LOG(JCMlog, Error, TEXT("ChartGenerator: failed casting childBarBaseActor"));
+					UE_LOG(JCMlog, Error, TEXT("%s: failed casting childBarBaseActor"), *this->GetAttachParentActor()->GetActorLabel());
 					return false;
 				}
 			}
 			else
 			{
-				UE_LOG(JCMlog, Error, TEXT("ChartGenerator : Failed finding ChartGenerator childActor"));
+				UE_LOG(JCMlog, Error, TEXT("%s : Failed finding ChartGenerator childActor"), *this->GetAttachParentActor()->GetActorLabel());
 				return false;
 			}
 		}
@@ -242,8 +242,8 @@ void UJCMChartGeneratorBar::AddSplinePoint(USplineComponent* SplineComponent, in
 	if (TargetCount > SplinePointCount)
 	{
 		UE_LOG(JCMlog, Warning,
-			TEXT("ChartGenerator : CreateBarAlongSplinePoint Value Count %d dosen't match SplinePoint Count %d"),
-			TargetCount, SplinePointCount);
+			TEXT("%s : CreateBarAlongSplinePoint Value Count %d dosen't match SplinePoint Count %d"),
+			*this->GetAttachParentActor()->GetActorLabel(), TargetCount, SplinePointCount);
 		UE_LOG(JCMlog, Log,
 			TEXT("Adding Extra Spline Point"));
 
@@ -332,13 +332,13 @@ bool UJCMChartGeneratorBar::CreateBarAlongSplinePoint(const TArray<float>& Value
 				}
 				else
 				{
-					UE_LOG(JCMlog, Error, TEXT("ChartGenerator: failed casting childBarBaseActor"));
+					UE_LOG(JCMlog, Error, TEXT("%s : failed casting childBarBaseActor"), *this->GetAttachParentActor()->GetActorLabel());
 					return false;
 				}
 			}
 			else
 			{
-				UE_LOG(JCMlog, Error, TEXT("ChartGenerator : Failed finding ChartGenerator childActor"));
+				UE_LOG(JCMlog, Error, TEXT("%s : Failed finding ChartGenerator childActor"), *this->GetAttachParentActor()->GetActorLabel());
 			}
 
 		}

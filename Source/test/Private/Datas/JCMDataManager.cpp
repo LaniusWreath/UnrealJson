@@ -245,11 +245,6 @@ FDataInstancePair UJCMDataManager::InstancingDataClass(const TSharedPtr<FJsonObj
 		}
 		
 		NewChartBarClass->SetChartData(ChartTitle, ChartType, XName, XLabels, YName, YValues);
-		UE_LOG(JCMlog, Log, TEXT("%s"), *NewChartBarClass->GetChartDataStruct().ChartTitle);
-		UE_LOG(JCMlog, Log, TEXT("%s"), *NewChartBarClass->GetChartDataStruct().ChartType);
-		UE_LOG(JCMlog, Log, TEXT("%s"), *NewChartBarClass->GetChartDataStruct().XName);
-		UE_LOG(JCMlog, Log, TEXT("%s"), *NewChartBarClass->GetChartDataStruct().YName);
-
 		DataPair.IsValid = isFieldValid;
 		DataPair.DataInstance = NewChartBarClass;
 		return DataPair;

@@ -75,12 +75,12 @@ bool AJCM3DChartActor::CheckJCMActorIntegrity()
 	bool bIsValid= true;
 	if (!DataManagerInstanceRef)
 	{
-		UE_LOG(JCMlog, Warning, TEXT("Integrity Check : %s : DataManager is Invalid "), *this->GetName());
+		UE_LOG(JCMlog, Warning, TEXT("Integrity Check : %s : DataManager is Invalid "), *this->GetActorLabel());
 		bIsValid = false;
 	}
 	if (!DataContainerInstance)
 	{
-		UE_LOG(JCMlog, Warning, TEXT("Integrity Check : %s : DataContainer is Invalid"), *this->GetName());
+		UE_LOG(JCMlog, Warning, TEXT("Integrity Check : %s : DataContainer is Invalid"), *this->GetActorLabel());
 		bIsValid = false;
 	}
 
@@ -96,12 +96,12 @@ void AJCM3DChartActor::SetJCMDataManagerRef()
 			DataManagerInstanceRef = UJCMCore::GetJCMCore()->GetDataManager();
 			if (!DataManagerInstanceRef)
 			{
-				UE_LOG(JCMlog, Warning, TEXT("%s: Getting DataManager Reference Failed"), *this->GetName());
+				UE_LOG(JCMlog, Warning, TEXT("%s: Getting DataManager Reference Failed"), *this->GetActorLabel());
 			}
 		}
 		else
 		{
-			UE_LOG(JCMlog, Warning, TEXT("%s: Couldn't find JCMCore"), *this->GetName());
+			UE_LOG(JCMlog, Warning, TEXT("%s: Couldn't find JCMCore"), *this->GetActorLabel());
 		}
 	}
 }
@@ -128,7 +128,7 @@ void AJCM3DChartActor::SetJsonObject(const TSharedPtr<FJsonObject> JsonData)
 		DataContainerInstance = ResultData.DataInstance;
 		if (!DataContainerInstance)
 		{
-			UE_LOG(JCMlog, Log, TEXT("%s: Received Data Container is invaid"), *this->GetName());
+			UE_LOG(JCMlog, Log, TEXT("%s: Received Data Container is invaid"), *this->GetActorLabel());
 		}
 		else
 		{
@@ -137,7 +137,7 @@ void AJCM3DChartActor::SetJsonObject(const TSharedPtr<FJsonObject> JsonData)
 	}
 	else
 	{
-		UE_LOG(JCMlog, Warning, TEXT("%s: RequestManagerInstance is Invalid"), *this->GetName());
+		UE_LOG(JCMlog, Warning, TEXT("%s: RequestManagerInstance is Invalid"), *this->GetActorLabel());
 	}
 }
 
@@ -182,7 +182,7 @@ const UJCMDataContainerBar* AJCM3DChartActorBar::GetDataContainerRef()
 	}
 	else
 	{
-		UE_LOG(JCMlog, Warning, TEXT("%s : Getting DataContainer Ref Failed"), *this->GetName());
+		UE_LOG(JCMlog, Warning, TEXT("%s : Getting DataContainer Ref Failed"), *this->GetActorLabel());
 		return nullptr;
 	}
 }
@@ -210,7 +210,7 @@ void AJCM3DChartActorBar::GenerateChartRoutine()
 {
 	if (!DataContainerInstance)
 	{
-		UE_LOG(JCMlog, Warning, TEXT("%s : GenerateChartRoutine : DataContainer is invalid"), *this->GetName());
+		UE_LOG(JCMlog, Warning, TEXT("%s : GenerateChartRoutine : DataContainer is invalid"), *this->GetActorLabel());
 		return;
 	}
 
@@ -224,7 +224,7 @@ void AJCM3DChartActorBar::GenerateChartRoutine()
 	}
 	else
 	{
-		UE_LOG(JCMlog, Warning, TEXT("%s : BarBaseActorBPClass or BarGeneratorComponent is invalid"), *this->GetName());
+		UE_LOG(JCMlog, Warning, TEXT("%s : BarBaseActorBPClass or BarGeneratorComponent is invalid"), *this->GetActorLabel());
 		return;
 	}
 
@@ -236,7 +236,6 @@ void AJCM3DChartActorBar::GenerateChartRoutine()
 
 	// GenerateBarChart() : 데이터 입력 받아 차트 생성 루틴 함수 호출 / GetShapeChartData() : Bar(모양)차트 데이터 Get
 	BarGeneratorComponent->GenerateBarChart(BarDataClassInstance->GetChartDataStruct(), EnableGenerateMeshAtSplinePoint);
-
 }
 
 // Bar 액터 무결성 체크 함수
@@ -246,12 +245,12 @@ bool AJCM3DChartActorBar::CheckJCMActorIntegrity()
 
 	if (!BarGeneratorComponent)
 	{
-		UE_LOG(JCMlog, Warning, TEXT("Integrity Check : %s : BarGeneratorComponent Invalid"), *this->GetName());
+		UE_LOG(JCMlog, Warning, TEXT("Integrity Check : %s : BarGeneratorComponent Invalid"), *this->GetActorLabel());
 		bIsValid = false;
 	}
 	if (!BarBaseActorBPClass)
 	{
-		UE_LOG(JCMlog, Warning, TEXT("Integrity Check : %s : BarBaseActorBPClass Invalid"), *this->GetName());
+		UE_LOG(JCMlog, Warning, TEXT("Integrity Check : %s : BarBaseActorBPClass Invalid"), *this->GetActorLabel());
 		bIsValid = false;
 	}
 
