@@ -13,14 +13,16 @@
 #include "Components/SplineComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "Datas/JCMLog.h"
 
+DEFINE_LOG_CATEGORY(JCMlog);
 /// <summary>
 /// BaseActor Functions
 /// </summary>
 
 AJCM3DChartActor::AJCM3DChartActor()
 {
-	UE_LOG(LogTemp, Log, TEXT("Data3DActor : Initializing %s"), *GetName());
+	UE_LOG(JCMlog, Log, TEXT("Data3DActor : Initializing %s"), *GetName());
 
 	RootSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponet"));
 	TextRenderComponent_chartTitle = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Text_title"));
@@ -62,8 +64,8 @@ void AJCM3DChartActor::LoadFromLocalJsonFile(const FString& FilePath)
 {
 	SetJCMDataManagerRef();
 	IsDataClassInstanceSet = false;
-	DataClassInstance = DataManagerInstanceRef->InstancingDataContainerFromLocalJson(FilePath);
-	if (DataClassInstance)
+	DataContainerInstance = DataManagerInstanceRef->InstancingDataContainerFromLocalJson(FilePath);
+	if (DataContainerInstance)
 		IsDataClassInstanceSet = true;
 }
 
@@ -73,12 +75,12 @@ bool AJCM3DChartActor::CheckJCMActorIntegrity()
 	bool bIsValid= true;
 	if (!DataManagerInstanceRef)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Integrity Check : %s : DataManager Invalid "), *this->GetName());
+		UE_LOG(JCMlog, Warning, TEXT("Integrity Check : %s : DataManager Invalid "), *this->GetName());
 		bIsValid = false;
 	}
-	if (!DataClassInstance)
+	if (!DataContainerInstance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Integrity Check : %s : DataContainer Invalid"), *this->GetName());
+		UE_LOG(JCMlog, Warning, TEXT("Integrity Check : %s : DataContainer Invalid"), *this->GetName());
 		bIsValid = false;
 	}
 
@@ -94,12 +96,12 @@ void AJCM3DChartActor::SetJCMDataManagerRef()
 			DataManagerInstanceRef = UJCMCore::GetJCMCore()->GetDataManager();
 			if (!DataManagerInstanceRef)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Data3DActor : Initialize Managers : Getting DataManager Reference Failed"));
+				UE_LOG(JCMlog, Warning, TEXT("Data3DActor : Initialize Managers : Getting DataManager Reference Failed"));
 			}
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Couldn't find JCMCore"));
+			UE_LOG(JCMlog, Warning, TEXT("Couldn't find JCMCore"));
 		}
 	}
 }
@@ -123,10 +125,10 @@ void AJCM3DChartActor::SetJsonObject(const TSharedPtr<FJsonObject> JsonData)
 	{
 		//TSharedPtr<FJsonObject> Data = RequestManagerInstance->GetJsonData();
 		FDataInstancePair ResultData = DataManagerInstanceRef->InstancingDataClass(JsonData);
-		DataClassInstance = ResultData.DataInstance;
-		if (!DataClassInstance)
+		DataContainerInstance = ResultData.DataInstance;
+		if (!DataContainerInstance)
 		{
-			UE_LOG(LogTemp, Log, TEXT("Data3DChartActor : Received Data Class is invaid"));
+			UE_LOG(JCMlog, Log, TEXT("Data3DChartActor : Received Data Class is invaid"));
 		}
 		else
 		{
@@ -135,7 +137,7 @@ void AJCM3DChartActor::SetJsonObject(const TSharedPtr<FJsonObject> JsonData)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Data3DChartActor : RequestManagerInstance is Invalid"));
+		UE_LOG(JCMlog, Warning, TEXT("Data3DChartActor : RequestManagerInstance is Invalid"));
 	}
 }
 
@@ -175,12 +177,12 @@ const UJCMDataContainerBar* AJCM3DChartActorBar::GetDataContainerRef()
 {
 	if (IsDataClassInstanceSet)
 	{
-		UJCMDataContainerBar* Container = Cast<UJCMDataContainerBar>(DataClassInstance);
+		UJCMDataContainerBar* Container = Cast<UJCMDataContainerBar>(DataContainerInstance);
 		return Container;
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s : GetDataContainerRef Failed"), *this->GetName());
+		UE_LOG(JCMlog, Warning, TEXT("%s : GetDataContainerRef Failed"), *this->GetName());
 		return nullptr;
 	}
 }
@@ -188,14 +190,14 @@ const UJCMDataContainerBar* AJCM3DChartActorBar::GetDataContainerRef()
 // 차트 타이틀, X축, Y축 이름 초기화 함수
 void AJCM3DChartActorBar::SetChartDefaultTexts()
 {
-	if (DataClassInstance)
+	if (DataContainerInstance)
 	{
-		UJCMDataContainerBar* TempCastedDataClass = Cast<UJCMDataContainerBar>(DataClassInstance);
+		UJCMDataContainerBar* TempCastedDataClass = Cast<UJCMDataContainerBar>(DataContainerInstance);
 		//FString ChartTitle = TempCastedDataClass->GetChartTitle();
 		FString ChartTitle = TempCastedDataClass->GetChartDataStruct().ChartTitle;
 
 		TextRenderComponent_chartTitle->SetText(FText::FromString(ChartTitle));
-		UE_LOG(LogTemp, Log, TEXT("Data3DActor : Chart Title : %s"), *ChartTitle);
+		UE_LOG(JCMlog, Log, TEXT("Data3DActor : Chart Title : %s"), *ChartTitle);
 
 		FString ChartXAxisName = TempCastedDataClass->GetChartDataStruct().XName;
 		TextRenderComponent_chartXaxisName->SetText(FText::FromString(ChartXAxisName));
@@ -207,10 +209,10 @@ void AJCM3DChartActorBar::SetChartDefaultTexts()
 
 void AJCM3DChartActorBar::GenerateChartRoutine()
 {
-	UE_LOG(LogTemp, Log, TEXT("Data3DActorBar : Generate Chart Routine Running"));
-	if (!DataClassInstance)
+	UE_LOG(JCMlog, Log, TEXT("Data3DActorBar : Generate Chart Routine Running"));
+	if (!DataContainerInstance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Data3DActorBar : GenerateChartRoutine : DataClassInstance is invalid"));
+		UE_LOG(JCMlog, Warning, TEXT("Data3DActorBar : GenerateChartRoutine : DataClassInstance is invalid"));
 		return;
 	}
 
@@ -224,16 +226,16 @@ void AJCM3DChartActorBar::GenerateChartRoutine()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Data3DActor : BarBaseActorBPClass or BarGeneratorComponent is null"));
+		UE_LOG(JCMlog, Warning, TEXT("Data3DActor : BarBaseActorBPClass or BarGeneratorComponent is null"));
 		return;
 	}
 
 	// 데이터로부터 차트 타입 추출
-	EJCMChartTypes ECurrentChartType = DataClassInstance->GetChartType();
-	UE_LOG(LogTemp, Log, TEXT("Data3DActorBar : LastChartType is %d"), ECurrentChartType);
+	EJCMChartTypes ECurrentChartType = DataContainerInstance->GetChartType();
+	UE_LOG(JCMlog, Log, TEXT("Data3DActorBar : LastChartType is %d"), ECurrentChartType);
 
 	// 바 데이터 객체로 데이터 클래스 객체 캐스팅
-	UJCMDataContainerBar* BarDataClassInstance = Cast<UJCMDataContainerBar>(DataClassInstance);
+	UJCMDataContainerBar* BarDataClassInstance = Cast<UJCMDataContainerBar>(DataContainerInstance);
 
 	// GenerateBarChart() : 데이터 입력 받아 차트 생성 루틴 함수 호출 / GetShapeChartData() : Bar(모양)차트 데이터 Get
 	BarGeneratorComponent->GenerateBarChart(BarDataClassInstance->GetChartDataStruct(), EnableGenerateMeshAtSplinePoint);
@@ -247,12 +249,12 @@ bool AJCM3DChartActorBar::CheckJCMActorIntegrity()
 
 	if (!BarGeneratorComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Integrity Check : %s : BarGeneratorComponent Invalid"), *this->GetName());
+		UE_LOG(JCMlog, Warning, TEXT("Integrity Check : %s : BarGeneratorComponent Invalid"), *this->GetName());
 		bIsValid = false;
 	}
 	if (!BarBaseActorBPClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Integrity Check : %s : BarBaseActorBPClass Invalid"), *this->GetName());
+		UE_LOG(JCMlog, Warning, TEXT("Integrity Check : %s : BarBaseActorBPClass Invalid"), *this->GetName());
 		bIsValid = false;
 	}
 

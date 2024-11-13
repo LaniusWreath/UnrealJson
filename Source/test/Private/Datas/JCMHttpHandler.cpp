@@ -4,6 +4,9 @@
 // 인스턴스마다 하나의 json url과 response json 객체를 저장함.
 
 #include "Datas/JCMHttpHandler.h"
+#include "Datas/JCMLog.h"
+
+
 // Object / String 공통 Request 함수
 void UJCMHttpHandler::MakeGetRequest(const FString& Url, const bool GetResultWithFString)
 {
@@ -35,7 +38,7 @@ void UJCMHttpHandler::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpRe
 	{
 		// 응답 데이터 확인
 		ResultResponseString = Response->GetContentAsString();
-		UE_LOG(LogTemp, Log, TEXT("Response: %s"), *ResultResponseString);
+		UE_LOG(JCMlog, Log, TEXT("Response: %s"), *ResultResponseString);
 
 		TSharedPtr<FJsonObject> JsonData;
 
@@ -48,12 +51,12 @@ void UJCMHttpHandler::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpRe
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("Failed to parse JSON."));
+			UE_LOG(JCMlog, Error, TEXT("Failed to parse JSON."));
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("HTTP Request failed."));
+		UE_LOG(JCMlog, Error, TEXT("HTTP Request failed."));
 	}
 }
 
@@ -65,13 +68,13 @@ void UJCMHttpHandler::OnResponseReceived(FHttpRequestPtr Request, FHttpResponseP
 	{
 		// 결과는 HttpHandler 인스턴스의 ResultResponseString에 저장
 		ResultResponseString = Response->GetContentAsString();
-		UE_LOG(LogTemp, Log, TEXT("Response: %s"), *ResultResponseString);
+		UE_LOG(JCMlog, Log, TEXT("Response: %s"), *ResultResponseString);
 		OnRequestedJsonStringReady.Execute(true);
 		OnRequestingProcessDone.Broadcast();
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("HTTP Request failed."));
+		UE_LOG(JCMlog, Error, TEXT("HTTP Request failed."));
 	}
 }
 
@@ -81,7 +84,7 @@ void UJCMHttpHandler::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJ
 	ParsedJsonData = ParseRequestBody(OriginJsonObject);
 	if (ParsedJsonData)
 	{
-		UE_LOG(LogTemp, Log, TEXT("HTTPRequestManager : DataParsing Complete"));
+		UE_LOG(JCMlog, Log, TEXT("HTTPRequestManager : DataParsing Complete"));
 		OnParsedJsonObjectPtrReady.Execute(ParsedJsonData);
 		OnRequestingProcessDone.Broadcast();
 	}
@@ -100,11 +103,11 @@ TSharedPtr<FJsonObject> UJCMHttpHandler::ParseRequestBody(TSharedPtr<FJsonObject
 		FJsonSerializer::Serialize(DataObject.ToSharedRef(), Writer);
 
 		// 디버깅 출력
-		UE_LOG(LogTemp, Log, TEXT("DataObject JSON: %s"), *JsonString);
+		UE_LOG(JCMlog, Log, TEXT("DataObject JSON: %s"), *JsonString);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("DataObject is invalid"));
+		UE_LOG(JCMlog, Warning, TEXT("DataObject is invalid"));
 	}
 
 	return DataObject;
@@ -153,7 +156,7 @@ TMap<FString, FString> UJCMHttpHandler::ParseJsonStringToMap(const FString& Json
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Failed Json Parsing"));
+		UE_LOG(JCMlog, Warning, TEXT("Failed Json Parsing"));
 	}
 
 	return ParsedMap;

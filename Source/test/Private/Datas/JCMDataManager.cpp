@@ -4,6 +4,8 @@
 #include "Datas/JCMJsonHandler.h"
 #include "Datas/JCMDataContainer.h"
 #include "Serialization/JsonWriter.h"
+#include "Datas/JCMLog.h"
+
 
 // json 로컬 파일 직접 읽고 처리하는 루틴
 UJCMDataContainer* UJCMDataManager::InstancingDataContainerFromLocalJson(const FString& FilePath)
@@ -16,7 +18,7 @@ UJCMDataContainer* UJCMDataManager::InstancingDataContainerFromLocalJson(const F
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("InstancingDataContainerFromLocalJson was Failed"));
+		UE_LOG(JCMlog, Warning, TEXT("InstancingDataContainerFromLocalJson was Failed"));
 		return nullptr;
 	}
 }
@@ -38,12 +40,12 @@ TSharedPtr<FJsonObject> UJCMDataManager::DeserializeJsonStringToJsonObject(const
 	// JSON 문자열을 FJsonObject로 파싱
 	if (FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
 	{
-		UE_LOG(LogTemp, Log, TEXT("Successfully deserialized JSON string to FJsonObject."));
+		UE_LOG(JCMlog, Log, TEXT("Successfully deserialized JSON string to FJsonObject."));
 		return JsonObject;
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to deserialize JSON string."));
+		UE_LOG(JCMlog, Error, TEXT("Failed to deserialize JSON string."));
 		return nullptr;
 	}
 }
@@ -82,7 +84,7 @@ const FString& UJCMDataManager::GetJSONStringData() const
 {
 	if (DataString == "")
 	{
-		UE_LOG(LogTemp, Warning, TEXT("DataManager.cpp : DataString is null"));
+		UE_LOG(JCMlog, Warning, TEXT("DataManager.cpp : DataString is null"));
 	}
 	return DataString;
 }
@@ -126,11 +128,11 @@ FString UJCMDataManager::SerializeJSONToString(const TSharedPtr<FJsonObject> JSO
 
 	if (FJsonSerializer::Serialize(JSONObject.ToSharedRef(), Writer))
 	{
-		UE_LOG(LogTemp, Log, TEXT("DataManager: JSONToString Serialized"));
+		UE_LOG(JCMlog, Log, TEXT("DataManager: JSONToString Serialized"));
 	}
 	else
 	{
-		UE_LOG(LogTemp, Log, TEXT("DataManager: JSONToString Serialize Failed"));
+		UE_LOG(JCMlog, Log, TEXT("DataManager: JSONToString Serialize Failed"));
 	}
 
 	return JsonString;
@@ -143,7 +145,7 @@ FDataInstancePair UJCMDataManager::InstancingDataClass(const TSharedPtr<FJsonObj
 
 	if (!Data.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("DataManager : InstancingDataClass : Input Data is invalid"));
+		UE_LOG(JCMlog, Warning, TEXT("DataManager : InstancingDataClass : Input Data is invalid"));
 		isFieldValid = false;
 	}
 
@@ -151,14 +153,14 @@ FDataInstancePair UJCMDataManager::InstancingDataClass(const TSharedPtr<FJsonObj
 	FString ChartType;
 	if (!Data->TryGetStringField(TEXT("chartType"), ChartType))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'chartType' is missing or invalid"));
+		UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'chartType' is missing or invalid"));
 		isFieldValid = false;
 	}
 
 	FString ChartTitle;
 	if (!Data->TryGetStringField(TEXT("chartTitle"), ChartTitle))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'ChartTitle' is missing or invalid"));
+		UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'ChartTitle' is missing or invalid"));
 		isFieldValid = false;
 	}
 
@@ -182,7 +184,7 @@ FDataInstancePair UJCMDataManager::InstancingDataClass(const TSharedPtr<FJsonObj
 
 		if (!Data->TryGetObjectField(TEXT("xAxis"), XAxisObject))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'xAxis' is missing or invalid"));
+			UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'xAxis' is missing or invalid"));
 			isFieldValid = false;
 		}
 		else
@@ -190,14 +192,14 @@ FDataInstancePair UJCMDataManager::InstancingDataClass(const TSharedPtr<FJsonObj
 			// X축 라벨 이름 추출
 			if (!XAxisObject->Get()->TryGetStringField(TEXT("key"), XName))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'key (x)' is missing or invalid"));
+				UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'key (x)' is missing or invalid"));
 				isFieldValid = false;
 			}
 
 			// x축 데이터 배열 추출
 			if (!XAxisObject->Get()->TryGetArrayField(TEXT("label"), LabelArray))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'label' is missing or invalid"));
+				UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'label' is missing or invalid"));
 				isFieldValid = false;
 			}
 			else
@@ -217,7 +219,7 @@ FDataInstancePair UJCMDataManager::InstancingDataClass(const TSharedPtr<FJsonObj
 
 		if (!Data->TryGetObjectField(TEXT("yAxis"), YAxisObject))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'yAxis' is missing or invalid"));
+			UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'yAxis' is missing or invalid"));
 			isFieldValid = false;
 		}
 		else
@@ -225,13 +227,13 @@ FDataInstancePair UJCMDataManager::InstancingDataClass(const TSharedPtr<FJsonObj
 			// Y축 데이터 이름 추출
 			if (!YAxisObject->Get()->TryGetStringField(TEXT("key"), YName))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'key (y)' is missing or invalid"));
+				UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'key (y)' is missing or invalid"));
 				isFieldValid = false;
 			}
 			// Y축 데이터 배열 추출
 			if (!YAxisObject->Get()->TryGetArrayField(TEXT("value"), ValueArray))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'value' is missing or invalid"));
+				UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'value' is missing or invalid"));
 				isFieldValid = false;
 			}
 			else
@@ -244,10 +246,10 @@ FDataInstancePair UJCMDataManager::InstancingDataClass(const TSharedPtr<FJsonObj
 		}
 		
 		NewChartBarClass->SetChartData(ChartTitle, ChartType, XName, XLabels, YName, YValues);
-		UE_LOG(LogTemp, Log, TEXT("%s"), *NewChartBarClass->GetChartDataStruct().ChartTitle);
-		UE_LOG(LogTemp, Log, TEXT("%s"), *NewChartBarClass->GetChartDataStruct().ChartType);
-		UE_LOG(LogTemp, Log, TEXT("%s"), *NewChartBarClass->GetChartDataStruct().XName);
-		UE_LOG(LogTemp, Log, TEXT("%s"), *NewChartBarClass->GetChartDataStruct().YName);
+		UE_LOG(JCMlog, Log, TEXT("%s"), *NewChartBarClass->GetChartDataStruct().ChartTitle);
+		UE_LOG(JCMlog, Log, TEXT("%s"), *NewChartBarClass->GetChartDataStruct().ChartType);
+		UE_LOG(JCMlog, Log, TEXT("%s"), *NewChartBarClass->GetChartDataStruct().XName);
+		UE_LOG(JCMlog, Log, TEXT("%s"), *NewChartBarClass->GetChartDataStruct().YName);
 
 		DataPair.IsValid = isFieldValid;
 		DataPair.DataInstance = NewChartBarClass;
@@ -265,7 +267,7 @@ FDataInstancePair UJCMDataManager::InstancingDataClass(const TSharedPtr<FJsonObj
 	case FREE:
 		break;
 	default:
-		UE_LOG(LogTemp, Warning, TEXT("DataManager.cpp : Instancing Data Class was failed"));
+		UE_LOG(JCMlog, Warning, TEXT("DataManager.cpp : Instancing Data Class was failed"));
 	}
 	return DataPair;
 }

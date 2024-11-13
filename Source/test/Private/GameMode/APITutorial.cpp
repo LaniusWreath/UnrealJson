@@ -2,6 +2,7 @@
 
 #include "GameMode/APITutorial.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Datas/JCMLog.h"
 
 
 AAPITutorial::AAPITutorial():
@@ -43,7 +44,7 @@ void AAPITutorial::OnGetTimeResponse(FHttpRequestPtr Request, FHttpResponsePtr R
 	// Creating the Json Object we will be woring with
 	TSharedPtr<FJsonObject> JsonObject;
 	
-	UE_LOG(LogTemp, Display, TEXT("Response Result : %d"),Response->GetResponseCode());
+	UE_LOG(JCMlog, Display, TEXT("Response Result : %d"),Response->GetResponseCode());
 
 	// Check if we are successful in our request
 	if (Response->GetResponseCode() == 200)
@@ -104,9 +105,9 @@ void AAPITutorial::BreakTime()
 
 	// Break the Time Variable and store the data within individual Variable
 	UKismetMathLibrary::BreakDateTime(Time, Year, Month, Day, Hour, Minute, Second, MiliSecond);
-	UE_LOG(LogTemp, Log, TEXT("Time is: %d"), Hour);
-	UE_LOG(LogTemp, Log, TEXT("Time is: %d"), Minute);
-	UE_LOG(LogTemp, Log, TEXT("Time is: %d"), Second);
+	UE_LOG(JCMlog, Log, TEXT("Time is: %d"), Hour);
+	UE_LOG(JCMlog, Log, TEXT("Time is: %d"), Minute);
+	UE_LOG(JCMlog, Log, TEXT("Time is: %d"), Second);
 
 }
 
@@ -118,7 +119,7 @@ TSharedPtr<FJsonObject> AAPITutorial::ParseRequestBody(TSharedPtr<FJsonObject>& 
 	// data [] 값 가져오기
 	if (!RequestBody->TryGetArrayField(TEXT("data"), DataArray))
 	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to get 'data' array"));
+		UE_LOG(JCMlog, Error, TEXT("Failed to get 'data' array"));
 		return nullptr;
 	}
 
@@ -248,12 +249,12 @@ const TSharedPtr<FJsonObject>& AAPITutorial::GetParsedJsonObject(int index)
 {
 	if (ParsedJsonObjectArray.Num() != 0)
 	{
-		UE_LOG(LogTemp, Log, TEXT("APITutorial : current json object length is %d"), ParsedJsonObjectArray.Num());
+		UE_LOG(JCMlog, Log, TEXT("APITutorial : current json object length is %d"), ParsedJsonObjectArray.Num());
 		return ParsedJsonObjectArray[index];
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("APITutorial : ParsedJSONObjectArray is empty"));
+		UE_LOG(JCMlog, Error, TEXT("APITutorial : ParsedJSONObjectArray is empty"));
 		return NullJsonObjectPtr;
 	}
 }

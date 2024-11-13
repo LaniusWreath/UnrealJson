@@ -26,16 +26,19 @@ public:
 
 	void SetJsonString(const bool IsWorkDone);
 
-	// Call Json Request Function, Result Data will be stored in this  
+	// Call json request function, Result data will be stored in actor as container
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	void RequestJsonObject(const FString& URL);
 
+	// Call json request function, Result data will be returned as string
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	void RequestJsonString(const FString& URL);
 
+	// Load local json file, Result data will be stored in actor as container
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	void LoadFromLocalJsonFile(const FString& FilePath);
 
+	// Get Http request handler reference from JCM actor
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	const UJCMHttpHandler* GetHttpRequestHandler() const
 	{
@@ -46,10 +49,11 @@ public:
 			return nullptr;
 	}
 
-	// Visualization Chart Title
+	// Visualizating Chart Title
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chart")
 	UTextRenderComponent* TextRenderComponent_chartTitle;
 
+	// Data Container State
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Chart")
 	bool IsDataClassInstanceSet;
 
@@ -60,25 +64,26 @@ protected:
 	// Initializing Data Manager Getting from Game Instance
 	void SetJCMDataManagerRef();
 
-	// Initializing Request Manager Instance : this instance have to be initialized in every CallJsonRoutine()
+	// Initializing Request Manager Instance : this instance have to be initialized in every CallJsonRoutine
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	const UJCMHttpHandler* InitializeRequestHandler();
 
+	// Check JCM actor state
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	virtual bool CheckJCMActorIntegrity();
 
 	// Pure Virtual Routine for Generate Chart
 	virtual void GenerateChartRoutine() PURE_VIRTUAL(UDataFetcherBase::FetchData, ;);
 
-	// DataManager Reference
+	// JCM DataManager reference
 	UPROPERTY()
 	UJCMDataManager* DataManagerInstanceRef;
 
-	// Data Class Instance Reference
+	// Data Class Instance ref
 	UPROPERTY()
-	UJCMDataContainer* DataClassInstance;
+	UJCMDataContainer* DataContainerInstance;
 
-	// HttpRequest Handler
+	// HttpRequest Handler Instance ref
 	UPROPERTY()
 	UJCMHttpHandler* RequestHandlerInstance;
 
@@ -102,7 +107,7 @@ private:
 	void SetChartDefaultTexts();
 
 protected:
-	//virtual UDataClasses* SetDataClassInstance() override;
+	// chart genrating function sequence
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	virtual void GenerateChartRoutine() override;
 
@@ -115,11 +120,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chart")
 	bool EnableGenerateMeshAtSplinePoint;
 
-	// Select Bar Blueprint Actor Source to Generate
+	// Select JCM BarBaseActor Blueprint Actor Source to Generate
 	UPROPERTY(EditAnywhere, BlueprintReadOnly ,Category = "Chart")
 	TSubclassOf<AJCMBarBaseActor> BarBaseActorBPClass;
 
-	// Controler Component for Generating 3D Bar Chart 
+	// Component for generating JCM Bar Chart 
 	UPROPERTY(BlueprintReadOnly, Category = "Chart")
 	UJCMChartGeneratorBar* BarGeneratorComponent;
 
@@ -136,24 +141,24 @@ public:
 	// 블루프린트에서는 액터가 자식 클래스로 구체화되어있으므로, 데이터 컨테이너 클래스를 호출 할 때에도 액터 형식에 맞게
 	// 캐스팅해주는 과정이 필요함. 다른 자식 3DActor 클래스에도 구성해줄 것.
 	
-	//Get Precessed Json Data Container Class
+	//Get data container Ref
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	const UJCMDataContainerBar* GetDataContainerRef();
 	
-	// Set Processed Json Data Container Class Instance Directly : You have to get a reference from other Data3DActor Instance to use this function.
+	// Set Processed Json Data Container Instance Directly
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	void SetDataContainerInstance(UJCMDataContainerBar* DataContainerInstanceRef)
 	{
 		UJCMDataContainer* Container = Cast<UJCMDataContainer>(DataContainerInstanceRef);
-		DataClassInstance = Container;
+		DataContainerInstance = Container;
 		IsDataClassInstanceSet = true;
 	}
 	
-	// Delete Data Container Class Instance
+	// Delete Data Container Instance
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	void DeleteDataContainerInstance()
 	{
-		DataClassInstance = nullptr;
+		DataContainerInstance = nullptr;
 		IsDataClassInstanceSet = false;
 	}
 };

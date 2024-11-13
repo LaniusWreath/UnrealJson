@@ -31,22 +31,23 @@ private:
 	UJCMHttpHandler* GetJCMRequestManager();
 
 public:
-	// Initializing Each Managers
+	// Get Jcm Core Instance
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	static UJCMCore* GetJCMCore();
 
-	// Core Approching Function
+	// Initialize JCM Core
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	static const UJCMCore* InitializeJCMCore();
-
+	
+	// Deleting JCM Core 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	// Core Deleting Function
 	static void JCMCoreDestroy();
 
-	// Each Manager Getter Function
+	// Get JCM HttpManager Reference
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	UJCMHttpHandler* GetHttpRequestManager() const { return RequestManagerInstance; }
 
+	// Get JCM Data Containing Manager Reference
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	UJCMDataManager* GetDataManager() const { return DataManagerInstance; }
 

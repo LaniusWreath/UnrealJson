@@ -3,13 +3,14 @@
 #include "Datas/JCMCore.h"
 #include "Datas/JCMDataManager.h"
 #include "Datas/JCMHttpHandler.h"
+#include "Datas/JCMLog.h"
+
 
 UJCMCore* UJCMCore::JCMCoreInstance = nullptr;
 
 // Initializing JCMCore static
 const UJCMCore* UJCMCore::InitializeJCMCore()
 {
-	// SingletonInstance가 없으면 생성하고 초기화
 	if (!JCMCoreInstance)
 	{
 		JCMCoreInstance = NewObject<UJCMCore>();
@@ -30,7 +31,7 @@ UJCMCore* UJCMCore::GetJCMCore()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No JCM Core Instance. Please Initialize Core First"));
+		UE_LOG(JCMlog, Warning, TEXT("No JCM Core Instance. Please Initialize Core First"));
 		return nullptr;
 	}
 }
@@ -40,7 +41,7 @@ UJCMHttpHandler* UJCMCore::GetJCMRequestManager()
 {
 	if (!RequestManagerInstance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No JCM Core Instance. Please Initialize Core First"));
+		UE_LOG(JCMlog, Warning, TEXT("No JCM Core Instance. Please Initialize Core First"));
 	}
 	return RequestManagerInstance;
 }
@@ -51,7 +52,7 @@ UJCMDataManager* UJCMCore::GetJCMDataManager()
 	// DataManager 인스턴스 생성 및 초기화
 	if (!DataManagerInstance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No JCM Core Instance. Please Initialize Core First"));
+		UE_LOG(JCMlog, Warning, TEXT("No JCM Core Instance. Please Initialize Core First"));
 	}
 	return DataManagerInstance;
 }

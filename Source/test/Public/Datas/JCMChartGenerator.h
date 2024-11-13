@@ -30,7 +30,7 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Chart")
 	USceneComponent* ChildActorContainComponent;
 
 public:
@@ -68,6 +68,9 @@ private:
 	UPROPERTY()
 	TSubclassOf<AJCMBarBaseActor> BarBaseActorBPClass;
 
+	UPROPERTY()
+	TArray<int32> SpawnedMeshAmounts;
+
 protected:
 	virtual void ClearChildrenActors() override;
 
@@ -87,6 +90,12 @@ public:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Component")
 	USplineComponent* SplineComponent_height;
+
+	UFUNCTION(BlueprintCallable, Category = "Component")
+	const TArray<int32>& GetSpawnedMeshAmountArray() const
+	{
+		return SpawnedMeshAmounts;
+	}
 };
 
 UCLASS(Blueprintable)

@@ -17,6 +17,8 @@ class TEST_API AJCMBarBaseActor : public AActor
 
 private:
 
+	int UnitSize = 1;
+
 	UPROPERTY()
 	UTimelineComponent* BarAnimationTimeline;
 
@@ -33,7 +35,7 @@ private:
 	int32 SpawnCount = 0;
 
 	UPROPERTY()
-	float ResultCustomStaticMeshSpawnedValue;
+	float SpawnedCustomMeshAmount;
 
 	// TimeLine Animation Binding Function
 	UFUNCTION()
@@ -57,54 +59,57 @@ public:
 	// Sets default values for this actor's properties
 	AJCMBarBaseActor();
 
-	// On : Spawning Custom Mesh, Off: Spawning Default Bar Mesh
+	// On : Spawning custom mesh, Off: Spawning default bar mesh
 	UPROPERTY(EditAnywhere, Category = "Chart")
 	bool EnableSpawnCustomMesh;
 
 	UPROPERTY(VisibleAnywhere, Category = "Chart")
 	UProceduralMeshComponent* ProcMeshComponent;
 
-	// Specify Static Mesh to Generate, Don't Forget to Check off isProceduralMeshUsing
+	// Specify static mesh to generate, Don't forget to check off isProceduralMeshUsing
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chart")
-	UStaticMeshComponent* CustomStaticMeshComponent;
+	UStaticMeshComponent* CustomStaticMeshTemplateComponent;
 
-	// Bar Procedural Mesh Material
+	// Bar procedural mesh material
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "!EnableSpawnCustomMesh"), Category = "Chart")
 	UMaterialInstance* MeshMaterial;
 
-	// Bar Generate Animation Curve
+	// Bar generate animation curve
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "!EnableSpawnCustomMesh"), Category = "Chart")
 	UCurveFloat* AnimationCurve;
 
+	// Visulalizing each chart label data
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chart")
 	UTextRenderComponent* TextRenderComponentValue;
 
+	// Visualizing each chart value data
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chart")
 	UTextRenderComponent* TextRenderComponentLabel;
 
-	// Bar Mesh Width
+	// Basic bar mesh width
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "!EnableSpawnCustomMesh"), Category = "Chart")
 	float Width_bar = 100.f;
 
-	// Scaling Mesh Unit Size. 1 is Default (You Can also Adjust its Mesh Scale with MeshTransform x,y,z)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "!EnableSpawnCustomMesh"), Category = "Chart")
-	int UnitSize = 1;
-
+	// Spawning custom mesh with user-defined division unit size
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "EnableSpawnCustomMesh"), Category = "Chart")
 	bool SpawnPerUnitValue= false;
 
+	// Division unit size
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "SpawnPerUnitValue"), Category = "Chart")
-	float UnitValue=1;
+	float UnitValue=10;
 
+	// Custom mesh spawning delay
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "EnableSpawnCustomMesh"), Category = "Chart")
 	float CustomMeshSpawnWaitingTime = 0.5f;
 
+	// TextRender(Value) offset from chart mesh
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chart")
 	float TextRenderComponentOffset_Value = 30;
 
 	void ClearCustomMeshes();
 	void ClearSpawnTimerHandle();
 
+	// Get current custom mesh unit size
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	FVector GetStaticMeshBoxUnitSize(UStaticMesh* TargetStaticMesh) const;
 
@@ -112,32 +117,35 @@ public:
 	UFUNCTION()
 	void PlayBarAnimation();
 
-	// Create Procedural Mesh
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	// Create procedural mesh
+	UFUNCTION()
 	void CreateProceduralBoxMesh(float BarHeight);
 
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	// Create custom mesh
+	UFUNCTION()
 	void CreateMesh(float BarHeight, int Value);
 
 	// Initialize Lbel Text Mesh
-	UFUNCTION(BlueprintCallable, Category = " Chart")
+	UFUNCTION()
 	void InitializeTextMeshLabel(const FString& LabelName);
 
 	// Initialize Value Text Mesh
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UFUNCTION()
 	void InitializeTextMeshValue(const float& FloatValue);
 
 	void AdjustTextMeshValueOffset(const float& BarHeight);
 	void AdjustTextMeshValueOffset(const int32& amount);
 
+	// Custom mesh spawned amount
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	float GetResultCustomMeshSpawnedValue() const
+	int32 GetCustomMeshSpawnedAmount() const
 	{
-		return ResultCustomStaticMeshSpawnedValue;
+		return SpawnedCustomMeshAmount;
 	}
 
 	void BindTimelineAnimation();
 
+	// Calculated custom mesh unit height
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	float GetCustomMeshUnitHeight();
 };

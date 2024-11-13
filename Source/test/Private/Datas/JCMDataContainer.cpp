@@ -2,6 +2,8 @@
 
 
 #include "Datas/JCMDataContainer.h"
+#include "Datas/JCMLog.h"
+
 
 // 이 클래스의 객체는 DataManager에서 생성되고 관리 됨. 
 // 처리된 데이터 구조는 DataTypes의 구조를 따라가며, 포인터가 아닌 실제 값을 멤버 변수로 지정했음.
@@ -40,17 +42,17 @@ UJCMDataContainerBar* UJCMDataContainerBar::SetChartData(const FJCMChartDataShap
     ShapeChartData = InputData;
     if (ShapeChartData.ChartType == "")
     {
-        UE_LOG(LogTemp, Warning, TEXT("UBarShapeComponent.cpp : %s.ChartType is Empty"), *this->GetName());
+        UE_LOG(JCMlog, Warning, TEXT("UBarShapeComponent.cpp : %s.ChartType is Empty"), *this->GetName());
         return nullptr;
     }
     if (ShapeChartData.XName == "" || ShapeChartData.YName == "")
     {
-        UE_LOG(LogTemp, Warning, TEXT("UBarShapeComponent.cpp : %s.Name is Empty"), *this->GetName());
+        UE_LOG(JCMlog, Warning, TEXT("UBarShapeComponent.cpp : %s.Name is Empty"), *this->GetName());
         return nullptr;
     }
     if (ShapeChartData.Labels.Num() == 0 || ShapeChartData.Values.Num() == 0)
     {
-        UE_LOG(LogTemp, Warning, TEXT("UBarShapeComponent.cpp : %s.Data is Empty"), *this->GetName());
+        UE_LOG(JCMlog, Warning, TEXT("UBarShapeComponent.cpp : %s.Data is Empty"), *this->GetName());
         return nullptr;
     }
     
@@ -68,17 +70,17 @@ UJCMDataContainerBar* UJCMDataContainerBar::SetChartData(const FString& ChartTit
 
     if (ShapeChartData.ChartType == "")
     {
-        UE_LOG(LogTemp, Warning, TEXT("UBarShapeComponent.cpp : %s.ChartType is Empty"), *this->GetName());
+        UE_LOG(JCMlog, Warning, TEXT("UBarShapeComponent.cpp : %s.ChartType is Empty"), *this->GetName());
         return nullptr;
     }
     if (ShapeChartData.XName == "" || ShapeChartData.YName == "")
     {
-        UE_LOG(LogTemp, Warning, TEXT("UBarShapeComponent.cpp : %s.Name is Empty"), *this->GetName());
+        UE_LOG(JCMlog, Warning, TEXT("UBarShapeComponent.cpp : %s.Name is Empty"), *this->GetName());
         return nullptr;
     }
     if (ShapeChartData.Labels.Num() == 0 || ShapeChartData.Values.Num() == 0)
     {
-        UE_LOG(LogTemp, Warning, TEXT("UBarShapeComponent.cpp : %s.Data is Empty"), *this->GetName());
+        UE_LOG(JCMlog, Warning, TEXT("UBarShapeComponent.cpp : %s.Data is Empty"), *this->GetName());
         return nullptr;
     }
 
