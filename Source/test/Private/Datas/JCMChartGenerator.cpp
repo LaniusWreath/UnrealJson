@@ -200,6 +200,7 @@ bool UJCMChartGeneratorBar::CreateBar(const TArray<float>& ValueArray, const TAr
 				AJCMBarBaseActor* ChildBar = Cast<AJCMBarBaseActor>(NewChildActorComponent->GetChildActor());
 				if (ChildBar)
 				{
+					// 애니메이션 함수 바인드
 					ChildBar->BindTimelineAnimation();
 					// 이동 : 이동 먼저 시켜줘야 생성 좌표가 고정됨
 					ChildBar->SetActorRelativeLocation(BarLocation);
@@ -209,7 +210,7 @@ bool UJCMChartGeneratorBar::CreateBar(const TArray<float>& ValueArray, const TAr
 					ChildBar->InitializeTextMeshLabel(LabelName); 
 					// 바 값 텍스트 렌더러 값 초기화
 					ChildBar->InitializeTextMeshValue(CurrentValue);
-					// 애니메이션
+					// 애니메이션 실행
 					ChildBar->PlayBarAnimation();
 				}
 				else
@@ -311,6 +312,8 @@ bool UJCMChartGeneratorBar::CreateBarAlongSplinePoint(const TArray<float>& Value
 				AJCMBarBaseActor* ChildBar = Cast<AJCMBarBaseActor>(NewChildActorComponent->GetChildActor());
 				if (ChildBar)
 				{
+					// 애니메이션 함수 바인드
+					ChildBar->BindTimelineAnimation();
 					// 이동 : 이동 먼저 시켜줘야 생성 좌표가 고정됨
 					ChildBar->SetActorRelativeLocation(BarLocation);
 					// 바 프로시저럴 메쉬 생성
@@ -319,7 +322,7 @@ bool UJCMChartGeneratorBar::CreateBarAlongSplinePoint(const TArray<float>& Value
 					ChildBar->InitializeTextMeshLabel(LabelName);
 					// 바 값 텍스트 렌더러 초기화
 					ChildBar->InitializeTextMeshValue(CurrentValue);
-					// 애니메이션
+					// 애니메이션 실행
 					ChildBar->PlayBarAnimation();
 				}
 				else

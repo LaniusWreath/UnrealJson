@@ -100,7 +100,7 @@ public:
 	float CustomMeshSpawnWaitingTime = 0.5f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chart")
-	float TextRenderComponentOffset_Value = 10;
+	float TextRenderComponentOffset_Value = 30;
 
 	void ClearCustomMeshes();
 	void ClearSpawnTimerHandle();
@@ -128,7 +128,7 @@ public:
 	void InitializeTextMeshValue(const float& FloatValue);
 
 	void AdjustTextMeshValueOffset(const float& BarHeight);
-	void AdjustTextMeshValueOffset(const int& amount);
+	void AdjustTextMeshValueOffset(const int32& amount);
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	float GetResultCustomMeshSpawnedValue() const
@@ -137,4 +137,7 @@ public:
 	}
 
 	void BindTimelineAnimation();
+
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	float GetCustomMeshUnitHeight();
 };

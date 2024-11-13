@@ -116,8 +116,7 @@ void AJCMBarBaseActor::CreateCustomMeshRoutine(float BarHeight)
 void AJCMBarBaseActor::CreateCustomMeshRoutine(float BarHeight, int amount)
 {
 	// 커스텀 메시 유닛 높이 : 유닛 높이 * 로컬 스케일러
-	float UnitMeshHeight = GetStaticMeshBoxUnitSize(CustomStaticMeshComponent->GetStaticMesh()).Z *
-		CustomStaticMeshComponent->GetRelativeScale3D().Z;
+	float UnitMeshHeight = GetCustomMeshUnitHeight();
 
 	// 생성해야하는 메시 개수 : 
 	int UnitMeshAmount = amount;
@@ -277,15 +276,21 @@ void AJCMBarBaseActor::CreateMesh(float BarHeight, int Value)
 			if (SpawnPerUnitValue)
 			{
 				// 사용자 정의 단위로 나눠 
-				int Amount = Value / UnitValue;
+				int32 Amount = Value / UnitValue;
 				CreateCustomMeshRoutine(BarHeight, Amount);
 				AdjustTextMeshValueOffset(Amount);
 			}
 			// 개수 자동 계산하여 메쉬 생성
 			else
 			{
+				// 커스텀 메시 유닛 높이 : 유닛 높이 * 로컬 스케일러
+				float UnitMeshHeight = GetCustomMeshUnitHeight();
+
+				// 생성해야하는 메시 개수 : 
+				int32 UnitMeshAmount;
+				UnitMeshAmount = BarHeight / UnitMeshHeight;
 				CreateCustomMeshRoutine(BarHeight);
-				AdjustTextMeshValueOffset(BarHeight);
+				AdjustTextMeshValueOffset(UnitMeshAmount);
 			}
 		}
 		else
@@ -317,11 +322,10 @@ void AJCMBarBaseActor::AdjustTextMeshValueOffset(const float& BarHeight)
 }
 
 // 커스텀메쉬 사이즈 단위로 나눈 높이에 텍스트 렌더 컴포넌트 배치
-void AJCMBarBaseActor::AdjustTextMeshValueOffset(const int& amount)
+void AJCMBarBaseActor::AdjustTextMeshValueOffset(const int32& amount)
 {
 	// 커스텀 메시 유닛 높이 : 유닛 높이 * 로컬 스케일러
-	float UnitMeshHeight = GetStaticMeshBoxUnitSize(CustomStaticMeshComponent->GetStaticMesh()).Z *
-			CustomStaticMeshComponent->GetRelativeScale3D().Z;
+	float UnitMeshHeight = GetCustomMeshUnitHeight();
 
 	TextRenderComponentValue->AddWorldOffset(FVector(0.f, 0.f, (UnitMeshHeight*amount + (TextRenderComponentValue->WorldSize / 2)
 		+ TextRenderComponentOffset_Value)));
@@ -344,6 +348,20 @@ void AJCMBarBaseActor::BindTimelineAnimation()
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("BarBaseActor : Failed finding Animation Cuvrve"));
+	}
+}
+
+float AJCMBarBaseActor::GetCustomMeshUnitHeight()
+{
+	if (CustomStaticMeshComponent)
+	{
+		return GetStaticMeshBoxUnitSize(CustomStaticMeshComponent->GetStaticMesh()).Z *
+			CustomStaticMeshComponent->GetRelativeScale3D().Z;
+	}	
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s CustomStaticMesh is Invalid"), *this->GetName());
+		return 1;
 	}
 }
 
