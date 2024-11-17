@@ -25,8 +25,6 @@ struct FDataInstancePair
 	UJCMDataContainer* DataInstance;
 
 	FDataInstancePair() : IsValid(false), DataInstance(nullptr) {}
-	//FDataInstancePair(const FString& InClassName, UJCMDataContainer* InInstance)
-	//	: (InClassName), DataInstance(InInstance) {}
 };
 
 // Manage Datas Class and Control those Member Function
@@ -58,7 +56,7 @@ private:
 
 public:
 	// JsonObject Ptr to Data Struct <String Header, UDataClasses* DataClassInstance>
-	FDataInstancePair InstancingDataClass(const TSharedPtr<FJsonObject> Data);
+	FDataInstancePair InstancingDataContainer(const TSharedPtr<FJsonObject> Data);
 
 	// Routine Function for Controlling Json Reading to Processing Functions
 	UFUNCTION(BlueprintCallable, Category = "Chart")

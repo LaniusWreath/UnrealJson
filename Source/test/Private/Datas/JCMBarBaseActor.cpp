@@ -156,11 +156,11 @@ void AJCMBarBaseActor::CreateSingleCustomMeshComponent(float BarHeight, float Un
 		// Z축 스폰 오프셋 조정
 		if (SpawnPerUnitValue)
 		{
-			UnitMeshComponent->AddWorldOffset(FVector(0, 0, UnitMeshHeight * SpawnAmount + 1));
+			UnitMeshComponent->AddWorldOffset(FVector(0, 0, UnitMeshHeight * SpawnAmount + UnitMeshHeight/2));
 		}
-		else {
+		else 
+		{
 			UnitMeshComponent->AddWorldOffset(FVector(0, 0, BarHeight + UnitMeshHeight * 3));
-
 		}
 
 		// 월드에 컴포넌트를 등록하여 액터와 함께 관리되도록 설정 
@@ -186,7 +186,7 @@ void AJCMBarBaseActor::ClearCustomMeshes()
 				MeshComponent->DestroyComponent();
 			}
 		}
-		UE_LOG(JCMlog, Log, TEXT("%s : All customStaticmesh components cleard"), *this->GetName());
+		UE_LOG(JCMlog, Log, TEXT("%s : All customStaticmesh components cleard"), *this->GetAttachParentActor()->GetActorLabel());
 	}
 }
 
@@ -270,29 +270,26 @@ void AJCMBarBaseActor::CreateMesh(float BarHeight, int Value)
 	{
 		if (CustomStaticMeshTemplateComponent)
 		{
+			float UnitMeshHeight = GetCustomMeshUnitHeight();
 			// 개수 지정하여 메쉬 생성
 			if (SpawnPerUnitValue)
 			{
 				// 사용자 정의 단위로 나눠 
-				SpawnedCustomMeshAmount = Value / UnitValue;
+				SpawnedCustomMeshAmount = INT(Value / UnitValue);
 				CreateCustomMeshRoutine(BarHeight, SpawnedCustomMeshAmount);
-				AdjustTextMeshValueOffset(SpawnedCustomMeshAmount);
 			}
 			// 개수 자동 계산하여 메쉬 생성
 			else
 			{
-				// 커스텀 메시 유닛 높이 : 유닛 높이 * 로컬 스케일러
-				float UnitMeshHeight = GetCustomMeshUnitHeight();
-
 				// 생성해야하는 메시 개수 : 
-				SpawnedCustomMeshAmount = BarHeight / UnitMeshHeight;
+				SpawnedCustomMeshAmount = INT(BarHeight / UnitMeshHeight);
 				CreateCustomMeshRoutine(BarHeight);
-				AdjustTextMeshValueOffset(SpawnedCustomMeshAmount);
 			}
+			AdjustTextMeshValueOffset(SpawnedCustomMeshAmount * UnitMeshHeight);
 		}
 		else
 		{
-			UE_LOG(JCMlog, Warning, TEXT("%s : Specify custom static mesh first"), *this->GetName());
+			UE_LOG(JCMlog, Warning, TEXT("%s : Specify custom static mesh first"), *this->GetAttachParentActor()->GetActorLabel());
 		}
 	}
 }
@@ -345,7 +342,7 @@ void AJCMBarBaseActor::BindTimelineAnimation()
 	else
 	{
 		if(!EnableSpawnCustomMesh)
-			UE_LOG(JCMlog, Warning, TEXT("%s : Failed finding animation cuvrve"), *this->GetName());
+			UE_LOG(JCMlog, Warning, TEXT("%s : Failed finding animation cuvrve"), *this->GetAttachParentActor()->GetActorLabel());
 	}
 }
 
@@ -358,7 +355,7 @@ float AJCMBarBaseActor::GetCustomMeshUnitHeight()
 	}	
 	else
 	{
-		UE_LOG(JCMlog, Warning, TEXT("%s : CustomStaticMesh is invalid"), *this->GetName());
+		UE_LOG(JCMlog, Warning, TEXT("%s : CustomStaticMesh is invalid"), *this->GetAttachParentActor()->GetActorLabel());
 		return 1;
 	}
 }

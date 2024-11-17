@@ -147,12 +147,7 @@ public:
 	
 	// Set Processed Json Data Container Instance Directly
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	void SetDataContainerInstance(UJCMDataContainerBar* DataContainerInstanceRef)
-	{
-		UJCMDataContainer* Container = Cast<UJCMDataContainer>(DataContainerInstanceRef);
-		DataContainerInstance = Container;
-		IsDataClassInstanceSet = true;
-	}
+	void SetDataContainerInstance(UJCMDataContainerBar* DataContainerInstanceRef);
 	
 	// Delete Data Container Instance
 	UFUNCTION(BlueprintCallable, Category = "Chart")

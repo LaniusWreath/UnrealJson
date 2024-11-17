@@ -132,7 +132,7 @@ void UJCMChartGeneratorBar::GenerateBarChart(const FJCMChartDataShape& CopiedDat
 	// 바 메시 생성
 	if (!isGenerateDone)
 	{
-		//UE_LOG(JCMlog, Log, TEXT("ChartGenerator : Generating Bar Failed"));
+		UE_LOG(JCMlog, Warning, TEXT("%s : Generating Bar Failed"), *this->GetAttachParentActor()->GetActorLabel());
 		return;
 	}
 }
@@ -167,8 +167,6 @@ bool UJCMChartGeneratorBar::CreateBar(const TArray<float>& ValueArray, const TAr
 	{
 		float CurrentValue = ValueArray[i];
 		float ScaledHeight = CurrentValue * BarHeightScaler;
-		//UE_LOG(JCMlog, Log, TEXT("ChartGenerator : CurrentValue : %f, BarHeightScaler : %f, ScaledHeight : %f"), 
-			//CurrentValue, BarHeightScaler ,ScaledHeight);
 		float Distance = i * BarSpacing;
 
 		// 스플라인 로컬 좌표를 따야 레벨에 배치했을 때 차트 메시의 좌표에 월드 오프셋이 추가 안됨.
@@ -181,7 +179,6 @@ bool UJCMChartGeneratorBar::CreateBar(const TArray<float>& ValueArray, const TAr
 		if (NewChildActorComponent)
 		{
 			// 자손 컴포넌트 부착
-			//NewChildActorComponent->SetupAttachment(ChildActorContainComponent);
 			NewChildActorComponent->AttachToComponent(ChildActorContainComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
 			//자손 액터 클래스 설정
@@ -235,44 +232,13 @@ bool UJCMChartGeneratorBar::CreateBar(const TArray<float>& ValueArray, const TAr
 	return true;
 }
 
-// 스플라인 컴포넌트의 점 개수 모자랄 때 target만큼 맞춰줌
-void UJCMChartGeneratorBar::AddSplinePoint(USplineComponent* SplineComponent, int TargetCount)
-{
-	int32 SplinePointCount = SplineComponent->GetNumberOfSplinePoints();
-	if (TargetCount > SplinePointCount)
-	{
-		UE_LOG(JCMlog, Warning,
-			TEXT("%s : CreateBarAlongSplinePoint Value Count %d dosen't match SplinePoint Count %d"),
-			*this->GetAttachParentActor()->GetActorLabel(), TargetCount, SplinePointCount);
-		UE_LOG(JCMlog, Log,
-			TEXT("Adding Extra Spline Point"));
-
-		FVector LastSplinePointVector = SplineComponent_length->
-			GetLocationAtSplinePoint(SplinePointCount - 1, ESplineCoordinateSpace::Local);
-		//UE_LOG(JCMlog, Log, TEXT("LastSplinePointVector : %f, %f, %f"),
-			//LastSplinePointVector.X, LastSplinePointVector.Y, LastSplinePointVector.Z);
-
-		FVector UnitOffsetVector =
-			LastSplinePointVector - SplineComponent_length->
-			GetLocationAtSplinePoint(SplinePointCount - 2, ESplineCoordinateSpace::Local);
-		//UE_LOG(JCMlog, Log, TEXT("UnitOffsetVector : %f, %f, %f"), UnitOffsetVector.X, UnitOffsetVector.Y, UnitOffsetVector.Z);
-
-		for (int i = 0; i < TargetCount - SplinePointCount; i++)
-		{
-			SplineComponent_length->AddSplinePoint(LastSplinePointVector + (UnitOffsetVector * (i + 1)),
-				ESplineCoordinateSpace::Local);
-		}
-	}
-}
-
-
 bool UJCMChartGeneratorBar::CreateBarAlongSplinePoint(const TArray<float>& ValueArray, const TArray<FString>& LabelArray,
 	const float BarPaddingScaler, const float BarHeightScaler)
 {
 	// 기존 bar 객체 삭제
 	ClearChildrenActors();
-
 	int32 Numbers = ValueArray.Num();
+	SpawnedMeshAmounts.Empty();
 	int32 SplinePointCount = SplineComponent_length->GetNumberOfSplinePoints();		// 스플라인 포인트 개수
 
 	// 데이터 수에 스플라인 포인트 개수 맞춤
@@ -283,8 +249,6 @@ bool UJCMChartGeneratorBar::CreateBarAlongSplinePoint(const TArray<float>& Value
 	{
 		float CurrentValue = ValueArray[i];
 		float ScaledHeight = CurrentValue * BarHeightScaler;
-		//UE_LOG(JCMlog, Log, TEXT("ChartGenerator : CurrentValue : %f, BarHeightScaler : %f, ScaledHeight : %f"),
-			//CurrentValue, BarHeightScaler, ScaledHeight);
 
 		// 스플라인 로컬 좌표를 따야 레벨에 배치했을 때 차트 메시의 좌표에 월드 오프셋이 추가 안됨.
 		FVector BarLocation = SplineComponent_length->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::Local);
@@ -304,9 +268,6 @@ bool UJCMChartGeneratorBar::CreateBarAlongSplinePoint(const TArray<float>& Value
 
 			// 자손 액터 생성
 			NewChildActorComponent->CreateChildActor();
-
-			//UE_LOG(JCMlog, Log, TEXT("ChartGenerator : Creating Bar Child Object : %s"),
-				//*NewChildActorComponent->GetChildActorClass()->GetName());
 
 			// 배열에 추가
 			ChildActorComponents.Add(NewChildActorComponent);
@@ -339,12 +300,42 @@ bool UJCMChartGeneratorBar::CreateBarAlongSplinePoint(const TArray<float>& Value
 			else
 			{
 				UE_LOG(JCMlog, Error, TEXT("%s : Failed finding ChartGenerator childActor"), *this->GetAttachParentActor()->GetActorLabel());
+				return false;
 			}
 
 		}
 
 		//UE_LOG(JCMlog, Log, TEXT("ChartGenerator: Created bar Number with Height: %f"), ScaledHeight);
 	}
+	return true;
+}
 
-	return false;
+// 스플라인 컴포넌트의 점 개수 모자랄 때 target만큼 맞춰줌
+void UJCMChartGeneratorBar::AddSplinePoint(USplineComponent* SplineComponent, int TargetCount)
+{
+	int32 SplinePointCount = SplineComponent->GetNumberOfSplinePoints();
+	if (TargetCount > SplinePointCount)
+	{
+		UE_LOG(JCMlog, Warning,
+			TEXT("%s : CreateBarAlongSplinePoint Value Count %d dosen't match SplinePoint Count %d"),
+			*this->GetAttachParentActor()->GetActorLabel(), TargetCount, SplinePointCount);
+		UE_LOG(JCMlog, Log,
+			TEXT("Adding Extra Spline Point"));
+
+		FVector LastSplinePointVector = SplineComponent_length->
+			GetLocationAtSplinePoint(SplinePointCount - 1, ESplineCoordinateSpace::Local);
+		//UE_LOG(JCMlog, Log, TEXT("LastSplinePointVector : %f, %f, %f"),
+			//LastSplinePointVector.X, LastSplinePointVector.Y, LastSplinePointVector.Z);
+
+		FVector UnitOffsetVector =
+			LastSplinePointVector - SplineComponent_length->
+			GetLocationAtSplinePoint(SplinePointCount - 2, ESplineCoordinateSpace::Local);
+		//UE_LOG(JCMlog, Log, TEXT("UnitOffsetVector : %f, %f, %f"), UnitOffsetVector.X, UnitOffsetVector.Y, UnitOffsetVector.Z);
+
+		for (int i = 0; i < TargetCount - SplinePointCount; i++)
+		{
+			SplineComponent_length->AddSplinePoint(LastSplinePointVector + (UnitOffsetVector * (i + 1)),
+				ESplineCoordinateSpace::Local);
+		}
+	}
 }
