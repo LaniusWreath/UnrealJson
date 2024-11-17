@@ -276,7 +276,6 @@ void AJCMBarBaseActor::CreateMesh(float BarHeight, int Value)
 			{
 				// 사용자 정의 단위로 나눠 
 				SpawnedCustomMeshAmount = INT(Value / UnitValue);
-				UE_LOG(LogTemp, Error, TEXT("%s : %d "), *this->GetAttachParentActor()->GetActorLabel(), SpawnedCustomMeshAmount);
 				CreateCustomMeshRoutine(BarHeight, SpawnedCustomMeshAmount);
 			}
 			// 개수 자동 계산하여 메쉬 생성
@@ -284,7 +283,6 @@ void AJCMBarBaseActor::CreateMesh(float BarHeight, int Value)
 			{
 				// 생성해야하는 메시 개수 : 
 				SpawnedCustomMeshAmount = INT(BarHeight / UnitMeshHeight);
-				UE_LOG(LogTemp, Error, TEXT("%s : %d "), *this->GetAttachParentActor()->GetActorLabel(), SpawnedCustomMeshAmount);
 				CreateCustomMeshRoutine(BarHeight);
 			}
 			AdjustTextMeshValueOffset(SpawnedCustomMeshAmount * UnitMeshHeight);
