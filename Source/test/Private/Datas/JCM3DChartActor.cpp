@@ -124,7 +124,7 @@ void AJCM3DChartActor::SetJsonObject(const TSharedPtr<FJsonObject> JsonData)
 	if (RequestHandlerInstance)
 	{
 		//TSharedPtr<FJsonObject> Data = RequestManagerInstance->GetJsonData();
-		FDataInstancePair ResultData = DataManagerInstanceRef->InstancingDataClass(JsonData);
+		FDataInstancePair ResultData = DataManagerInstanceRef->InstancingDataContainer(JsonData);
 		DataContainerInstance = ResultData.DataInstance;
 		if (!DataContainerInstance)
 		{
@@ -187,13 +187,19 @@ const UJCMDataContainerBar* AJCM3DChartActorBar::GetDataContainerRef()
 	}
 }
 
+void AJCM3DChartActorBar::SetDataContainerInstance(UJCMDataContainerBar* DataContainerInstanceRef)
+{
+	UJCMDataContainer* Container = Cast<UJCMDataContainer>(DataContainerInstanceRef);
+	DataContainerInstance = Container;
+	IsDataClassInstanceSet = true;
+}
+
 // 차트 타이틀, X축, Y축 이름 초기화 함수
 void AJCM3DChartActorBar::SetChartDefaultTexts()
 {
 	if (DataContainerInstance)
 	{
 		UJCMDataContainerBar* TempCastedDataClass = Cast<UJCMDataContainerBar>(DataContainerInstance);
-		//FString ChartTitle = TempCastedDataClass->GetChartTitle();
 		FString ChartTitle = TempCastedDataClass->GetChartDataStruct().ChartTitle;
 
 		TextRenderComponent_chartTitle->SetText(FText::FromString(ChartTitle));

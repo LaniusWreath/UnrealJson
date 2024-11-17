@@ -5,16 +5,6 @@
 #include "CoreMinimal.h"
 #include "JCMDataTypes.generated.h"
 
-// DataClasses Child Class Names for SetDataClassInstance()
-//namespace ChartClassNames
-//{
-//	static const FString NAME_BARCHART = TEXT("ShapeChartBarClass");
-//	static const FString NAME_LINECHART = TEXT("ShapeChartLineClass");
-//	static const FString NAME_PIECHART = TEXT("ShapeChartPieClass");
-//	static const FString NAME_XYCHART = TEXT("XYChartClass");
-//	static const FString NAME_XYZCHART = TEXT("XYZChartClass");
-//}
-
 // Struct for Shape Chart Data
 USTRUCT(BlueprintType)
 struct FJCMChartDataShape
@@ -65,6 +55,18 @@ struct FJCMChartDataXY
 };
 
 USTRUCT(BlueprintType)
+struct FJCMChartPoint
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+	FString Name;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+	FVector Coordinate;
+};
+
+USTRUCT(BlueprintType)
 struct FJCMChartDataXYZ
 {
 	GENERATED_BODY()
@@ -73,10 +75,7 @@ struct FJCMChartDataXYZ
 	FString ChartTitle;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-	TArray<FString> Names;
-
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-	TArray<FVector> Coordinates;
+	TArray<FJCMChartPoint> Points;
 };
 
 // ¿­°ÅÇü

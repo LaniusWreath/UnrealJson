@@ -6,29 +6,29 @@
 #include "Datas/JCMHttpHandler.h"
 #include "Datas/JCMLog.h"
 
-
 // Object / String 공통 Request 함수
 void UJCMHttpHandler::MakeGetRequest(const FString& Url, const bool GetResultWithFString)
 {
-    FHttpModule* Http = &FHttpModule::Get();
-    if (!Http) return;
+	Super::MakeGetRequest(Url, GetResultWithFString);
+ //   FHttpModule* Http = &FHttpModule::Get();
+ //   if (!Http) return;
 
-    TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
-    Request->SetURL(Url);
-    Request->SetVerb(TEXT("GET"));
+ //   TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
+ //   Request->SetURL(Url);
+ //   Request->SetVerb(TEXT("GET"));
 
-    // 응답 함수 델리게이트 바인딩
-	if (GetResultWithFString)
-	{
-		Request->OnProcessRequestComplete().BindUObject(this, &UJCMHttpHandler::OnResponseReceived);
-	}
-	else
-	{
-		Request->OnProcessRequestComplete().BindUObject(this, &UJCMHttpHandler::OnResponseReceivedWithPtr);
-	}
+ //   // 응답 함수 델리게이트 바인딩
+	//if (GetResultWithFString)
+	//{
+	//	Request->OnProcessRequestComplete().BindUObject(this, &UJCMHttpHandler::OnResponseReceived);
+	//}
+	//else
+	//{
+	//	Request->OnProcessRequestComplete().BindUObject(this, &UJCMHttpHandler::OnResponseReceivedWithPtr);
+	//}
 
-    // 요청 실행
-    Request->ProcessRequest();
+ //   // 요청 실행
+ //   Request->ProcessRequest();
 }
 
 // Object Response 함수

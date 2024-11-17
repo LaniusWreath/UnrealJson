@@ -11,7 +11,7 @@
 UJCMDataContainer* UJCMDataManager::InstancingDataContainerFromLocalJson(const FString& FilePath)
 {
 	TSharedPtr<FJsonObject> Data = LoadDataFromJSON(FilePath);
-	FDataInstancePair NewChartData = InstancingDataClass(Data);
+	FDataInstancePair NewChartData = InstancingDataContainer(Data);
 	if (NewChartData.IsValid)
 	{
 		return NewChartData.DataInstance;
@@ -27,7 +27,7 @@ UJCMDataContainer* UJCMDataManager::InstancingDataContainerFromLocalJson(const F
 UJCMDataContainer* UJCMDataManager::InstancingDataContainerFromJsonString(const FString& JsonBody)
 {
 	TSharedPtr<FJsonObject> Data = DeserializeJsonStringToJsonObject(JsonBody);
-	FDataInstancePair NewChartData = InstancingDataClass(Data);
+	FDataInstancePair NewChartData = InstancingDataContainer(Data);
 	return NewChartData.DataInstance;
 }
 
@@ -138,7 +138,7 @@ FString UJCMDataManager::SerializeJSONToString(const TSharedPtr<FJsonObject> JSO
 }
 
 // 데이터 입력 받아 파싱, DataClass 객체 생성 -> Chart
-FDataInstancePair UJCMDataManager::InstancingDataClass(const TSharedPtr<FJsonObject> Data) 
+FDataInstancePair UJCMDataManager::InstancingDataContainer(const TSharedPtr<FJsonObject> Data) 
 {
 	bool isFieldValid = true;
 

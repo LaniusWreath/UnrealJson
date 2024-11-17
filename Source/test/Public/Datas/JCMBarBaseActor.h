@@ -35,7 +35,7 @@ private:
 	int32 SpawnCount = 0;
 
 	UPROPERTY()
-	float SpawnedCustomMeshAmount;
+	int32 SpawnedCustomMeshAmount;
 
 	// TimeLine Animation Binding Function
 	UFUNCTION()

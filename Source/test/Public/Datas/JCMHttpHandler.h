@@ -4,51 +4,22 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "HttpModule.h"
-#include "Http.h"
-#include "Json.h"
-#include "JsonUtilities.h"
+#include "SFCommon/SFCHttpManager.h"
 #include "JCMHttpHandler.generated.h"
 
 /**
  * 
  */
 
-DECLARE_DELEGATE_OneParam(FOnJsonDataReadyDelegate, const TSharedPtr<FJsonObject>);
-DECLARE_DELEGATE_OneParam(FOneParamDelegate, const bool);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDynamicRequestEvent);
-
 UCLASS(Blueprintable)
-class TEST_API UJCMHttpHandler : public UObject
+class TEST_API UJCMHttpHandler : public USFCHttpManager
 {
 	GENERATED_BODY()
-	
+
 public:
-
-	// Delegate for Alarming Request Done, Data Ready
-	//FOnJsonDataReadyDelegate OnJsonDataReady;
-	FOnJsonDataReadyDelegate OnParsedJsonObjectPtrReady;
-	FOneParamDelegate OnRequestedJsonStringReady;
-
-	UPROPERTY(BlueprintAssignable, Category = "Chart")
-	FOnDynamicRequestEvent OnRequestingProcessDone;
-
 	// Call HTTP Get Request
 	UFUNCTION(BlueprintCallable, meta = (AdvancedDisplay = "GetResultWithFString"), Category = "Chart")
-	void MakeGetRequest(const FString& Url, const bool GetResultWithFString = true);
-
-	// Return Serialized JsonString
-	UFUNCTION(BlueprintCallable, Category = "HTTP")
-	const FString& GetResultResponseString()
-	{
-		return ResultResponseString;
-	}
-
-	// Return Deseiralized JsonObject
-	const TSharedPtr<FJsonObject> GetJsonData()
-	{
-		return ParsedJsonData;
-	}
+	virtual void MakeGetRequest(const FString& Url, const bool GetResultWithFString = true) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	static TMap<FString, FString> ParseJsonStringToMap(const FString& JsonString);
@@ -61,13 +32,10 @@ public:
 
 private:
 	// HTTP Processing
-	void OnResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+	void OnResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) override;
 
-	void OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+	void OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) override;
 
-	FString ResultResponseString;
-
-	TSharedPtr<FJsonObject> ParsedJsonData;
 	
 	TMap<FString, FString> JsonMap;
 
