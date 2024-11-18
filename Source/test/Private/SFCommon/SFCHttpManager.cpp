@@ -2,7 +2,9 @@
 
 
 #include "SFCommon/SFCHttpManager.h"
+#include "Datas/JCMLog.h"
 
+// 메인 request 함수
 void USFCHttpManager::MakeGetRequest(const FString& Url, const bool GetResultWithFString)
 {
 	FHttpModule* Http = &FHttpModule::Get();
@@ -15,7 +17,7 @@ void USFCHttpManager::MakeGetRequest(const FString& Url, const bool GetResultWit
 	// 응답 함수 델리게이트 바인딩
 	if (GetResultWithFString)
 	{
-		Request->OnProcessRequestComplete().BindUObject(this, &USFCHttpManager::OnResponseReceived);
+		Request->OnProcessRequestComplete().BindUObject(this, &USFCHttpManager::OnResponseReceivedWithString);
 	}
 	else
 	{
@@ -26,12 +28,24 @@ void USFCHttpManager::MakeGetRequest(const FString& Url, const bool GetResultWit
 	Request->ProcessRequest();
 }
 
-void USFCHttpManager::OnResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+// Request 응답 바인딩 함수
+void USFCHttpManager::OnResponseReceivedWithString(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
-
-
+	// 응답 데이터 확인
+	if (bWasSuccessful && Response.IsValid())
+	{
+		// 결과는 HttpHandler 인스턴스의 ResultResponseString에 저장
+		ResultResponseString = Response->GetContentAsString();
+		OnRequestedJsonStringReady.Execute(true);
+		OnRequestingProcessDone.Broadcast();
+	}
+	else
+	{
+		UE_LOG(JCMlog, Error, TEXT("%s : HTTP Request failed."), *this->GetName());
+	}
 }
 
+// Request 응답 바인딩 함수
 void USFCHttpManager::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
 	if (bWasSuccessful && Response.IsValid())
@@ -48,6 +62,139 @@ void USFCHttpManager::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpRe
 		{
 			// 파싱 실행 함수 호출
 			ParsedJsonData = JsonData;
+			ExecuteCustomParseFucntion(JsonData);
+		}
+		else
+		{
+			UE_LOG(JCMlog, Error, TEXT("%s : Failed to parse JSON."), *this->GetName());
 		}
 	}
+	else
+	{
+		UE_LOG(JCMlog, Error, TEXT("%s : HTTP Request failed."), *this->GetName());
+	}
+}
+
+
+void USFCHttpManager::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject)
+{
+	ParsedJsonData = ParseRequestBody(OriginJsonObject);
+	if (ParsedJsonData)
+	{
+		//UE_LOG(JCMlog, Log, TEXT("%s : DataParsing Complete"), *this->GetName());
+		OnParsedJsonObjectPtrReady.Execute(ParsedJsonData);
+		OnRequestingProcessDone.Broadcast();
+	}
+}
+
+TSharedPtr<FJsonObject> USFCHttpManager::ParseRequestBody(TSharedPtr<FJsonObject> RequestBody)
+{
+	const TSharedPtr<FJsonObject> DataObject = RequestBody->GetObjectField(TEXT("data"));
+
+	if (DataObject.IsValid())
+	{
+		// JSON 객체를 문자열로 인코딩하여 JSON 형식으로 출력
+		FString JsonString;
+		TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
+		FJsonSerializer::Serialize(DataObject.ToSharedRef(), Writer);
+
+		// 디버깅 출력
+		//UE_LOG(JCMlog, Log, TEXT("DataObject JSON: %s"), *JsonString);
+	}
+	else
+	{
+		UE_LOG(JCMlog, Warning, TEXT("%s : DataObject is invalid"), *this->GetName());
+	}
+	return DataObject;
+}
+
+TMap<FString, FString> USFCHttpManager::ParseJsonStringToMap(const FString& JsonString)
+{
+	TMap<FString, FString> ParsedMap;
+	TSharedPtr<FJsonObject> JsonObject;
+	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
+
+	if (FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
+	{
+		for (auto& Elem : JsonObject->Values)
+		{
+			// FJsonValue의 타입에 따라 처리
+			if (Elem.Value->Type == EJson::String)
+			{
+				ParsedMap.Add(Elem.Key, Elem.Value->AsString());
+			}
+			else if (Elem.Value->Type == EJson::Number)
+			{
+				ParsedMap.Add(Elem.Key, FString::SanitizeFloat(Elem.Value->AsNumber()));
+			}
+			else if (Elem.Value->Type == EJson::Object)
+			{
+				// 중첩된 JSON 객체는 FString으로 변환
+				TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&ParsedMap.Add(Elem.Key));
+				FJsonSerializer::Serialize(Elem.Value->AsObject().ToSharedRef(), Writer);
+			}
+			else if (Elem.Value->Type == EJson::Array)
+			{
+				// 배열은 FString으로 변환
+				TArray<TSharedPtr<FJsonValue>> ArrayValues = Elem.Value->AsArray();
+				FString ArrayAsString;
+				TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&ArrayAsString);
+				FJsonSerializer::Serialize(ArrayValues, Writer);
+				ParsedMap.Add(Elem.Key, ArrayAsString);
+			}
+			else
+			{
+				ParsedMap.Add(Elem.Key, TEXT("")); // 기타 경우 빈 문자열
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(JCMlog, Warning, TEXT("Failed Json Parsing"));
+	}
+
+	return ParsedMap;
+}
+
+TArray<FString> USFCHttpManager::ParseStringToStringArray(const FString& ArrayString)
+{
+	TArray<FString> StringArray;
+
+	// 1. `[` 및 `]` 제거
+	FString CleanString = ArrayString;
+	CleanString.RemoveFromStart("[");
+	CleanString.RemoveFromEnd("]");
+
+	// 2. 쉼표를 기준으로 문자열을 분리
+	CleanString.ParseIntoArray(StringArray, TEXT(","), true);
+
+	// 3. 각 요소의 앞뒤 공백 제거
+	for (FString& Str : StringArray)
+	{
+		Str = Str.TrimStartAndEnd();
+	}
+
+	return StringArray;
+}
+
+TArray<float> USFCHttpManager::ParseStringToFloatArray(const FString& ArrayString)
+{
+	TArray<float> FloatArray;
+
+	// 1. `[` 및 `]` 제거
+	FString CleanString = ArrayString;
+	CleanString.RemoveFromStart("[");
+	CleanString.RemoveFromEnd("]");
+
+	// 2. 쉼표를 기준으로 문자열을 분리
+	TArray<FString> StringArray;
+	CleanString.ParseIntoArray(StringArray, TEXT(","), true);
+
+	// 3. 각 문자열 요소를 float로 변환하여 배열에 추가
+	for (const FString& Str : StringArray)
+	{
+		FloatArray.Add(FCString::Atof(*Str));
+	}
+
+	return FloatArray;
 }

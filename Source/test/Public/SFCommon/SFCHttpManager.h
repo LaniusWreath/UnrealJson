@@ -28,11 +28,22 @@ protected:
 	FString ResultResponseString;
 	TSharedPtr<FJsonObject> ParsedJsonData;
 
+	// Main Request Function
+
 	virtual void MakeGetRequest(const FString& Url, const bool GetResultWithFString = true);
-
-	virtual void OnResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
-
+	virtual void OnResponseReceivedWithString(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 	virtual void OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+	virtual void ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject);
+
+	// Json Object Response -> String to Json Object
+	virtual TSharedPtr<FJsonObject> ParseRequestBody(TSharedPtr<FJsonObject> RequestBody);
+	
+
+	// Commonly Usable Parsing Function
+
+	static TMap<FString, FString> ParseJsonStringToMap(const FString& JsonString);
+	static TArray<FString> ParseStringToStringArray(const FString& ArrayString);
+	static TArray<float> ParseStringToFloatArray(const FString& ArrayString);
 
 public:
 	// Delegate for Alarming Request Done, Data Ready

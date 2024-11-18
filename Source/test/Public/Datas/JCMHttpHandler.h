@@ -31,17 +31,15 @@ public:
 	static TArray<FString> ParseStringToStringArray(const FString& ArrayString);
 
 private:
+
 	// HTTP Processing
-	void OnResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) override;
+	void OnResponseReceivedWithString(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) override;
 
 	void OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) override;
 
-	
-	TMap<FString, FString> JsonMap;
-
 	// Custom JsonParsing Function.
-	TSharedPtr<FJsonObject> ParseRequestBody(TSharedPtr<FJsonObject> RequestBody);
+	TSharedPtr<FJsonObject> ParseRequestBody(TSharedPtr<FJsonObject> RequestBody) override;
 
-	void ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject);
+	void ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject) override;
 
 };
