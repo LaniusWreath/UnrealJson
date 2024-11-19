@@ -198,3 +198,41 @@ TArray<float> USFCHttpManager::ParseStringToFloatArray(const FString& ArrayStrin
 
 	return FloatArray;
 }
+
+TMap<FString, FString> USFCHttpManager::ParseJsonObjToMap(const TSharedPtr<FJsonObject> OriginJsonObject)
+{
+	TMap<FString, FString> ParsedMap;
+	for (auto& Elem : OriginJsonObject->Values)
+	{
+		// FJsonValue의 타입에 따라 처리
+		if (Elem.Value->Type == EJson::String)
+		{
+			ParsedMap.Add(Elem.Key, Elem.Value->AsString());
+		}
+		else if (Elem.Value->Type == EJson::Number)
+		{
+			ParsedMap.Add(Elem.Key, FString::SanitizeFloat(Elem.Value->AsNumber()));
+		}
+		else if (Elem.Value->Type == EJson::Object)
+		{
+			// 중첩된 JSON 객체는 FString으로 변환
+			TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&ParsedMap.Add(Elem.Key));
+			FJsonSerializer::Serialize(Elem.Value->AsObject().ToSharedRef(), Writer);
+		}
+		else if (Elem.Value->Type == EJson::Array)
+		{
+			// 배열은 FString으로 변환
+			TArray<TSharedPtr<FJsonValue>> ArrayValues = Elem.Value->AsArray();
+			FString ArrayAsString;
+			TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&ArrayAsString);
+			FJsonSerializer::Serialize(ArrayValues, Writer);
+			ParsedMap.Add(Elem.Key, ArrayAsString);
+		}
+		else
+		{
+			ParsedMap.Add(Elem.Key, TEXT("")); // 기타 경우 빈 문자열
+		}
+	}
+
+	return ParsedMap;
+}

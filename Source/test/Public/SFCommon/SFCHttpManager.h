@@ -44,6 +44,8 @@ protected:
 	static TMap<FString, FString> ParseJsonStringToMap(const FString& JsonString);
 	static TArray<FString> ParseStringToStringArray(const FString& ArrayString);
 	static TArray<float> ParseStringToFloatArray(const FString& ArrayString);
+	static TMap<FString, FString> ParseJsonObjToMap(const TSharedPtr<FJsonObject> OriginJsonObject);
+
 
 public:
 	// Delegate for Alarming Request Done, Data Ready

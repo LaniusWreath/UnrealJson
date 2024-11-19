@@ -6,6 +6,10 @@
 #include "GameFramework/Actor.h"
 #include "AGVChassis.generated.h"
 
+class UWheelMovementComponent;
+class UWheelRenderComponent;
+class UAGVDataContainer;
+
 UCLASS()
 class TEST_API AAGVChassis : public AActor
 {
@@ -14,6 +18,15 @@ class TEST_API AAGVChassis : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AAGVChassis();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AGV")
+	UAGVDataContainer* WheelDataContainer;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AGV")
+	UWheelMovementComponent* WheelMovementComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AGV")
+	UWheelRenderComponent* WheelRenderComponent;
 
 protected:
 	// Called when the game starts or when spawned
