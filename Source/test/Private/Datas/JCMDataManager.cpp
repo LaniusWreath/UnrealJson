@@ -93,7 +93,7 @@ UJCMDataContainer* UJCMDataManager::CreateEmptyDataContainer(EJCMChartTypes Char
 {
 	switch (ChartType)
 	{
-	case None:
+	case NONE:
 		break;
 	case BAR:
 		return NewObject<UJCMDataContainerBar>();
@@ -141,11 +141,12 @@ FString UJCMDataManager::SerializeJSONToString(const TSharedPtr<FJsonObject> JSO
 FDataInstancePair UJCMDataManager::InstancingDataContainer(const TSharedPtr<FJsonObject> Data) 
 {
 	bool isFieldValid = true;
+	FDataInstancePair DataPair = FDataInstancePair();
 
 	if (!Data.IsValid())
 	{
 		UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : Input Data is invalid"));
-		isFieldValid = false;
+		return DataPair;
 	}
 
 	// 언리얼은 예외처리 비활성화됨. 하나 씩 필드 유효한지 검사
@@ -153,22 +154,21 @@ FDataInstancePair UJCMDataManager::InstancingDataContainer(const TSharedPtr<FJso
 	if (!Data->TryGetStringField(TEXT("chartType"), ChartType))
 	{
 		UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : 'chartType' is missing or invalid"));
-		isFieldValid = false;
+		return DataPair;
 	}
 
 	FString ChartTitle;
 	if (!Data->TryGetStringField(TEXT("chartTitle"), ChartTitle))
 	{
 		UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : 'ChartTitle' is missing or invalid"));
-		isFieldValid = false;
+		return DataPair;
 	}
 
-	FDataInstancePair DataPair;
 	EJCMChartTypes CurChartTypeEnum = JCMDataTypes::JCMMapChartTypes[ChartType];
 
 	switch (CurChartTypeEnum)
 	{
-	case None:
+	case NONE:
 		break;
 	case BAR:
 	{

@@ -21,19 +21,64 @@ void UJCMHttpHandler::OnResponseReceivedWithString(FHttpRequestPtr Request, FHtt
 // Object Response 함수
 void UJCMHttpHandler::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
-	Super::OnResponseReceivedWithPtr(Request, Response, bWasSuccessful);
+	if (bWasSuccessful && Response.IsValid())
+	{
+		// 응답 데이터 확인
+		ResultResponseString = Response->GetContentAsString();
+		//UE_LOG(JCMlog, Log, TEXT("Response: %s"), *ResultResponseString);
+
+		TSharedPtr<FJsonObject> JsonData;
+
+		// JSON 파싱
+		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResultResponseString);
+		if (FJsonSerializer::Deserialize(Reader, JsonData) && JsonData.IsValid())
+		{
+			// 파싱 실행 함수 호출
+			ParsedJsonData = JsonData;
+			ExecuteCustomParseFucntion(JsonData);
+		}
+		else
+		{
+			UE_LOG(JCMlog, Error, TEXT("%s : Failed to parse JSON."), *this->GetName());
+		}
+	}
+	else
+	{
+		UE_LOG(JCMlog, Error, TEXT("%s : HTTP Request failed."), *this->GetName());
+	}
 }
 
 // 데이터 형식에 맞는 커스텀 파싱 함수 호출. (Object Response 전용)
 void UJCMHttpHandler::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject)
 {
-	Super::ExecuteCustomParseFucntion(OriginJsonObject);
+	ParsedJsonData = ParseRequestBody(OriginJsonObject);
+	if (ParsedJsonData)
+	{
+		OnParsedJsonObjectPtrReady.Execute(ParsedJsonData);
+		OnRequestingProcessDone.Broadcast();
+	}
 }
 
 // 실제 파싱 함수
 TSharedPtr<FJsonObject> UJCMHttpHandler::ParseRequestBody(TSharedPtr<FJsonObject> RequestBody)
 {
-	return Super::ParseRequestBody(RequestBody);
+	const TSharedPtr<FJsonObject> DataObject = RequestBody->GetObjectField(TEXT("data"));
+
+	if (DataObject.IsValid())
+	{
+		// JSON 객체를 문자열로 인코딩하여 JSON 형식으로 출력
+		FString JsonString;
+		TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
+		FJsonSerializer::Serialize(DataObject.ToSharedRef(), Writer);
+
+		// 디버깅 출력
+		//UE_LOG(JCMlog, Log, TEXT("DataObject JSON: %s"), *JsonString);
+	}
+	else
+	{
+		UE_LOG(JCMlog, Warning, TEXT("%s : DataObject is invalid"), *this->GetName());
+	}
+	return DataObject;
 }
 
 // JsonString을 Map으로 반환하는 함수

@@ -17,7 +17,7 @@ DECLARE_DELEGATE_OneParam(FOnJsonDataReadyDelegate, const TSharedPtr<FJsonObject
 DECLARE_DELEGATE_OneParam(FOneParamDelegate, const bool);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDynamicRequestEvent);
 
-UCLASS()
+UCLASS(Blueprintable)
 class TEST_API USFCHttpManager : public UObject
 {
 	GENERATED_BODY()
@@ -62,6 +62,10 @@ public:
 	{
 		return ResultResponseString;
 	}
+	
+	const TSharedPtr<FJsonObject> GetJsonObject(){
+		return ParsedJsonData;
+	};
 
 };
 

@@ -123,8 +123,9 @@ void AJCM3DChartActor::SetJsonObject(const TSharedPtr<FJsonObject> JsonData)
 {
 	if (RequestHandlerInstance)
 	{
-		//TSharedPtr<FJsonObject> Data = RequestManagerInstance->GetJsonData();
 		FDataInstancePair ResultData = DataManagerInstanceRef->InstancingDataContainer(JsonData);
+		if (!ResultData.IsValid)
+			return;
 		DataContainerInstance = ResultData.DataInstance;
 		if (!DataContainerInstance)
 		{

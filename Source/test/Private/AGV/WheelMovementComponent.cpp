@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "AGV/AGVDataContainer.h"
 #include "AGV/WheelMovementComponent.h"
+#include "AGV/AGVDataContainer.h"
 
 // Sets default values for this component's properties
 UWheelMovementComponent::UWheelMovementComponent()

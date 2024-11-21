@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "AGV/AGVChassis.h"
 #include "AGV/WheelMovementComponent.h"
 #include "AGV/WheelRenderComponent.h"
 #include "AGV/AGVDataContainer.h"
-#include "AGV/AGVChassis.h"
 
 // Sets default values
 AAGVChassis::AAGVChassis()

@@ -7,21 +7,47 @@
 #include "AGVDataTypes.h"
 #include "AGVDataManager.generated.h"
 
+class USFCHttpManager;
 class UAGVDataContainer;
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class TEST_API UAGVDataManager : public UObject
 {
 	GENERATED_BODY()
 
 public:
 
-	// 구조체 입력받아 컨테이너 인스턴싱
+	UPROPERTY(BlueprintReadOnly, Category = "AGV")
+	USFCHttpManager* HttpHandler;
+
+	UFUNCTION(BlueprintCallable, Category = "AGV")
+	USFCHttpManager* InitializeHttpHandler();
+
+	UFUNCTION(BlueprintCallable, Category = "AGV")
+	USFCHttpManager* GetHttpHandler();
+
+	UFUNCTION(BlueprintCallable, Category = "AGV")
+	static UAGVDataManager* GetAGVDataManager();
+
+	// Instancing AGVDataContainer from Struct input
 	UFUNCTION(BlueprintCallable, Category = "AGV")
 	static UAGVDataContainer* CreateDataContainer(UObject* Outer, const FAGVData& InputData);
-	
-	// Json 객체 입력받아 컨테이너 인스턴싱
-	static FAGVData CreateDataContainer(const TSharedPtr<FJsonObject> OriginObject);
+
+	// Get AGVDataStruct from jsonObject
+	static FAGVData JsonObjectToAGVStruct(const TSharedPtr<FJsonObject> OriginObject);
+
+	UFUNCTION(BlueprintCallable, Category = "AGV")
+	void RequestJsonObject(const FString& URL);
+
+	UFUNCTION(BlueprintCallable, Category = "AGV")
+	UAGVDataContainer* UpdateContainerwithLastData(UAGVDataContainer* TargetContainer);
+
+private:
+	// For Delegate Binding Result
+	TSharedPtr<FJsonObject> TempJsonObject;
+	void SetJsonObject(const TSharedPtr<FJsonObject> OriginObject);
+
+	static UAGVDataManager* AGVDataManagerInstance;
 };

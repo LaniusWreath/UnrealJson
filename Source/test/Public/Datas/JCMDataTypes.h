@@ -82,7 +82,7 @@ struct FJCMChartDataXYZ
 UENUM(BlueprintType)
 enum EJCMChartTypes : uint8
 {
-	None = 0 UMETA(DisplayName = "None"),
+	NONE = 0 UMETA(DisplayName = "NONE"),
 	BAR = 1 UMETA(DisplayName = "BAR"),
 	LINE = 2 UMETA(DisplayName = "LINE"),
 	PIE = 3 UMETA(DisplayName = "PIE"),

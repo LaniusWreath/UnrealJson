@@ -19,10 +19,10 @@ private:
 	FAGVData AGVData;
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UFUNCTION(BlueprintCallable, Category = "AGV")
 	UAGVDataContainer* SetAGVData(const FAGVData& InputData);
 
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UFUNCTION(BlueprintCallable, Category = "AGV")
 	const FAGVData& GetAGVData() const
 	{
 		return AGVData;
