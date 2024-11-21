@@ -361,7 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/Config
 /Binaries/Win64
 /Content/Characters/Mannequins
 /Content/LevelPrototyping
@@ -372,3 +371,5 @@ FodyWeavers.xsd
 /DerivedDataCache/VT
 /Intermediate
 /Saved
+/Config
+/Content/SpaceGUI
