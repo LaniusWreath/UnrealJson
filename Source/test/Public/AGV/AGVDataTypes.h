@@ -32,10 +32,10 @@ public:
 	int32 r_enc;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "AGV")
-	int32 odo_l;
+	float odo_l;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "AGV")
-	int32 odo_r;
+	float odo_r;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "AGV")
 	float yaw;

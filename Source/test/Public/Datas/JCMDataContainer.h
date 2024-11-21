@@ -16,7 +16,7 @@ class TEST_API UJCMDataContainer : public UObject
 private:
 
 protected:
-	EJCMChartTypes ChartType = EJCMChartTypes::None;
+	EJCMChartTypes ChartType = EJCMChartTypes::NONE;
 
 public:
 	UFUNCTION()

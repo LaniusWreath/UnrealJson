@@ -62,7 +62,8 @@ void USFCHttpManager::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpRe
 		{
 			// 파싱 실행 함수 호출
 			ParsedJsonData = JsonData;
-			ExecuteCustomParseFucntion(JsonData);
+			OnParsedJsonObjectPtrReady.Execute(ParsedJsonData);
+			OnRequestingProcessDone.Broadcast();
 		}
 		else
 		{
@@ -81,7 +82,6 @@ void USFCHttpManager::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJ
 	ParsedJsonData = ParseRequestBody(OriginJsonObject);
 	if (ParsedJsonData)
 	{
-		//UE_LOG(JCMlog, Log, TEXT("%s : DataParsing Complete"), *this->GetName());
 		OnParsedJsonObjectPtrReady.Execute(ParsedJsonData);
 		OnRequestingProcessDone.Broadcast();
 	}
