@@ -30,7 +30,6 @@ protected:
 
 	// Main Request Function
 
-	virtual void MakeGetRequest(const FString& Url, const bool GetResultWithFString = true);
 	virtual void OnResponseReceivedWithString(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 	virtual void OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 	virtual void ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject);
@@ -51,6 +50,8 @@ public:
 	// Delegate for Alarming Request Done, Data Ready
 	FOnJsonDataReadyDelegate OnParsedJsonObjectPtrReady;
 	FOneParamDelegate OnRequestedJsonStringReady;
+
+	virtual void MakeGetRequest(const FString& Url, const bool GetResultWithFString = true);
 
 	// Blueprint Callable Delegate 
 	UPROPERTY(BlueprintAssignable, Category = "Chart")

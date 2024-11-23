@@ -5,30 +5,57 @@
 #include "SFCommon/SFCHttpManager.h"
 #include "AGV/AGVDataManager.h"
 
+
+// Static
 UAGVDataManager* UAGVDataManager::AGVDataManagerInstance = nullptr;
 
+const UAGVDataManager* UAGVDataManager::GetAGVDataManager()
+{
+	if (!AGVDataManagerInstance)
+	{
+		AGVDataManagerInstance = NewObject<UAGVDataManager>();
+		AGVDataManagerInstance->AddToRoot();  // GC 방지
+	}
+	return AGVDataManagerInstance;
+}
+
+// Json 오브젝트 전달받아 구조체로 변환
+FAGVData UAGVDataManager::JsonObjectToAGVStruct(const TSharedPtr<FJsonObject> OriginObject)
+{
+	FAGVData NewData = FAGVData();
+	if (!OriginObject)
+	{
+		UE_LOG(LogTemp, Error, TEXT("AGVDataManager : Creating CreateDataContainer Failed"));
+	}
+
+	if (!FJsonObjectConverter::JsonObjectToUStruct(OriginObject.ToSharedRef(), &NewData))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to convert JSON to struct"));
+	}
+
+	return NewData;
+}
+
+//---------------------------------
+
+// Public Instance 
 USFCHttpManager* UAGVDataManager::InitializeHttpHandler()
 {
 	if (!HttpHandler)
 	{
 		HttpHandler = NewObject<USFCHttpManager>(this);
 		HttpHandler->OnParsedJsonObjectPtrReady.BindUObject(this, &UAGVDataManager::SetJsonObject);
-
 	}
 	return HttpHandler;
 }
 
 USFCHttpManager* UAGVDataManager::GetHttpHandler()
 {
-	if (HttpHandler)
-		return HttpHandler;
-	else
+	if (!HttpHandler)
+	{
 		return nullptr;
-}
-
-UAGVDataManager* UAGVDataManager::GetAGVDataManager()
-{
-	return AGVDataManagerInstance;
+	}
+	return HttpHandler;
 }
 
 // 구조체 입력받아 컨테이너 인스턴싱
@@ -39,6 +66,13 @@ UAGVDataContainer* UAGVDataManager::CreateDataContainer(UObject* Outer, const FA
 	{
 		NewContainer->SetAGVData(InputData);
 	}
+	return NewContainer;
+}
+
+UAGVDataContainer* UAGVDataManager::CreateEmptyDataContainer(UObject* Outer)
+{
+	UAGVDataContainer* NewContainer = NewObject<UAGVDataContainer>(Outer);
+
 	return NewContainer;
 }
 
@@ -59,23 +93,6 @@ UAGVDataContainer* UAGVDataManager::UpdateContainerwithLastData(UAGVDataContaine
 	return TargetContainer;
 }
 
-// Json 오브젝트 전달받아 구조체로 변환
-FAGVData UAGVDataManager::JsonObjectToAGVStruct(const TSharedPtr<FJsonObject> OriginObject)
-{	
-	FAGVData NewData = FAGVData();
-	if (!OriginObject)
-	{
-		UE_LOG(LogTemp, Error, TEXT("AGVDataManager : Creating CreateDataContainer Failed"));
-	}
-
-	if (!FJsonObjectConverter::JsonObjectToUStruct(OriginObject.ToSharedRef(), &NewData))
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to convert JSON to struct"));
-	}
-	
-	return NewData;
-}
-
 void UAGVDataManager::RequestJsonObject(const FString& URL)
 {
 	if(!HttpHandler)
@@ -83,7 +100,7 @@ void UAGVDataManager::RequestJsonObject(const FString& URL)
 		UE_LOG(LogTemp, Error, TEXT("Failed to find HttpHandler"))
 		return;
 	}
-//	HttpHandler->MakeGetRequest(URL, false);
+ 	HttpHandler->MakeGetRequest(URL, false);
 }
 
 void UAGVDataManager::SetJsonObject(const TSharedPtr<FJsonObject> OriginObject)

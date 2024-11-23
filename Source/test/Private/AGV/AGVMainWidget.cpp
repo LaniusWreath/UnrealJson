@@ -13,7 +13,7 @@ void UAGVMainWidget::UpdateAGVDataContainer(UAGVDataContainer* DataContainer)
 	}
 }
 
-void UAGVMainWidget::UpdateAGVDataWidgets(FAGVData& SourceDataStruct)
+void UAGVMainWidget::UpdateAGVDataWidgets(const FAGVData& SourceDataStruct)
 {
 	UI_AGV_Position->UpdateData({ SourceDataStruct.x, SourceDataStruct.y, SourceDataStruct.theta });
 	UI_AGV_Rotation->UpdateData({ SourceDataStruct.yaw, SourceDataStruct.pitch, SourceDataStruct.roll });
