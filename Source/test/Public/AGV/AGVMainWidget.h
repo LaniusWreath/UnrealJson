@@ -27,7 +27,7 @@ public:
 	void UpdateAGVDataContainer(UAGVDataContainer* DataContainer);
 
 	UFUNCTION(BlueprintCallable, Category = "AGV")
-	void UpdateAGVDataWidgets(FAGVData& SourceDataStruct);
+	void UpdateAGVDataWidgets(const FAGVData& SourceDataStruct);
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	class UAGVElementWidget* UI_AGV_Position;
@@ -46,7 +46,4 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	class UAGVElementWidget* UI_AGV_Wheel;
-
-
-
 };

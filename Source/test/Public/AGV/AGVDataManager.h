@@ -29,11 +29,14 @@ public:
 	USFCHttpManager* GetHttpHandler();
 
 	UFUNCTION(BlueprintCallable, Category = "AGV")
-	static UAGVDataManager* GetAGVDataManager();
+	static const UAGVDataManager* GetAGVDataManager();
 
 	// Instancing AGVDataContainer from Struct input
 	UFUNCTION(BlueprintCallable, Category = "AGV")
 	static UAGVDataContainer* CreateDataContainer(UObject* Outer, const FAGVData& InputData);
+
+	UFUNCTION(BlueprintCallable, Category = "AGV")
+	static UAGVDataContainer* CreateEmptyDataContainer(UObject* Outer);
 
 	// Get AGVDataStruct from jsonObject
 	static FAGVData JsonObjectToAGVStruct(const TSharedPtr<FJsonObject> OriginObject);
