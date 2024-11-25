@@ -2,7 +2,7 @@
 
 
 #include "SFCommon/SFCHttpManager.h"
-#include "Datas/JCMLog.h"
+#include "SFCommon/SFCLog.h"
 
 // 메인 request 함수
 void USFCHttpManager::MakeGetRequest(const FString& Url, const bool GetResultWithFString)
@@ -41,7 +41,7 @@ void USFCHttpManager::OnResponseReceivedWithString(FHttpRequestPtr Request, FHtt
 	}
 	else
 	{
-		UE_LOG(JCMlog, Error, TEXT("%s : HTTP Request failed."), *this->GetName());
+		UE_LOG(SFClog, Error, TEXT("%s : HTTP Request failed."), *this->GetName());
 	}
 }
 
@@ -66,12 +66,12 @@ void USFCHttpManager::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpRe
 		}
 		else
 		{
-			UE_LOG(JCMlog, Error, TEXT("%s : Failed to parse JSON."), *this->GetName());
+			UE_LOG(SFClog, Error, TEXT("%s : Failed to parse JSON."), *this->GetName());
 		}
 	}
 	else
 	{
-		UE_LOG(JCMlog, Error, TEXT("%s : HTTP Request failed."), *this->GetName());
+		UE_LOG(SFClog, Error, TEXT("%s : HTTP Request failed."), *this->GetName());
 	}
 }
 
@@ -102,7 +102,7 @@ TSharedPtr<FJsonObject> USFCHttpManager::ParseRequestBody(TSharedPtr<FJsonObject
 	}
 	else
 	{
-		UE_LOG(JCMlog, Warning, TEXT("%s : DataObject is invalid"), *this->GetName());
+		UE_LOG(SFClog, Warning, TEXT("%s : DataObject is invalid"), *this->GetName());
 	}
 	return DataObject;
 }
@@ -149,7 +149,7 @@ TMap<FString, FString> USFCHttpManager::ParseJsonStringToMap(const FString& Json
 	}
 	else
 	{
-		UE_LOG(JCMlog, Warning, TEXT("Failed Json Parsing"));
+		UE_LOG(SFClog, Warning, TEXT("Failed Json Parsing"));
 	}
 
 	return ParsedMap;
