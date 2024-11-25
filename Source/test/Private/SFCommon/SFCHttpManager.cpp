@@ -52,7 +52,6 @@ void USFCHttpManager::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpRe
 	{
 		// 응답 데이터 확인
 		ResultResponseString = Response->GetContentAsString();
-		//UE_LOG(JCMlog, Log, TEXT("Response: %s"), *ResultResponseString);
 
 		TSharedPtr<FJsonObject> JsonData;
 
@@ -89,7 +88,7 @@ void USFCHttpManager::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJ
 
 TSharedPtr<FJsonObject> USFCHttpManager::ParseRequestBody(TSharedPtr<FJsonObject> RequestBody)
 {
-	const TSharedPtr<FJsonObject> DataObject = RequestBody->GetObjectField(TEXT("data"));
+	const TSharedPtr<FJsonObject> DataObject = RequestBody;
 
 	if (DataObject.IsValid())
 	{

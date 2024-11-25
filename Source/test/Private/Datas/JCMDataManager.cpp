@@ -172,7 +172,7 @@ FDataInstancePair UJCMDataManager::InstancingDataContainer(const TSharedPtr<FJso
 		break;
 	case BAR:
 	{
-		// 데이터 객체 생성
+		// 데이터 컨테이너 객체 생성
 		UJCMDataContainerBar* NewChartBarClass = NewObject<UJCMDataContainerBar>();
 
 		// X축 데이터 추출
