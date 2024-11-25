@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "JsonUtilities.h"
+#include "AGV/AGVLog.h"
 #include "AGV/AGVDataContainer.h"
 #include "SFCommon/SFCHttpManager.h"
 #include "AGV/AGVDataManager.h"
@@ -25,12 +26,12 @@ FAGVData UAGVDataManager::JsonObjectToAGVStruct(const TSharedPtr<FJsonObject> Or
 	FAGVData NewData = FAGVData();
 	if (!OriginObject)
 	{
-		UE_LOG(LogTemp, Error, TEXT("AGVDataManager : Creating CreateDataContainer Failed"));
+		UE_LOG(AGVlog, Error, TEXT("AGVDataManager : Creating CreateDataContainer Failed"));
 	}
 
 	if (!FJsonObjectConverter::JsonObjectToUStruct(OriginObject.ToSharedRef(), &NewData))
 	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to convert JSON to struct"));
+		UE_LOG(AGVlog, Error, TEXT("Failed to convert JSON to struct"));
 	}
 
 	return NewData;
@@ -81,12 +82,12 @@ UAGVDataContainer* UAGVDataManager::UpdateContainerwithLastData(UAGVDataContaine
 {
 	if (!TargetContainer)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Faild to find target AGVDataContainer"));
+		UE_LOG(AGVlog, Error, TEXT("Faild to find target AGVDataContainer"));
 		return nullptr;
 	}
 	if (!TempJsonObject)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No JsonObject left"));
+		UE_LOG(AGVlog, Warning, TEXT("No JsonObject left"));
 	}
 	TargetContainer->SetAGVData(JsonObjectToAGVStruct(TempJsonObject));
 
@@ -97,7 +98,7 @@ void UAGVDataManager::RequestJsonObject(const FString& URL)
 {
 	if(!HttpHandler)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to find HttpHandler"))
+		UE_LOG(AGVlog, Error, TEXT("Failed to find HttpHandler"))
 		return;
 	}
  	HttpHandler->MakeGetRequest(URL, false);
@@ -107,7 +108,7 @@ void UAGVDataManager::SetJsonObject(const TSharedPtr<FJsonObject> OriginObject)
 {
 	if (!OriginObject)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to find Origin Json Object"));
+		UE_LOG(AGVlog, Error, TEXT("Failed to find Origin Json Object"));
 		return;
 	}
 	TempJsonObject = OriginObject;

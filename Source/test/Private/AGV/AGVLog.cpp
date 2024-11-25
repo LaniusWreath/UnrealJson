@@ -1,14 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Datas/JCMLog.h"
+#include "AGV/AGVLog.h"
 
-
-JCMLog::JCMLog()
+AGVLog::AGVLog()
 {
 }
 
-JCMLog::~JCMLog()
+AGVLog::~AGVLog()
 {
 }
-

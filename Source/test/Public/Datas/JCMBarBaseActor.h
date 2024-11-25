@@ -17,7 +17,7 @@ class TEST_API AJCMBarBaseActor : public AActor
 
 private:
 
-	int UnitSize = 1;
+	int32 UnitSize = 1;
 
 	UPROPERTY()
 	UTimelineComponent* BarAnimationTimeline;

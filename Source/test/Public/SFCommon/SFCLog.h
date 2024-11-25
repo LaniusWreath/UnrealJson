@@ -5,14 +5,14 @@
 #include "CoreMinimal.h"
 
 // Log
-DECLARE_LOG_CATEGORY_EXTERN(JCMlog, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(SFClog, Log, All);
 
 /**
  * 
  */
-class TEST_API JCMLog
+class TEST_API SFCLog
 {
 public:
-	JCMLog();
-	~JCMLog();
+	SFCLog();
+	~SFCLog();
 };

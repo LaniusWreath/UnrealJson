@@ -4,15 +4,14 @@
 
 #include "CoreMinimal.h"
 
-// Log
-DECLARE_LOG_CATEGORY_EXTERN(JCMlog, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(AGVlog, Log, All);
 
 /**
  * 
  */
-class TEST_API JCMLog
+class TEST_API AGVLog
 {
 public:
-	JCMLog();
-	~JCMLog();
+	AGVLog();
+	~AGVLog();
 };
