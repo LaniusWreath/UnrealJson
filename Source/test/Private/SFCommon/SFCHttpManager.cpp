@@ -14,7 +14,7 @@ void USFCHttpManager::MakeGetRequest(const FString& Url, const bool GetResultWit
 	Request->SetURL(Url);
 	Request->SetVerb(TEXT("GET"));
 
-	// 응답 함수 델리게이트 바인딩
+	// 응답 함수 델리게이트 바인딩.
 	if (GetResultWithFString)
 	{
 		Request->OnProcessRequestComplete().BindUObject(this, &USFCHttpManager::OnResponseReceivedWithString);
@@ -24,17 +24,17 @@ void USFCHttpManager::MakeGetRequest(const FString& Url, const bool GetResultWit
 		Request->OnProcessRequestComplete().BindUObject(this, &USFCHttpManager::OnResponseReceivedWithPtr);
 	}
 
-	// 요청 실행
+	// 요청 실행.
 	Request->ProcessRequest();
 }
 
-// Request 응답 바인딩 함수
+// Request 응답 바인딩 함수 : 문자열.
 void USFCHttpManager::OnResponseReceivedWithString(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
-	// 응답 데이터 확인
+	// 응답 데이터 확인.
 	if (bWasSuccessful && Response.IsValid())
 	{
-		// 결과는 HttpHandler 인스턴스의 ResultResponseString에 저장
+		// 결과는 HttpHandler 인스턴스의 ResultResponseString에 저장.
 		ResultResponseString = Response->GetContentAsString();
 		OnRequestedJsonStringReady.Execute(true);
 		OnRequestingProcessDone.Broadcast();
@@ -45,7 +45,7 @@ void USFCHttpManager::OnResponseReceivedWithString(FHttpRequestPtr Request, FHtt
 	}
 }
 
-// Request 응답 바인딩 함수
+// Request 응답 바인딩 함수 : 객체 포인터 : 블루프린트에 리플렉션 되지 않으므로, cpp단에서 추가 작업 요구됨.
 void USFCHttpManager::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
 	if (bWasSuccessful && Response.IsValid())
@@ -53,14 +53,11 @@ void USFCHttpManager::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpRe
 		// 응답 데이터 확인
 		ResultResponseString = Response->GetContentAsString();
 
-		TSharedPtr<FJsonObject> JsonData;
-
 		// JSON 파싱
 		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResultResponseString);
-		if (FJsonSerializer::Deserialize(Reader, JsonData) && JsonData.IsValid())
+		if (FJsonSerializer::Deserialize(Reader, ParsedJsonData))
 		{
 			// 파싱 실행 함수 호출
-			ParsedJsonData = JsonData;
 			OnParsedJsonObjectPtrReady.Execute(ParsedJsonData);
 			OnRequestingProcessDone.Broadcast();
 		}
@@ -75,7 +72,7 @@ void USFCHttpManager::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpRe
 	}
 }
 
-
+// 커스텀 파싱 함수 실행 델리게이트.
 void USFCHttpManager::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject)
 {
 	ParsedJsonData = ParseRequestBody(OriginJsonObject);
@@ -86,19 +83,20 @@ void USFCHttpManager::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJ
 	}
 }
 
+// 기본 파싱 함수: 커스텀 파싱은 상속하여 처음부터 다시 작성할 것.
 TSharedPtr<FJsonObject> USFCHttpManager::ParseRequestBody(TSharedPtr<FJsonObject> RequestBody)
 {
 	const TSharedPtr<FJsonObject> DataObject = RequestBody;
 
 	if (DataObject.IsValid())
 	{
-		// JSON 객체를 문자열로 인코딩하여 JSON 형식으로 출력
+		// JSON 객체를 문자열로 인코딩하여 JSON 형식으로 출력/
 		FString JsonString;
 		TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
 		FJsonSerializer::Serialize(DataObject.ToSharedRef(), Writer);
 
-		// 디버깅 출력
-		//UE_LOG(JCMlog, Log, TEXT("DataObject JSON: %s"), *JsonString);
+		// 디버깅 출력.
+		// UE_LOG(JCMlog, Log, TEXT("DataObject JSON: %s"), *JsonString);
 	}
 	else
 	{

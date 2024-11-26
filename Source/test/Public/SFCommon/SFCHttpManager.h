@@ -29,9 +29,12 @@ protected:
 	TSharedPtr<FJsonObject> ParsedJsonData;
 
 	// Main Request Function
+	
+	// You can receive request data with under these two function
+	virtual void OnResponseReceivedWithString(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); // with string
+	virtual void OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); // with objectptr
 
-	virtual void OnResponseReceivedWithString(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
-	virtual void OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+	// If you want to adjust custom parsing function, override this
 	virtual void ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject);
 
 	// Json Object Response -> String to Json Object
