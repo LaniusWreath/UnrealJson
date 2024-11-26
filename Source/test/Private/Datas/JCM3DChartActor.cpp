@@ -15,7 +15,7 @@
 #include "Components/TextRenderComponent.h"
 #include "Datas/JCMLog.h"
 
-DEFINE_LOG_CATEGORY(JCMlog);
+
 /// <summary>
 /// BaseActor Functions
 /// </summary>

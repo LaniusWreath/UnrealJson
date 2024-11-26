@@ -31,6 +31,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AGV")
 	static const UAGVDataManager* GetAGVDataManager();
 
+	UFUNCTION(BlueprintCallable, Category = "AGV")
+	void RequestJsonObject(const FString& URL);
+
+	UFUNCTION(BlueprintCallable, Category = "AGV")
+	UAGVDataContainer* UpdateContainerwithLastData(UAGVDataContainer* TargetContainer);
+
+
+
 	// Instancing AGVDataContainer from Struct input
 	UFUNCTION(BlueprintCallable, Category = "AGV")
 	static UAGVDataContainer* CreateDataContainer(UObject* Outer, const FAGVData& InputData);
@@ -40,12 +48,6 @@ public:
 
 	// Get AGVDataStruct from jsonObject
 	static FAGVData JsonObjectToAGVStruct(const TSharedPtr<FJsonObject> OriginObject);
-
-	UFUNCTION(BlueprintCallable, Category = "AGV")
-	void RequestJsonObject(const FString& URL);
-
-	UFUNCTION(BlueprintCallable, Category = "AGV")
-	UAGVDataContainer* UpdateContainerwithLastData(UAGVDataContainer* TargetContainer);
 
 private:
 	// For Delegate Binding Result

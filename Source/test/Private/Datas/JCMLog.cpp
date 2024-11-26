@@ -2,7 +2,7 @@
 
 
 #include "Datas/JCMLog.h"
-
+DEFINE_LOG_CATEGORY(JCMlog);
 
 JCMLog::JCMLog()
 {
