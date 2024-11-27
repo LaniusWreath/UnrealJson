@@ -65,7 +65,7 @@ UAGVDataContainer* UAGVDataManager::CreateEmptyDataContainer(UObject* Outer)
 //--------------------------------- HTTP --------------------------------------------
 
 // Public Instance 
-const USFCHttpManager* UAGVDataManager::InitializeHttpHandler()
+USFCHttpManager* UAGVDataManager::InitializeHttpHandler()
 {
 	if (!HttpHandler)
 	{
@@ -79,9 +79,12 @@ USFCHttpManager* UAGVDataManager::GetHttpHandler()
 {
 	if (!HttpHandler)
 	{
-		return nullptr;
+		return InitializeHttpHandler();
 	}
-	return HttpHandler;
+	else
+	{
+		return HttpHandler;
+	}
 }
 
 // 기존 데이터 콘테이너 객체의 데이터 직접 입력하여 업데이트
@@ -105,10 +108,10 @@ void UAGVDataManager::RequestJsonObject(const FString& URL)
 {
 	if(!HttpHandler)
 	{
-		UE_LOG(AGVlog, Error, TEXT("Failed to find HttpHandler"));
+		UE_LOG(AGVlog, Warning, TEXT("Failed to find HttpHandler"));
 		InitializeHttpHandler();
 	}
-		HttpHandler->MakeGetRequest(URL, false);
+	HttpHandler->MakeGetRequest(URL, false);
 }
 
 void UAGVDataManager::SetHTTPJsonObject(const TSharedPtr<FJsonObject> OriginJsonObject)
@@ -129,11 +132,12 @@ USFCWebSocketManager* UAGVDataManager::InitializeWebSocketHandler()
 	if (!WebSocketHandler)
 	{
 		WebSocketHandler = NewObject<USFCWebSocketManager>(this);
-
+		WebSocketHandler->OnMessageReceivedDelegate.BindUObject(this, &UAGVDataManager::SetWebSocketMessage);
 	}
 	return WebSocketHandler;
 }
 
+// 메시지 받아 문자열 그대로 저장(실시간으로 json 변환 계속 하면 오버헤드 너무 발생)
 void UAGVDataManager::SetWebSocketMessage(const FString& Message)
 {
 	UE_LOG(LogTemp, Log, TEXT("DataManager: Handling WebSocket message: %s"), *Message);
@@ -145,7 +149,20 @@ USFCWebSocketManager* UAGVDataManager::GetWebSocketHandler()
 {
 	if (!WebSocketHandler)
 	{
-		return nullptr;
+		return InitializeWebSocketHandler();
 	}
-	return WebSocketHandler;
+	else
+	{
+		return WebSocketHandler;
+	}
+}
+
+void UAGVDataManager::ConnectWebSocketServer(const FString& ServerAddress)
+{
+	if (!WebSocketHandler)
+	{
+		UE_LOG(AGVlog, Warning, TEXT("Failed to find HttpHandler"));
+		InitializeHttpHandler();
+	}
+	WebSocketHandler->Connect(ServerAddress);
 }

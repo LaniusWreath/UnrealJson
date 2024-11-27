@@ -47,9 +47,6 @@ public:
 	UAGVDataContainer* UpdateContainerwithHTTPData(UAGVDataContainer* TargetContainer);
 
 	UFUNCTION(BlueprintCallable, Category = "AGV")
-	const USFCHttpManager* InitializeHttpHandler();
-
-	UFUNCTION(BlueprintCallable, Category = "AGV")
 	void RequestJsonObject(const FString& URL);
 
 
@@ -62,14 +59,14 @@ public:
 	const FString& GetLastWebSocketMessage() const { return ReceivedMessage; }
 
 	UFUNCTION(BlueprintCallable, Category = "AGV")
-	USFCWebSocketManager* InitializeWebSocketHandler();
+	void ConnectWebSocketServer(const FString& ServerAddress);
 
 private:
 
 	static UAGVDataManager* AGVDataManagerInstance;
 
 	//--------------------------------- Http --------------------------------------------
-	// 
+	
 	// Http Instance
 	UPROPERTY()
 	USFCHttpManager* HttpHandler;
@@ -78,6 +75,8 @@ private:
 	TSharedPtr<FJsonObject> TempHTTPJsonObject;
 
 	void SetHTTPJsonObject(const TSharedPtr<FJsonObject> OriginJsonObject);
+
+	USFCHttpManager* InitializeHttpHandler();
 
 
 	//--------------------------------- WebSocket --------------------------------------------
@@ -88,7 +87,10 @@ private:
 
 	// Result Message
 	FString ReceivedMessage;
+	TSharedPtr<FJsonObject> TempWebSocketJsonObject;
 
 	void SetWebSocketMessage(const FString& Message);
+
+	USFCWebSocketManager* InitializeWebSocketHandler();
 
 };
