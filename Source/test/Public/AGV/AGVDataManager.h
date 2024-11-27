@@ -9,6 +9,7 @@
 
 class USFCHttpManager;
 class UAGVDataContainer;
+class USFCWebSocketManager;
 /**
  * 
  */
@@ -19,25 +20,11 @@ class TEST_API UAGVDataManager : public UObject
 
 public:
 
-	UPROPERTY(BlueprintReadOnly, Category = "AGV")
-	USFCHttpManager* HttpHandler;
+	//--------------------------------- DataManagement --------------------------------------------
 
-	UFUNCTION(BlueprintCallable, Category = "AGV")
-	USFCHttpManager* InitializeHttpHandler();
-
-	UFUNCTION(BlueprintCallable, Category = "AGV")
-	USFCHttpManager* GetHttpHandler();
-
+	//
 	UFUNCTION(BlueprintCallable, Category = "AGV")
 	static const UAGVDataManager* GetAGVDataManager();
-
-	UFUNCTION(BlueprintCallable, Category = "AGV")
-	void RequestJsonObject(const FString& URL);
-
-	UFUNCTION(BlueprintCallable, Category = "AGV")
-	UAGVDataContainer* UpdateContainerwithLastData(UAGVDataContainer* TargetContainer);
-
-
 
 	// Instancing AGVDataContainer from Struct input
 	UFUNCTION(BlueprintCallable, Category = "AGV")
@@ -49,10 +36,59 @@ public:
 	// Get AGVDataStruct from jsonObject
 	static FAGVData JsonObjectToAGVStruct(const TSharedPtr<FJsonObject> OriginObject);
 
+
+	//--------------------------------- HTTP --------------------------------------------
+
+
+	UFUNCTION(BlueprintCallable, Category = "AGV")
+	USFCHttpManager* GetHttpHandler();
+
+	UFUNCTION(BlueprintCallable, Category = "AGV")
+	UAGVDataContainer* UpdateContainerwithHTTPData(UAGVDataContainer* TargetContainer);
+
+	UFUNCTION(BlueprintCallable, Category = "AGV")
+	const USFCHttpManager* InitializeHttpHandler();
+
+	UFUNCTION(BlueprintCallable, Category = "AGV")
+	void RequestJsonObject(const FString& URL);
+
+
+	//--------------------------------- WebSocket --------------------------------------------
+
+	UFUNCTION(BlueprintCallable, Category = "AGV")
+	USFCWebSocketManager* GetWebSocketHandler();
+
+	UFUNCTION(BlueprintCallable, Category = "AGV")
+	const FString& GetLastWebSocketMessage() const { return ReceivedMessage; }
+
+	UFUNCTION(BlueprintCallable, Category = "AGV")
+	USFCWebSocketManager* InitializeWebSocketHandler();
+
 private:
-	// For Delegate Binding Result
-	TSharedPtr<FJsonObject> TempJsonObject;
-	void SetJsonObject(const TSharedPtr<FJsonObject> OriginObject);
 
 	static UAGVDataManager* AGVDataManagerInstance;
+
+	//--------------------------------- Http --------------------------------------------
+	// 
+	// Http Instance
+	UPROPERTY()
+	USFCHttpManager* HttpHandler;
+
+	// For Delegate Binding Result
+	TSharedPtr<FJsonObject> TempHTTPJsonObject;
+
+	void SetHTTPJsonObject(const TSharedPtr<FJsonObject> OriginJsonObject);
+
+
+	//--------------------------------- WebSocket --------------------------------------------
+
+	// WebSocket Instance
+	UPROPERTY()
+	USFCWebSocketManager* WebSocketHandler;
+
+	// Result Message
+	FString ReceivedMessage;
+
+	void SetWebSocketMessage(const FString& Message);
+
 };

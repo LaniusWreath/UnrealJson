@@ -37,7 +37,7 @@ void USFCHttpManager::OnResponseReceivedWithString(FHttpRequestPtr Request, FHtt
 		// 결과는 HttpHandler 인스턴스의 ResultResponseString에 저장.
 		ResultResponseString = Response->GetContentAsString();
 		OnRequestedJsonStringReady.Execute(true);
-		OnRequestingProcessDone.Broadcast();
+		OnRequestingProcessEvent.Broadcast();
 	}
 	else
 	{
@@ -59,7 +59,7 @@ void USFCHttpManager::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpRe
 		{
 			// 파싱 실행 함수 호출
 			OnParsedJsonObjectPtrReady.Execute(ParsedJsonData);
-			OnRequestingProcessDone.Broadcast();
+			OnRequestingProcessEvent.Broadcast();
 		}
 		else
 		{
@@ -79,7 +79,7 @@ void USFCHttpManager::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJ
 	if (ParsedJsonData)
 	{
 		OnParsedJsonObjectPtrReady.Execute(ParsedJsonData);
-		OnRequestingProcessDone.Broadcast();
+		OnRequestingProcessEvent.Broadcast();
 	}
 }
 
