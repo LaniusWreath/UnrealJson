@@ -11,37 +11,46 @@
  * 
  */
 
-DECLARE_DYNAMIC_DELEGATE_OneParam(FMessageDelegate, const FString&, Message);
+DECLARE_DELEGATE_OneParam(FOnMessageReceivedDelegate, const FString&);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMessageReceivedDynamicDelegate);
 
-UCLASS()
+UCLASS(BlueprintAble)
 class TEST_API USFCWebSocketManager : public UObject
 {
 	GENERATED_BODY()
 
 private:
-	TSharedPtr<IWebSocket> WebSocketObject;
-	TMap<FString, FMessageDelegate> RegisteredObjects; // Map of Object IDs to Delegates
+	TSharedPtr<IWebSocket> WebSocket;
+	FOnMessageReceivedDelegate OnMessageReceivedDelegate; // Map of Object IDs to Delegates
 
 protected:
 
 	// Initialize socket object & binding function
-	virtual void InitWebSocketManager(const FString& ServcerAddress);
+	virtual void Connect(const FString& ServcerAddress);
 
 	// Delete socket object
-	virtual void ShutDownWebSocketManager();
+	virtual void Disconnect();
 
 	// Call function to send message
-	virtual void NotifyServerString(const FString& NotifyString);
+	virtual void SendMessage(const FString& NotifyString);
+	
 
-	// Add object which to communicate with socket server in map
-	virtual void RegisterObject(const FString& ObjectID, const FMessageDelegate& Callback);
+	// Each binding functions : can be overrided
+	
+	// Connection event binding
+	virtual void OnConnected();
 
-	// Unregister an object
-	virtual void UnregisterObject(const FString& ObjectID);
+	// Closing event binding
+	virtual void OnClosed(int32 StatusCode, const FString& Reason, bool bWasClean);
 
 	// WebSocket message handling
 	virtual void OnMessageReceived(const FString& Message);
 
-public:
+	virtual void OnError(const FString& ErrorMessage);
 
+public:
+	USFCWebSocketManager();
+
+	UPROPERTY(BlueprintAssignable)
+	FOnMessageReceivedDynamicDelegate OnMessageReceivedEvent;
 };

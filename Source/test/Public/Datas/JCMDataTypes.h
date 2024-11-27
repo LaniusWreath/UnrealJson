@@ -11,6 +11,22 @@ struct FJCMChartDataShape
 {
 	GENERATED_BODY()
 
+	FJCMChartDataShape()
+	{
+		ChartTitle = TEXT("Title");
+		ChartType = TEXT("Type");
+		XName = TEXT("XName");
+		Labels = { TEXT("Label0") };
+		YName = TEXT("YName");
+		Values = { -1 };
+	}
+
+	FJCMChartDataShape(const FString& InTitle, const FString& InType, const FString& InXName, const TArray<FString>& InLabels,
+		const FString& InYName, const TArray<float>& InValues)
+		: ChartTitle(InTitle), ChartType(InType), XName(InXName), Labels(InLabels), YName(InYName), Values(InValues)
+	{
+	}
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString ChartTitle;
 

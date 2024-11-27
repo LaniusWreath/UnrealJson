@@ -13,9 +13,9 @@
 /**
  * 
  */
-DECLARE_DELEGATE_OneParam(FOnJsonDataReadyDelegate, const TSharedPtr<FJsonObject>);
+DECLARE_DELEGATE_OneParam(FOnJsonObjectReceivedDelegate, const TSharedPtr<FJsonObject>);
 DECLARE_DELEGATE_OneParam(FOneParamDelegate, const bool);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDynamicRequestEvent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDynamicRequestDelegate);
 
 UCLASS(Blueprintable)
 class TEST_API USFCHttpManager : public UObject
@@ -51,17 +51,17 @@ protected:
 
 public:
 	// Delegate for Alarming Request Done, Data Ready
-	FOnJsonDataReadyDelegate OnParsedJsonObjectPtrReady;
+	FOnJsonObjectReceivedDelegate OnParsedJsonObjectPtrReady;
 	FOneParamDelegate OnRequestedJsonStringReady;
 
 	virtual void MakeGetRequest(const FString& Url, const bool GetResultWithFString = true);
 
 	// Blueprint Callable Delegate 
-	UPROPERTY(BlueprintAssignable, Category = "Chart")
-	FOnDynamicRequestEvent OnRequestingProcessDone;
+	UPROPERTY(BlueprintAssignable, Category = "SFC")
+	FOnDynamicRequestDelegate OnRequestingProcessEvent;
 
 	// Return Serialized JsonString
-	UFUNCTION(BlueprintCallable, Category = "HTTP")
+	UFUNCTION(BlueprintCallable, Category = "SFC")
 	const FString& GetResultResponseString()
 	{
 		return ResultResponseString;

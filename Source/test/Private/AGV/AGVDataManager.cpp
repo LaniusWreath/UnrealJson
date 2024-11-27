@@ -5,11 +5,16 @@
 #include "AGV/AGVLog.h"
 #include "AGV/AGVDataContainer.h"
 #include "SFCommon/SFCHttpManager.h"
+#include "SFCommon/SFCWebSocketManager.h"
 
 
-// Static
+//--------------------------------- Data Management --------------------------------------------
+
+
+// Static 객체
 UAGVDataManager* UAGVDataManager::AGVDataManagerInstance = nullptr;
 
+// 데이터 매니저 인스턴스 초기화
 const UAGVDataManager* UAGVDataManager::GetAGVDataManager()
 {
 	if (!AGVDataManagerInstance)
@@ -37,15 +42,35 @@ FAGVData UAGVDataManager::JsonObjectToAGVStruct(const TSharedPtr<FJsonObject> Or
 	return NewData;
 }
 
-//---------------------------------
+// 구조체 입력받아 컨테이너 인스턴싱
+UAGVDataContainer* UAGVDataManager::CreateDataContainer(UObject* Outer, const FAGVData& InputData)
+{
+	UAGVDataContainer* NewContainer = NewObject<UAGVDataContainer>(Outer);
+	if (NewContainer)
+	{
+		NewContainer->SetAGVData(InputData);
+	}
+	return NewContainer;
+}
+
+// 빈 AGV 데이터 컨테이너 생성
+UAGVDataContainer* UAGVDataManager::CreateEmptyDataContainer(UObject* Outer)
+{
+	UAGVDataContainer* NewContainer = NewObject<UAGVDataContainer>(Outer);
+
+	return NewContainer;
+}
+
+
+//--------------------------------- HTTP --------------------------------------------
 
 // Public Instance 
-USFCHttpManager* UAGVDataManager::InitializeHttpHandler()
+const USFCHttpManager* UAGVDataManager::InitializeHttpHandler()
 {
 	if (!HttpHandler)
 	{
 		HttpHandler = NewObject<USFCHttpManager>(this);
-		HttpHandler->OnParsedJsonObjectPtrReady.BindUObject(this, &UAGVDataManager::SetJsonObject);
+		HttpHandler->OnParsedJsonObjectPtrReady.BindUObject(this, &UAGVDataManager::SetHTTPJsonObject);
 	}
 	return HttpHandler;
 }
@@ -59,37 +84,19 @@ USFCHttpManager* UAGVDataManager::GetHttpHandler()
 	return HttpHandler;
 }
 
-// 구조체 입력받아 컨테이너 인스턴싱
-UAGVDataContainer* UAGVDataManager::CreateDataContainer(UObject* Outer, const FAGVData& InputData)
-{
-	UAGVDataContainer* NewContainer = NewObject<UAGVDataContainer>(Outer);
-	if (NewContainer)
-	{
-		NewContainer->SetAGVData(InputData);
-	}
-	return NewContainer;
-}
-
-UAGVDataContainer* UAGVDataManager::CreateEmptyDataContainer(UObject* Outer)
-{
-	UAGVDataContainer* NewContainer = NewObject<UAGVDataContainer>(Outer);
-
-	return NewContainer;
-}
-
 // 기존 데이터 콘테이너 객체의 데이터 직접 입력하여 업데이트
-UAGVDataContainer* UAGVDataManager::UpdateContainerwithLastData(UAGVDataContainer* TargetContainer)
+UAGVDataContainer* UAGVDataManager::UpdateContainerwithHTTPData(UAGVDataContainer* TargetContainer)
 {
 	if (!TargetContainer)
 	{
 		UE_LOG(AGVlog, Error, TEXT("Faild to find target AGVDataContainer"));
 		return nullptr;
 	}
-	if (!TempJsonObject)
+	if (!TempHTTPJsonObject)
 	{
 		UE_LOG(AGVlog, Warning, TEXT("No JsonObject left"));
 	}
-	TargetContainer->SetAGVData(JsonObjectToAGVStruct(TempJsonObject));
+	TargetContainer->SetAGVData(JsonObjectToAGVStruct(TempHTTPJsonObject));
 
 	return TargetContainer;
 }
@@ -98,18 +105,47 @@ void UAGVDataManager::RequestJsonObject(const FString& URL)
 {
 	if(!HttpHandler)
 	{
-		UE_LOG(AGVlog, Error, TEXT("Failed to find HttpHandler"))
-		return;
+		UE_LOG(AGVlog, Error, TEXT("Failed to find HttpHandler"));
+		InitializeHttpHandler();
 	}
- 	HttpHandler->MakeGetRequest(URL, false);
+		HttpHandler->MakeGetRequest(URL, false);
 }
 
-void UAGVDataManager::SetJsonObject(const TSharedPtr<FJsonObject> OriginObject)
+void UAGVDataManager::SetHTTPJsonObject(const TSharedPtr<FJsonObject> OriginJsonObject)
 {
-	if (!OriginObject)
+	if (!OriginJsonObject)
 	{
 		UE_LOG(AGVlog, Error, TEXT("Failed to find Origin Json Object"));
 		return;
 	}
-	TempJsonObject = OriginObject;
+	TempHTTPJsonObject = OriginJsonObject;
+}
+
+
+//--------------------------------- WebSocket --------------------------------------------
+
+USFCWebSocketManager* UAGVDataManager::InitializeWebSocketHandler()
+{
+	if (!WebSocketHandler)
+	{
+		WebSocketHandler = NewObject<USFCWebSocketManager>(this);
+
+	}
+	return WebSocketHandler;
+}
+
+void UAGVDataManager::SetWebSocketMessage(const FString& Message)
+{
+	UE_LOG(LogTemp, Log, TEXT("DataManager: Handling WebSocket message: %s"), *Message);
+
+	ReceivedMessage = Message;
+}
+
+USFCWebSocketManager* UAGVDataManager::GetWebSocketHandler()
+{
+	if (!WebSocketHandler)
+	{
+		return nullptr;
+	}
+	return WebSocketHandler;
 }
