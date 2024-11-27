@@ -21,12 +21,10 @@ class TEST_API USFCWebSocketManager : public UObject
 
 private:
 	TSharedPtr<IWebSocket> WebSocket;
-	FOnMessageReceivedDelegate OnMessageReceivedDelegate; // Map of Object IDs to Delegates
 
 protected:
 
 	// Initialize socket object & binding function
-	virtual void Connect(const FString& ServcerAddress);
 
 	// Delete socket object
 	virtual void Disconnect();
@@ -51,6 +49,14 @@ protected:
 public:
 	USFCWebSocketManager();
 
+	virtual void Connect(const FString& ServcerAddress);
+
+	// Blueprint Expose Delegate
 	UPROPERTY(BlueprintAssignable)
 	FOnMessageReceivedDynamicDelegate OnMessageReceivedEvent;
+
+	// Inner Delegate
+	FOnMessageReceivedDelegate OnMessageReceivedDelegate;
+
+
 };

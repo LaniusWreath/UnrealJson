@@ -66,6 +66,7 @@ void USFCWebSocketManager::OnMessageReceived(const FString& Message)
 	if (OnMessageReceivedDelegate.IsBound())
 	{
 		OnMessageReceivedDelegate.Execute(Message);
+		OnMessageReceivedEvent.Broadcast();
 	}
 	else
 	{
