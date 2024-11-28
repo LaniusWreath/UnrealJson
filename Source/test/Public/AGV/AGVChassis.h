@@ -22,15 +22,22 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AGV")
 	UAGVDataContainer* WheelDataContainer;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AGV")
-	UWheelMovementComponent* WheelMovementComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AGV")
-	UWheelRenderComponent* WheelRenderComponent;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AGV", meta = (AllowPrivateAccess = "true"))
+	UWheelMovementComponent* WheelMovementComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AGV", meta = (AllowPrivateAccess = "true"))
+	UWheelRenderComponent* WheelRenderComponent;
+	
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "AGV", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class USpringArmComponent> CameraRig;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "AGV", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UCameraComponent> Camera;
 
 public:	
 	// Called every frame

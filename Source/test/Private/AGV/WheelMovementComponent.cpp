@@ -30,9 +30,7 @@ void UWheelMovementComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	
 }
-
 
 // Called every frame
 void UWheelMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
