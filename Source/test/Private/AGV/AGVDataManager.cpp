@@ -42,6 +42,24 @@ FAGVData UAGVDataManager::JsonObjectToAGVStruct(const TSharedPtr<FJsonObject> Or
 	return NewData;
 }
 
+FAGVData UAGVDataManager::JsonStringToAGVStruct(const FString& OriginString)
+{
+	FAGVData NewData = FAGVData();
+	if (OriginString.IsEmpty())
+	{
+		UE_LOG(AGVlog, Error, TEXT("AGVDataManager : Creating CreateDataContainer Failed"));
+	}
+
+	if (!FJsonObjectConverter::JsonObjectStringToUStruct<FAGVData>(OriginString, &NewData))
+	{
+		UE_LOG(AGVlog, Error, TEXT("Failed to convert JSON to struct"));
+	}
+
+	return NewData;
+}
+
+
+
 // 구조체 입력받아 컨테이너 인스턴싱
 UAGVDataContainer* UAGVDataManager::CreateDataContainer(UObject* Outer, const FAGVData& InputData)
 {
@@ -155,6 +173,24 @@ USFCWebSocketManager* UAGVDataManager::GetWebSocketHandler()
 	{
 		return WebSocketHandler;
 	}
+}
+
+UAGVDataContainer* UAGVDataManager::UpdateContainerwithSocketMessage(UAGVDataContainer* TargetContainer)
+{
+	if (!TargetContainer)
+	{
+		UE_LOG(AGVlog, Error, TEXT("Faild to find target AGVDataContainer"));
+		return nullptr;
+	}
+	if (ReceivedMessage.IsEmpty())
+	{
+		UE_LOG(AGVlog, Warning, TEXT("No Message left"));
+		return TargetContainer;
+	}
+
+	TargetContainer->SetAGVData(JsonStringToAGVStruct(ReceivedMessage));
+
+	return TargetContainer;
 }
 
 void UAGVDataManager::ConnectWebSocketServer(const FString& ServerAddress)

@@ -36,6 +36,7 @@ public:
 	// Get AGVDataStruct from jsonObject
 	static FAGVData JsonObjectToAGVStruct(const TSharedPtr<FJsonObject> OriginObject);
 
+	static FAGVData JsonStringToAGVStruct(const FString& OriginString);
 
 	//--------------------------------- HTTP --------------------------------------------
 
@@ -57,6 +58,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "AGV")
 	const FString& GetLastWebSocketMessage() const { return ReceivedMessage; }
+
+	UFUNCTION(BlueprintCallable, Category = "AGV")
+	UAGVDataContainer* UpdateContainerwithSocketMessage(UAGVDataContainer* TargetContainer);
 
 	UFUNCTION(BlueprintCallable, Category = "AGV")
 	void ConnectWebSocketServer(const FString& ServerAddress);
@@ -86,7 +90,9 @@ private:
 	USFCWebSocketManager* WebSocketHandler;
 
 	// Result Message
+	UPROPERTY()
 	FString ReceivedMessage;
+
 	TSharedPtr<FJsonObject> TempWebSocketJsonObject;
 
 	void SetWebSocketMessage(const FString& Message);

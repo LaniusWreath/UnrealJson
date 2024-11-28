@@ -4,6 +4,8 @@
 #include "AGV/AGVLog.h"
 #include "AGV/WheelMovementComponent.h"
 #include "AGV/WheelRenderComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
 #include "AGV/AGVDataContainer.h"
 
 // Sets default values
@@ -23,6 +25,13 @@ AAGVChassis::AAGVChassis()
 
     // Wheel Data Container를 Movement에 연결
     WheelMovementComponent->DataContainerRef = WheelDataContainer;
+
+    CameraRig = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
+    CameraRig->SetupAttachment(RootComponent);
+
+    Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
+    Camera->SetupAttachment(RootComponent);
+
 }
 
 // Called when the game starts or when spawned
