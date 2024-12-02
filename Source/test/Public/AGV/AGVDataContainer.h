@@ -19,6 +19,8 @@ private:
 	FAGVData AGVData;
 
 public:
+	UAGVDataContainer();
+
 	UFUNCTION(BlueprintCallable, Category = "AGV")
 	UAGVDataContainer* SetAGVData(const FAGVData& InputData);
 
