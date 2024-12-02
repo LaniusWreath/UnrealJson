@@ -3,6 +3,11 @@
 
 #include "AGV/AGVDataContainer.h"
 
+UAGVDataContainer::UAGVDataContainer()
+{
+    AGVData = FAGVData();
+}
+
 UAGVDataContainer* UAGVDataContainer::SetAGVData(const FAGVData& InputData)
 {
     AGVData = InputData;
