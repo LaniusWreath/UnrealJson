@@ -8,6 +8,12 @@ void UAGVElementWidget::UpdateData(const TArray<float>& FloatData)
 	WidgetRefresh();
 }
 
+void UAGVElementWidget::UpdateLabelData(const TArray<FString>& LabelData)
+{
+	TempLabelArray = LabelData;
+	WidgetRefresh();
+}
+
 void UAGVElementWidget::WidgetRefresh()
 {
 }

@@ -15,14 +15,21 @@ class TEST_API UAGVElementWidget : public UUserWidget
 	GENERATED_BODY()
 	
 public:
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AGV")
-	TArray<float> TempValueArray;
 	
-	UFUNCTION(BlueprintCallable, Category = "AGV")
+	UFUNCTION(BlueprintCallable, Category = "SmartFactoryCommon")
 	void UpdateData(const TArray<float>& FloatData);
 
-	UFUNCTION(BlueprintCallable, Category = "AGV")
+	UFUNCTION(BlueprintCallable, Category = "SmartFactoryCommon")
+	void UpdateLabelData(const TArray<FString>& LabelData);
+
+	UFUNCTION(BlueprintCallable, Category = "SmartFactoryCommon")
 	void WidgetRefresh();
+
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SmartFactoryCommon", meta = (AllowPrivateAccess = "true"))
+	TArray<float> TempValueArray;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SmartFactoryCommon", meta = (AllowPrivateAccess = "true"))
+	TArray<FString> TempLabelArray;
 
 };
