@@ -61,8 +61,8 @@ void AAGVVehiclePawn::UpdateWheelRadius(float InWheelRadius, float OriginRadius)
 		// 휠 반지름 변경 API 함수 호출
 		VehicleMovement->SetWheelRadius(WheelIndex, InWheelRadius);
 
-		float RadiusDifference = InWheelRadius - OriginRadius;
-		VehicleMovement->WheelSetups[WheelIndex].AdditionalOffset.Z += RadiusDifference;
+		/*float RadiusDifference = InWheelRadius - OriginRadius;
+		VehicleMovement->WheelSetups[WheelIndex].AdditionalOffset.Z += RadiusDifference;*/
 	}
 	VehicleMovement->ResetVehicle();
 }
@@ -96,13 +96,13 @@ void AAGVVehiclePawn::UpdateWheelMeshScale(float InWheelRadius, float OriginRadi
 			NewScale *= Scaler;
 			CurWheelMesh->SetRelativeScale3D(NewScale);
 
-			FVector NewLocation = CurWheelMesh->GetRelativeLocation();
-			float RadiusDifference = InWheelRadius - OriginRadius;
-			NewLocation.Z += RadiusDifference; // Z축 위치 보정
-			CurWheelMesh->SetRelativeLocation(NewLocation);
+			//FVector NewLocation = CurWheelMesh->GetRelativeLocation();
+			//float RadiusDifference = InWheelRadius - OriginRadius;
+			//NewLocation.Z += RadiusDifference; // Z축 위치 보정
+			//CurWheelMesh->SetRelativeLocation(NewLocation);
 
 			// 디버깅
-			DrawDebugSphere(GetWorld(), NewLocation + FVector(0, 0, NewLocation.Z), InWheelRadius, 12, FColor::Red);
+			//DrawDebugSphere(GetWorld(), NewLocation + FVector(0, 0, NewLocation.Z), InWheelRadius, 12, FColor::Red);
 		}
 		else
 		{
@@ -110,6 +110,15 @@ void AAGVVehiclePawn::UpdateWheelMeshScale(float InWheelRadius, float OriginRadi
 			return;
 		}
 	}
+}
+
+void AAGVVehiclePawn::UpdateWheelPhysics(float InWheelRadius, float OriginRadius)
+{
+	if (!GetMesh() || !GetMesh()->GetPhysicsAsset()) return;
+
+	UPhysicsAsset* PhysicsAsset = GetMesh()->GetPhysicsAsset();
+
+
 }
 
 void AAGVVehiclePawn::AttachWheelMeshToSocket()

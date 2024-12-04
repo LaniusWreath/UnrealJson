@@ -27,7 +27,9 @@ public:
 	void CallUpdateWheelRadiusRoutine(float InWheelRadius, float OriginRadius);
 	void UpdateWheelRadius(float InWheelRadius, float OriginRadius);
 	void UpdateWheelMeshScale(float InWheelRadius, float OriginRadius);
+	void UpdateWheelPhysics(float InWheelRadius, float OriginRadius);
 
+	UFUNCTION(BlueprintCallable, Category = "AGV")
 	void AttachWheelMeshToSocket();
 
 protected:
