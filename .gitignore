@@ -362,13 +362,7 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /Binaries/Win64
-/Content/Characters/Mannequins
-/Content/LevelPrototyping
-/Content/StarterContent
-/Content/ThirdPerson
-/Content/__ExternalActors__/ThirdPerson/Maps/ThirdPersonMap
-/Content/__ExternalObjects__/ThirdPerson/Maps/ThirdPersonMap
+/Content
 /DerivedDataCache/VT
 /Intermediate
 /Saved
-/Content/SpaceGUI
