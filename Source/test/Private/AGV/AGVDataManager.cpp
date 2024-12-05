@@ -10,7 +10,6 @@
 
 //--------------------------------- Data Management --------------------------------------------
 
-
 // Static °´Ã¼
 UAGVDataManager* UAGVDataManager::AGVDataManagerInstance = nullptr;
 
