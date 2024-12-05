@@ -3,6 +3,7 @@
 #include "Datas/JCMCore.h"
 #include "Datas/JCMDataManager.h"
 #include "Datas/JCMHttpHandler.h"
+#include "Datas/JCMWidgetManager.h"
 #include "Datas/JCMLog.h"
 
 
@@ -18,6 +19,7 @@ const UJCMCore* UJCMCore::InitializeJCMCore()
 
 		JCMCoreInstance->DataManagerInstance = NewObject<UJCMDataManager>();
 		JCMCoreInstance->RequestManagerInstance = NewObject<UJCMHttpHandler>();
+		JCMCoreInstance->WidgetManagerInstance = NewObject<UJCMWidgetManager>();
 	}
 	return JCMCoreInstance;
 }

@@ -59,6 +59,8 @@ void USFCHttpManager::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpRe
 		{
 			// 파싱 실행 함수 호출
 			OnParsedJsonObjectPtrReady.Execute(ParsedJsonData);
+
+			// 블루프린트용 다이나믹 멀티캐스트 델리게이트
 			OnRequestingProcessEvent.Broadcast();
 		}
 		else

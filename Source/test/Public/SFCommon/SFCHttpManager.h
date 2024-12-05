@@ -11,8 +11,13 @@
 #include "SFCHttpManager.generated.h"
 
 /**
+ * 1205 FOnJsonObjectReceivedDelegate 반환(JCMDataContainer*)있는 함수 바인딩 하도록 수정했음. 전체 로직 수정 불가피함
+ * 
  * 
  */
+
+class UJCMDataContainer;
+
 DECLARE_DELEGATE_OneParam(FOnJsonObjectReceivedDelegate, const TSharedPtr<FJsonObject>);
 DECLARE_DELEGATE_OneParam(FOneParamDelegate, const bool);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDynamicRequestDelegate);

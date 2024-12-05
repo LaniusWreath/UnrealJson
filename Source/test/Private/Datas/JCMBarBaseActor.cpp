@@ -27,7 +27,7 @@ AJCMBarBaseActor::AJCMBarBaseActor()
 	CustomStaticMeshTemplateComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CustomMesh"));
 	CustomStaticMeshTemplateComponent->SetupAttachment(RootComponent);
 
-	CustomStaticMeshTemplateComponent->SetHiddenInGame(true);
+	//CustomStaticMeshTemplateComponent->SetHiddenInGame(true);
 
 	// Procedural Mesh Component를 Navigation 시스템에서 제외. 경로탐색이나 ai상호작용이 필요 없는 경우, 꺼도 좋음. 
 	// 안끄면 Navigation system에서 화냄. (계속 감시중)

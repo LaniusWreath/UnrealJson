@@ -44,8 +44,8 @@ void AJCM3DChartActor::RequestJsonObject(const FString& URL)
 	InitializeRequestHandler();
 	// Request 델리게이트 바인딩 함수 : DataClass 멤버변수 초기화 
 	// 멀티캐스트 델리게이트였다면 델리게이트 객체 매 번 청소해야 겠지만, 지금은 싱글캐스트. 객체 매 번 삭제 안해도 됨.
-	RequestHandlerInstance->OnParsedJsonObjectPtrReady.BindUObject(this, &AJCM3DChartActor::SetJsonObject);
-	IsDataClassInstanceSet = false;
+	RequestHandlerInstance->OnJsonObjectReceivedDelegate_JCM.BindUObject(this, &AJCM3DChartActor::CallInstancingDataContainer);
+	SetbDataContainerSet(false);
 	RequestHandlerInstance->MakeGetRequest(URL, false);
 }
 
@@ -55,18 +55,26 @@ void AJCM3DChartActor::RequestJsonString(const FString& URL)
 	SetJCMDataManagerRef();
 	InitializeRequestHandler();
 	RequestHandlerInstance->OnRequestedJsonStringReady.BindUObject(this, &AJCM3DChartActor::SetJsonString);
-	IsDataClassInstanceSet = false;
+	bDataContainerSet = false;
 	RequestHandlerInstance->MakeGetRequest(URL);
 }
 
 // 로컬 Json 읽어 데이터 컨테이너 세팅
-void AJCM3DChartActor::LoadFromLocalJsonFile(const FString& FilePath)
+UJCMDataContainer* AJCM3DChartActor::LoadFromLocalJsonFile(const FString& FilePath)
 {
 	SetJCMDataManagerRef();
-	IsDataClassInstanceSet = false;
-	DataContainerInstance = DataManagerInstanceRef->InstancingDataContainerFromLocalJson(FilePath);
-	if (DataContainerInstance)
-		IsDataClassInstanceSet = true;
+	bDataContainerSet = false;
+	UJCMDataContainer* NewDataContainer = DataManagerInstanceRef->InstancingDataContainerFromLocalJson(FilePath);
+	if (NewDataContainer)
+	{
+		SetbDataContainerSet(true);
+		return NewDataContainer;
+	}
+	else
+	{
+		UE_LOG(JCMlog, Error, TEXT("%s : Load from local json failed"), *this->GetActorLabel());
+		return nullptr;
+	}
 }
 
 // 기본 액터 무결성 체크 함수
@@ -76,11 +84,6 @@ bool AJCM3DChartActor::CheckJCMActorIntegrity()
 	if (!DataManagerInstanceRef)
 	{
 		UE_LOG(JCMlog, Warning, TEXT("Integrity Check : %s : DataManager is Invalid "), *this->GetActorLabel());
-		bIsValid = false;
-	}
-	if (!DataContainerInstance)
-	{
-		UE_LOG(JCMlog, Warning, TEXT("Integrity Check : %s : DataContainer is Invalid"), *this->GetActorLabel());
 		bIsValid = false;
 	}
 
@@ -118,27 +121,31 @@ const UJCMHttpHandler* AJCM3DChartActor::InitializeRequestHandler()
 	return RequestHandlerInstance;
 }
 
-// FJsonObject 받아 UDataClasses*로 추출
-void AJCM3DChartActor::SetJsonObject(const TSharedPtr<FJsonObject> JsonData)
+// FJsonObject 받아 DataManager에게 UDataClasses*로 추출 요청
+const UJCMDataContainer* AJCM3DChartActor::CallInstancingDataContainer(const TSharedPtr<FJsonObject> JsonData)
 {
 	if (RequestHandlerInstance)
 	{
 		FDataInstancePair ResultData = DataManagerInstanceRef->InstancingDataContainer(JsonData);
 		if (!ResultData.IsValid)
-			return;
-		DataContainerInstance = ResultData.DataInstance;
-		if (!DataContainerInstance)
 		{
-			UE_LOG(JCMlog, Log, TEXT("%s: Received Data Container is invaid"), *this->GetActorLabel());
+			UE_LOG(JCMlog, Error, TEXT("%s: Received source data is invalid "), *this->GetActorLabel());
+			return nullptr;
 		}
-		else
+
+		UJCMDataContainer* NewDataContainer = ResultData.DataInstance;
+		if (!NewDataContainer)
 		{
-			IsDataClassInstanceSet = true;
+			UE_LOG(JCMlog, Log, TEXT("%s: Data Container instancing failed"), *this->GetActorLabel());
 		}
+
+		SetbDataContainerSet(true);
+		return NewDataContainer;
 	}
 	else
 	{
 		UE_LOG(JCMlog, Warning, TEXT("%s: RequestManagerInstance is Invalid"), *this->GetActorLabel());
+		return nullptr;
 	}
 }
 
@@ -147,6 +154,15 @@ void AJCM3DChartActor::SetJsonString(const bool IsWorkDone)
 	IsRequestJsonStringDone = IsWorkDone;
 }
 
+void AJCM3DChartActor::SetbDataContainerSet(bool InState)
+{
+	bDataContainerSet = InState;
+}
+
+const bool AJCM3DChartActor::GetbDataContainerSet() const
+{
+	return bDataContainerSet;
+}
 
 // Called every frame
 void AJCM3DChartActor::Tick(float DeltaTime)
@@ -176,7 +192,7 @@ AJCM3DChartActorBar::AJCM3DChartActorBar()
 
 const UJCMDataContainerBar* AJCM3DChartActorBar::GetDataContainerRef()
 {
-	if (IsDataClassInstanceSet)
+	if (bDataContainerSet)
 	{
 		UJCMDataContainerBar* Container = Cast<UJCMDataContainerBar>(DataContainerInstance);
 		return Container;
@@ -188,11 +204,10 @@ const UJCMDataContainerBar* AJCM3DChartActorBar::GetDataContainerRef()
 	}
 }
 
-void AJCM3DChartActorBar::SetDataContainerInstance(UJCMDataContainerBar* DataContainerInstanceRef)
+void AJCM3DChartActorBar::SetDataContainer(UJCMDataContainer* DataContainerRef)
 {
-	UJCMDataContainer* Container = Cast<UJCMDataContainer>(DataContainerInstanceRef);
-	DataContainerInstance = Container;
-	IsDataClassInstanceSet = true;
+	UJCMDataContainerBar* NewContainer = CastChecked<UJCMDataContainerBar>(DataContainerRef);
+	DataContainerInstance = NewContainer;
 }
 
 // 차트 타이틀, X축, Y축 이름 초기화 함수
@@ -249,6 +264,12 @@ void AJCM3DChartActorBar::GenerateChartRoutine()
 bool AJCM3DChartActorBar::CheckJCMActorIntegrity()
 {
 	bool bIsValid = Super::CheckJCMActorIntegrity();
+
+	if (!DataContainerInstance)
+	{
+		UE_LOG(JCMlog, Warning, TEXT("Integrity Check : %s : DataContainer is Invalid"), *this->GetActorLabel());
+		bIsValid = false;
+	}
 
 	if (!BarGeneratorComponent)
 	{

@@ -55,7 +55,7 @@ void UJCMHttpHandler::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJ
 	if (ParsedJsonData)
 	{
 		OnParsedJsonObjectPtrReady.Execute(ParsedJsonData);
-		OnRequestingProcessEvent.Broadcast();
+		OnRequestingProcessEvent_JCM.Broadcast();
 	}
 }
 

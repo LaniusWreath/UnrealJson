@@ -7,9 +7,17 @@
 #include "JCMDataTypes.h"
 #include "JCM3DChartActor.generated.h"
 
+// json을 받아와 DataClass라는 상위 데이터 컨테이너 클래스에 공통으로 저장하고있음.
+// 또한 이 공통 데이터는 공통 액터 추상클래스에 속해있음
+// 블루프린트에서는 액터가 자식 클래스로 구체화되어있으므로, 데이터 컨테이너 클래스를 호출 할 때에도 액터 형식에 맞게
+// 캐스팅해주는 과정이 필요함. 다른 자식 3DActor 클래스에도 구성해줄 것.
+// 
+// 1205 수정 : 외부로 나가는 get과 set 함수에서는 DataContainer로, 내부에서는 클래스에 맞게 갖고 있게끔 수정
+
 class UJCMDataManager;
 class UJCMDataContainer;
 class UTextRenderComponent;
+
 
 UCLASS()
 class TEST_API AJCM3DChartActor : public AActor
@@ -22,10 +30,12 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void SetJsonObject(const TSharedPtr<FJsonObject> JsonData);
-
+	const UJCMDataContainer* CallInstancingDataContainer(const TSharedPtr<FJsonObject> JsonData);
 	void SetJsonString(const bool IsWorkDone);
+	void SetbDataContainerSet(const bool InState);
+	const bool GetbDataContainerSet() const;
 
+public:
 	// Call json request function, Result data will be stored in actor as container
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	void RequestJsonObject(const FString& URL);
@@ -36,7 +46,7 @@ public:
 
 	// Load local json file, Result data will be stored in actor as container
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	void LoadFromLocalJsonFile(const FString& FilePath);
+	UJCMDataContainer* LoadFromLocalJsonFile(const FString& FilePath);
 
 	// Get Http request handler reference from JCM actor
 	UFUNCTION(BlueprintCallable, Category = "Chart")
@@ -48,14 +58,20 @@ public:
 		else
 			return nullptr;
 	}
-
+	
+public:
 	// Visualizating Chart Title
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chart")
 	UTextRenderComponent* TextRenderComponent_chartTitle;
 
-	// Data Container State
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Chart")
-	bool IsDataClassInstanceSet;
+protected:
+	// Check JCM actor state
+	UFUNCTION(BlueprintCallable, Category = "JCM")
+	virtual bool CheckJCMActorIntegrity();
+
+	// Initializing Request Manager Instance : this instance have to be initialized in every CallJsonRoutine
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	const UJCMHttpHandler* InitializeRequestHandler();
 
 protected:
 	// Called when the game starts or when spawned
@@ -64,24 +80,13 @@ protected:
 	// Initializing Data Manager Getting from Game Instance
 	void SetJCMDataManagerRef();
 
-	// Initializing Request Manager Instance : this instance have to be initialized in every CallJsonRoutine
-	UFUNCTION(BlueprintCallable, Category = "Chart")
-	const UJCMHttpHandler* InitializeRequestHandler();
-
-	// Check JCM actor state
-	UFUNCTION(BlueprintCallable, Category = "Chart")
-	virtual bool CheckJCMActorIntegrity();
-
 	// Pure Virtual Routine for Generate Chart
 	virtual void GenerateChartRoutine() PURE_VIRTUAL(UDataFetcherBase::FetchData, ;);
 
+protected:
 	// JCM DataManager reference
 	UPROPERTY()
 	UJCMDataManager* DataManagerInstanceRef;
-
-	// Data Class Instance ref
-	UPROPERTY()
-	UJCMDataContainer* DataContainerInstance;
 
 	// HttpRequest Handler Instance ref
 	UPROPERTY()
@@ -92,7 +97,11 @@ protected:
 
 	bool IsRequestJsonStringDone;
 
+	// Data Container State
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "JCM")
+	bool bDataContainerSet;
 };
+
 
 class UJCMChartGeneratorBar;
 class AJCMBarBaseActor;
@@ -106,12 +115,17 @@ private:
 	UFUNCTION()
 	void SetChartDefaultTexts();
 
+	// Data Class Instance ref
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "JCM", meta = (AllowPrivateAccess = "true"))
+	UJCMDataContainerBar* DataContainerInstance;
+
 protected:
 	// chart genrating function sequence
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	virtual void GenerateChartRoutine() override;
 
-	virtual bool CheckJCMActorIntegrity() override;
+public:
+	bool CheckJCMActorIntegrity() override;
 
 public:
 	AJCM3DChartActorBar();
@@ -135,11 +149,6 @@ public:
 	// Visualization Chart Yaxis Name
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chart")
 	UTextRenderComponent* TextRenderComponent_chartYaxisName;
-
-	// json을 받아와 DataClass라는 상위 데이터 컨테이너 클래스에 공통으로 저장하고있음.
-	// 또한 이 공통 데이터는 공통 액터 추상클래스에 속해있음
-	// 블루프린트에서는 액터가 자식 클래스로 구체화되어있으므로, 데이터 컨테이너 클래스를 호출 할 때에도 액터 형식에 맞게
-	// 캐스팅해주는 과정이 필요함. 다른 자식 3DActor 클래스에도 구성해줄 것.
 	
 	//Get data container Ref
 	UFUNCTION(BlueprintCallable, Category = "Chart")
@@ -147,13 +156,13 @@ public:
 	
 	// Set Processed Json Data Container Instance Directly
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	void SetDataContainerInstance(UJCMDataContainerBar* DataContainerInstanceRef);
+	void SetDataContainer(UJCMDataContainer* DataContainerRef);
 	
 	// Delete Data Container Instance
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	void DeleteDataContainerInstance()
 	{
 		DataContainerInstance = nullptr;
-		IsDataClassInstanceSet = false;
+		bDataContainerSet = false;
 	}
 };
