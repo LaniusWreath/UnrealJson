@@ -31,10 +31,13 @@
 		{
 			"Name": "ChaosVehiclesPlugin",
 			"Enabled": true
+<<<<<<< HEAD
 		},
 		{
 			"Name": "SkeletalMeshModelingTools",
 			"Enabled": true
+=======
+>>>>>>> 1ca4cc6f10e5cea2b4d30e2f3d75ebd17acc6e94
 		}
 	]
 }
