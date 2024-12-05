@@ -61,11 +61,13 @@ void AAGVVehiclePawn::UpdateWheelRadius(float InWheelRadius, float OriginRadius)
 		// 휠 반지름 변경 API 함수 호출
 		VehicleMovement->SetWheelRadius(WheelIndex, InWheelRadius);
 
+<<<<<<< HEAD
 		/*float RadiusDifference = InWheelRadius - OriginRadius;
 		VehicleMovement->WheelSetups[WheelIndex].AdditionalOffset.Z += RadiusDifference;*/
-
+=======
 		float RadiusDifference = InWheelRadius - OriginRadius;
 		VehicleMovement->WheelSetups[WheelIndex].AdditionalOffset.Z += RadiusDifference;
+>>>>>>> 1ca4cc6f10e5cea2b4d30e2f3d75ebd17acc6e94
 	}
 	VehicleMovement->ResetVehicle();
 }
@@ -99,6 +101,7 @@ void AAGVVehiclePawn::UpdateWheelMeshScale(float InWheelRadius, float OriginRadi
 			NewScale *= Scaler;
 			CurWheelMesh->SetRelativeScale3D(NewScale);
 
+<<<<<<< HEAD
 			//FVector NewLocation = CurWheelMesh->GetRelativeLocation();
 			//float RadiusDifference = InWheelRadius - OriginRadius;
 			//NewLocation.Z += RadiusDifference; // Z축 위치 보정
@@ -106,6 +109,7 @@ void AAGVVehiclePawn::UpdateWheelMeshScale(float InWheelRadius, float OriginRadi
 
 			// 디버깅
 			//DrawDebugSphere(GetWorld(), NewLocation + FVector(0, 0, NewLocation.Z), InWheelRadius, 12, FColor::Red);
+=======
 			FVector NewLocation = CurWheelMesh->GetRelativeLocation();
 			float RadiusDifference = InWheelRadius - OriginRadius;
 			NewLocation.Z += RadiusDifference; // Z축 위치 보정
@@ -113,6 +117,7 @@ void AAGVVehiclePawn::UpdateWheelMeshScale(float InWheelRadius, float OriginRadi
 
 			// 디버깅
 			DrawDebugSphere(GetWorld(), NewLocation + FVector(0, 0, NewLocation.Z), InWheelRadius, 12, FColor::Red);
+>>>>>>> 1ca4cc6f10e5cea2b4d30e2f3d75ebd17acc6e94
 		}
 		else
 		{
@@ -122,6 +127,7 @@ void AAGVVehiclePawn::UpdateWheelMeshScale(float InWheelRadius, float OriginRadi
 	}
 }
 
+<<<<<<< HEAD
 void AAGVVehiclePawn::UpdateWheelPhysics(float InWheelRadius, float OriginRadius)
 {
 	if (!GetMesh() || !GetMesh()->GetPhysicsAsset()) return;
@@ -131,6 +137,8 @@ void AAGVVehiclePawn::UpdateWheelPhysics(float InWheelRadius, float OriginRadius
 
 }
 
+=======
+>>>>>>> 1ca4cc6f10e5cea2b4d30e2f3d75ebd17acc6e94
 void AAGVVehiclePawn::AttachWheelMeshToSocket()
 {
 	if (const USkeletalMeshSocket* Socket = GetMesh()->GetSocketByName(FName("Socket_RR")))
