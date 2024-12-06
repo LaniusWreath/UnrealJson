@@ -203,16 +203,12 @@ AJCM3DChartActorBar::AJCM3DChartActorBar()
 
 const UJCMDataContainerBar* AJCM3DChartActorBar::GetDataContainerRef()
 {
-	if (bDataContainerSet)
+	if (!bDataContainerSet)
 	{
-		UJCMDataContainerBar* Container = Cast<UJCMDataContainerBar>(ChartGeneratorComponent);
-		return Container;
-	}
-	else
-	{
-		UE_LOG(JCMlog, Warning, TEXT("%s : Getting DataContainer Ref Failed"), *this->GetActorLabel());
+		UE_LOG(JCMlog, Warning, TEXT("%s :DataContainer not found"), *this->GetActorLabel());
 		return nullptr;
 	}
+	return DataContainerBar;
 }
 
 void AJCM3DChartActorBar::SetDataContainer(UJCMDataContainer* DataContainerRef)

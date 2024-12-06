@@ -6,7 +6,8 @@
 #include "Datas/JCMLog.h"
 
 // À§Á¬ Å¬·¡½º ÀÌ¸§À¸·Î Ä³½Ì
-UUserWidget* UJCMWidgetManager::CreateWidgetFromClass(TSubclassOf<UUserWidget> WidetClass, FName WidgetName)
+UUserWidget* UJCMWidgetManager::CreateWidgetFromClass(TSubclassOf<UUserWidget> WidetClass, FName WidgetName, 
+	APlayerController* Owner)
 {
 	if (WidgetMap.Contains(WidgetName))
 	{
@@ -20,18 +21,18 @@ UUserWidget* UJCMWidgetManager::CreateWidgetFromClass(TSubclassOf<UUserWidget> W
 	}
 
 	// À§Á¬ ±âº» ¼ÒÀ¯ÀÚ
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (!Owner)
+	{
+		UE_LOG(JCMlog, Error, TEXT("JCMWidgetManager : PlayerController not found"));
+		return nullptr;
+	}
 
 	// À§Á¬ »ý¼º
-	UUserWidget* NewWidget = CreateWidget<UUserWidget>(PlayerController, WidetClass);
+	UUserWidget* NewWidget = CreateWidget<UUserWidget>(Owner, WidetClass);
 	if (!NewWidget)
 	{
 		UE_LOG(JCMlog, Error, TEXT("JCMWidgetManager : Creating Widget failed"));
-
-		if (!GetWorld())
-		{
-			UE_LOG(JCMlog, Error, TEXT("World not found"));
-		}
+		return nullptr;
 	}
 
 	// À§Á¬ ¸Ê¿¡ »õ·Î ¸¸µç À§Á¬ Ãß°¡
