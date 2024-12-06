@@ -19,6 +19,14 @@
 /// <summary>
 /// BaseActor Functions
 /// </summary>
+// json을 받아와 DataClass라는 상위 데이터 컨테이너 클래스에 공통으로 저장하고있음.
+// 또한 이 공통 데이터는 공통 액터 추상클래스에 속해있음
+// 블루프린트에서는 액터가 자식 클래스로 구체화되어있으므로, 데이터 컨테이너 클래스를 호출 할 때에도 액터 형식에 맞게
+// 캐스팅해주는 과정이 필요함. 다른 자식 3DActor 클래스에도 구성해줄 것.
+// 
+// 1205 수정 : 외부로 나가는 get과 set 함수에서는 DataContainer로, 내부에서는 클래스에 맞게 갖고 있게끔 수정
+// 1206 수정 : 부모 3DChartActor는 DataContainer 가지고, 자식 3DChartActorBar는 DataContainerBar를 가지게끔 분리
+//
 
 AJCM3DChartActor::AJCM3DChartActor()
 {
@@ -44,7 +52,7 @@ void AJCM3DChartActor::RequestJsonObject(const FString& URL)
 	InitializeRequestHandler();
 	// Request 델리게이트 바인딩 함수 : DataClass 멤버변수 초기화 
 	// 멀티캐스트 델리게이트였다면 델리게이트 객체 매 번 청소해야 겠지만, 지금은 싱글캐스트. 객체 매 번 삭제 안해도 됨.
-	RequestHandlerInstance->OnJsonObjectReceivedDelegate_JCM.BindUObject(this, &AJCM3DChartActor::CallInstancingDataContainer);
+	RequestHandlerInstance->OnParsedJsonObjectPtrReady.BindUObject(this, &AJCM3DChartActor::CallInstancingDataContainer);
 	SetbDataContainerSet(false);
 	RequestHandlerInstance->MakeGetRequest(URL, false);
 }
@@ -121,32 +129,31 @@ const UJCMHttpHandler* AJCM3DChartActor::InitializeRequestHandler()
 	return RequestHandlerInstance;
 }
 
+
 // FJsonObject 받아 DataManager에게 UDataClasses*로 추출 요청
-const UJCMDataContainer* AJCM3DChartActor::CallInstancingDataContainer(const TSharedPtr<FJsonObject> JsonData)
+void AJCM3DChartActor::CallInstancingDataContainer(const TSharedPtr<FJsonObject> JsonData)
 {
-	if (RequestHandlerInstance)
+	if (!RequestHandlerInstance)
 	{
-		FDataInstancePair ResultData = DataManagerInstanceRef->InstancingDataContainer(JsonData);
-		if (!ResultData.IsValid)
-		{
-			UE_LOG(JCMlog, Error, TEXT("%s: Received source data is invalid "), *this->GetActorLabel());
-			return nullptr;
-		}
-
-		UJCMDataContainer* NewDataContainer = ResultData.DataInstance;
-		if (!NewDataContainer)
-		{
-			UE_LOG(JCMlog, Log, TEXT("%s: Data Container instancing failed"), *this->GetActorLabel());
-		}
-
-		SetbDataContainerSet(true);
-		return NewDataContainer;
+		UE_LOG(JCMlog, Error, TEXT("%s: RequestManagerInstance is Invalid"), *this->GetActorLabel());
+		return;
 	}
-	else
+
+	FDataInstancePair ResultData = DataManagerInstanceRef->InstancingDataContainer(JsonData);
+	if (!ResultData.IsValid)
 	{
-		UE_LOG(JCMlog, Warning, TEXT("%s: RequestManagerInstance is Invalid"), *this->GetActorLabel());
-		return nullptr;
+		UE_LOG(JCMlog, Error, TEXT("%s: Received source data is invalid "), *this->GetActorLabel());
+		return;
 	}
+
+	UJCMDataContainer* NewDataContainer = ResultData.DataInstance;
+	if (!NewDataContainer)
+	{
+		UE_LOG(JCMlog, Error, TEXT("%s: Data Container instancing failed"), *this->GetActorLabel());
+	}
+
+	DataContainer = NewDataContainer;
+	SetbDataContainerSet(true);
 }
 
 void AJCM3DChartActor::SetJsonString(const bool IsWorkDone)
@@ -170,14 +177,18 @@ void AJCM3DChartActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+/// <AJCM3DChartActor>
+/// 
+/// <AJCM3DChartActorBar>
+
 AJCM3DChartActorBar::AJCM3DChartActorBar()
 {
 	EnableGenerateMeshAtSplinePoint = false;
-	BarGeneratorComponent = CreateDefaultSubobject<UJCMChartGeneratorBar>(TEXT("BarGeneratorComponent"));
+	ChartGeneratorComponent = CreateDefaultSubobject<UJCMChartGeneratorBar>(TEXT("BarGeneratorComponent"));
 	// 처음에는 ChartGenerator 생성자에서 각각 컴포넌트 붙였으나, 계층 구조만 변경될 뿐 실제로 붙지 않는 문제 발생.
-	BarGeneratorComponent->SetupAttachment(RootSceneComponent);
+	ChartGeneratorComponent->SetupAttachment(RootSceneComponent);
 	// ChartGenerator의 멤버 컴포넌트 따로 부착해주는 함수 작성
-	BarGeneratorComponent->SetAttachComponents(BarGeneratorComponent);
+	ChartGeneratorComponent->SetAttachComponents(ChartGeneratorComponent);
 
 	TextRenderComponent_chartXaxisName = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Text_xAxis"));
 	TextRenderComponent_chartXaxisName->SetupAttachment(RootSceneComponent);
@@ -194,7 +205,7 @@ const UJCMDataContainerBar* AJCM3DChartActorBar::GetDataContainerRef()
 {
 	if (bDataContainerSet)
 	{
-		UJCMDataContainerBar* Container = Cast<UJCMDataContainerBar>(DataContainerInstance);
+		UJCMDataContainerBar* Container = Cast<UJCMDataContainerBar>(ChartGeneratorComponent);
 		return Container;
 	}
 	else
@@ -207,15 +218,15 @@ const UJCMDataContainerBar* AJCM3DChartActorBar::GetDataContainerRef()
 void AJCM3DChartActorBar::SetDataContainer(UJCMDataContainer* DataContainerRef)
 {
 	UJCMDataContainerBar* NewContainer = CastChecked<UJCMDataContainerBar>(DataContainerRef);
-	DataContainerInstance = NewContainer;
+	DataContainerBar = NewContainer;
 }
 
 // 차트 타이틀, X축, Y축 이름 초기화 함수
 void AJCM3DChartActorBar::SetChartDefaultTexts()
 {
-	if (DataContainerInstance)
+	if (ChartGeneratorComponent)
 	{
-		UJCMDataContainerBar* TempCastedDataClass = Cast<UJCMDataContainerBar>(DataContainerInstance);
+		UJCMDataContainerBar* TempCastedDataClass = Cast<UJCMDataContainerBar>(ChartGeneratorComponent);
 		FString ChartTitle = TempCastedDataClass->GetChartDataStruct().ChartTitle;
 
 		TextRenderComponent_chartTitle->SetText(FText::FromString(ChartTitle));
@@ -230,7 +241,7 @@ void AJCM3DChartActorBar::SetChartDefaultTexts()
 
 void AJCM3DChartActorBar::GenerateChartRoutine()
 {
-	if (!DataContainerInstance)
+	if (!ChartGeneratorComponent)
 	{
 		UE_LOG(JCMlog, Warning, TEXT("%s : GenerateChartRoutine : DataContainer is invalid"), *this->GetActorLabel());
 		return;
@@ -240,9 +251,9 @@ void AJCM3DChartActorBar::GenerateChartRoutine()
 	SetChartDefaultTexts();
 
 	// 생성할 바 소스 액터 BarGenerator에 전달
-	if (BarGeneratorComponent && BarBaseActorBPClass)
+	if (ChartGeneratorComponent && BarBaseActorBPClass)
 	{
-		BarGeneratorComponent->SetBarSourceActor(BarBaseActorBPClass);
+		ChartGeneratorComponent->SetBarSourceActor(BarBaseActorBPClass);
 	}
 	else
 	{
@@ -250,14 +261,11 @@ void AJCM3DChartActorBar::GenerateChartRoutine()
 		return;
 	}
 
-	// 데이터로부터 차트 타입 추출
-	EJCMChartTypes ECurrentChartType = DataContainerInstance->GetChartType();
-
 	// 바 데이터 객체로 데이터 클래스 객체 캐스팅
-	UJCMDataContainerBar* BarDataClassInstance = Cast<UJCMDataContainerBar>(DataContainerInstance);
+	UJCMDataContainerBar* BarDataClassInstance = Cast<UJCMDataContainerBar>(ChartGeneratorComponent);
 
 	// GenerateBarChart() : 데이터 입력 받아 차트 생성 루틴 함수 호출 / GetShapeChartData() : Bar(모양)차트 데이터 Get
-	BarGeneratorComponent->GenerateBarChart(BarDataClassInstance->GetChartDataStruct(), EnableGenerateMeshAtSplinePoint);
+	ChartGeneratorComponent->GenerateBarChart(BarDataClassInstance->GetChartDataStruct(), EnableGenerateMeshAtSplinePoint);
 }
 
 // Bar 액터 무결성 체크 함수
@@ -265,13 +273,13 @@ bool AJCM3DChartActorBar::CheckJCMActorIntegrity()
 {
 	bool bIsValid = Super::CheckJCMActorIntegrity();
 
-	if (!DataContainerInstance)
+	if (!ChartGeneratorComponent)
 	{
 		UE_LOG(JCMlog, Warning, TEXT("Integrity Check : %s : DataContainer is Invalid"), *this->GetActorLabel());
 		bIsValid = false;
 	}
 
-	if (!BarGeneratorComponent)
+	if (!ChartGeneratorComponent)
 	{
 		UE_LOG(JCMlog, Warning, TEXT("Integrity Check : %s : BarGeneratorComponent Invalid"), *this->GetActorLabel());
 		bIsValid = false;
@@ -284,3 +292,31 @@ bool AJCM3DChartActorBar::CheckJCMActorIntegrity()
 
 	return bIsValid;
 }
+
+// DataContainer-> DataContainerBar로 캐스팅 후 배치
+void AJCM3DChartActorBar::CallInstancingDataContainer(const TSharedPtr<FJsonObject> JsonData)
+{
+	if (!RequestHandlerInstance)
+	{
+		UE_LOG(JCMlog, Error, TEXT("%s: RequestManagerInstance is Invalid"), *this->GetActorLabel());
+		return;
+	}
+
+	FDataInstancePair ResultData = DataManagerInstanceRef->InstancingDataContainer(JsonData);
+	if (!ResultData.IsValid)
+	{
+		UE_LOG(JCMlog, Error, TEXT("%s: Received source data is invalid "), *this->GetActorLabel());
+		return;
+	}
+
+	UJCMDataContainerBar* NewDataContainer = Cast<UJCMDataContainerBar>(ResultData.DataInstance);
+	if (!NewDataContainer)
+	{
+		UE_LOG(JCMlog, Error, TEXT("%s: Data Container instanci failed"), *this->GetActorLabel());
+		return;
+	}
+
+	DataContainerBar = NewDataContainer;
+	SetbDataContainerSet(true);
+}
+

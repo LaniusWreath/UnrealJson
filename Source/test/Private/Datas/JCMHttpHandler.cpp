@@ -54,8 +54,12 @@ void UJCMHttpHandler::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJ
 	ParsedJsonData = ParseRequestBody(OriginJsonObject);
 	if (ParsedJsonData)
 	{
-		OnParsedJsonObjectPtrReady.Execute(ParsedJsonData);
-		OnRequestingProcessEvent_JCM.Broadcast();
+		//델리게이트 바인딩된 함수 검사 후 execute, 검사 안하면 오류 발생
+		if (!OnParsedJsonObjectPtrReady.IsBound())
+		{
+			UE_LOG(JCMlog, Error, TEXT("%s : Delegate function not found"), *this->GetName());
+		}
+		OnParsedJsonObjectPtrReady.ExecuteIfBound(ParsedJsonData);
 	}
 }
 

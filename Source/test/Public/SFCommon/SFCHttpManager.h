@@ -44,7 +44,6 @@ protected:
 
 	// Json Object Response -> String to Json Object
 	virtual TSharedPtr<FJsonObject> ParseRequestBody(TSharedPtr<FJsonObject> RequestBody);
-	
 
 	// Commonly Usable Parsing Function
 

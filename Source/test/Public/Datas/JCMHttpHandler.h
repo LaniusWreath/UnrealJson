@@ -11,8 +11,6 @@
  * 
  */
 
-DECLARE_DELEGATE_RetVal_OneParam(const UJCMDataContainer*, FOnJsonObjectReceivedDelegate_JCM, const TSharedPtr<FJsonObject>);
-
 UCLASS(Blueprintable)
 class TEST_API UJCMHttpHandler : public USFCHttpManager
 {
@@ -33,12 +31,6 @@ public:
 	static TArray<FString> ParseStringToStringArray(const FString& ArrayString);
 
 public:
-	FOnJsonObjectReceivedDelegate_JCM OnJsonObjectReceivedDelegate_JCM;
-	FOnJsonObjectReceivedDelegate OnParsedJsonObjectPtrReady;
-	FOneParamDelegate OnRequestedJsonStringReady;
-
-	UPROPERTY(BlueprintAssignable, Category = "SFC")
-	FOnDynamicRequestDelegate OnRequestingProcessEvent_JCM;
 
 private:
 

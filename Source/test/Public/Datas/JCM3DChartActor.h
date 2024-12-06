@@ -7,17 +7,10 @@
 #include "JCMDataTypes.h"
 #include "JCM3DChartActor.generated.h"
 
-// json을 받아와 DataClass라는 상위 데이터 컨테이너 클래스에 공통으로 저장하고있음.
-// 또한 이 공통 데이터는 공통 액터 추상클래스에 속해있음
-// 블루프린트에서는 액터가 자식 클래스로 구체화되어있으므로, 데이터 컨테이너 클래스를 호출 할 때에도 액터 형식에 맞게
-// 캐스팅해주는 과정이 필요함. 다른 자식 3DActor 클래스에도 구성해줄 것.
-// 
-// 1205 수정 : 외부로 나가는 get과 set 함수에서는 DataContainer로, 내부에서는 클래스에 맞게 갖고 있게끔 수정
 
 class UJCMDataManager;
 class UJCMDataContainer;
 class UTextRenderComponent;
-
 
 UCLASS()
 class TEST_API AJCM3DChartActor : public AActor
@@ -30,7 +23,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	const UJCMDataContainer* CallInstancingDataContainer(const TSharedPtr<FJsonObject> JsonData);
 	void SetJsonString(const bool IsWorkDone);
 	void SetbDataContainerSet(const bool InState);
 	const bool GetbDataContainerSet() const;
@@ -80,6 +72,9 @@ protected:
 	// Initializing Data Manager Getting from Game Instance
 	void SetJCMDataManagerRef();
 
+	// Http request Delegate binding function
+	virtual void CallInstancingDataContainer(const TSharedPtr<FJsonObject> JsonData);
+
 	// Pure Virtual Routine for Generate Chart
 	virtual void GenerateChartRoutine() PURE_VIRTUAL(UDataFetcherBase::FetchData, ;);
 
@@ -100,6 +95,11 @@ protected:
 	// Data Container State
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "JCM")
 	bool bDataContainerSet;
+
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "JCM", meta = (AllowPrivateAccess = "true"))
+	UJCMDataContainer* DataContainer;
+
 };
 
 
@@ -112,12 +112,12 @@ class AJCM3DChartActorBar : public AJCM3DChartActor
 	GENERATED_BODY()
 
 private:
-	UFUNCTION()
 	void SetChartDefaultTexts();
 
+private:
 	// Data Class Instance ref
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "JCM", meta = (AllowPrivateAccess = "true"))
-	UJCMDataContainerBar* DataContainerInstance;
+	UJCMDataContainerBar* DataContainerBar;
 
 protected:
 	// chart genrating function sequence
@@ -125,11 +125,14 @@ protected:
 	virtual void GenerateChartRoutine() override;
 
 public:
-	bool CheckJCMActorIntegrity() override;
-
-public:
 	AJCM3DChartActorBar();
 
+	bool CheckJCMActorIntegrity() override;
+
+	// Http request Delegate binding function
+	void CallInstancingDataContainer(const TSharedPtr<FJsonObject> JsonData) override;
+
+public:
 	// On : Spawn Chart Mesh At Each Spline Point / Off : Spawn Chart Mesh by Equally Deviding whole Spline
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chart")
 	bool EnableGenerateMeshAtSplinePoint;
@@ -140,7 +143,7 @@ public:
 
 	// Component for generating JCM Bar Chart 
 	UPROPERTY(BlueprintReadOnly, Category = "Chart")
-	UJCMChartGeneratorBar* BarGeneratorComponent;
+	UJCMChartGeneratorBar* ChartGeneratorComponent;
 
 	// Visualization Chart Xaxis Name
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chart")
@@ -150,6 +153,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chart")
 	UTextRenderComponent* TextRenderComponent_chartYaxisName;
 	
+public:
 	//Get data container Ref
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	const UJCMDataContainerBar* GetDataContainerRef();
@@ -162,7 +166,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	void DeleteDataContainerInstance()
 	{
-		DataContainerInstance = nullptr;
+		ChartGeneratorComponent = nullptr;
 		bDataContainerSet = false;
 	}
 };
