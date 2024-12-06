@@ -37,7 +37,7 @@ void USFCHttpManager::OnResponseReceivedWithString(FHttpRequestPtr Request, FHtt
 		// 결과는 HttpHandler 인스턴스의 ResultResponseString에 저장.
 		ResultResponseString = Response->GetContentAsString();
 		OnRequestedJsonStringReady.Execute(true);
-		OnRequestingProcessEvent.Broadcast();
+		OnDynamicRequestingEvent.Broadcast();
 	}
 	else
 	{
@@ -61,7 +61,7 @@ void USFCHttpManager::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpRe
 			OnParsedJsonObjectPtrReady.Execute(ParsedJsonData);
 
 			// 블루프린트용 다이나믹 멀티캐스트 델리게이트
-			OnRequestingProcessEvent.Broadcast();
+			OnDynamicRequestingEvent.Broadcast();
 		}
 		else
 		{
@@ -81,7 +81,7 @@ void USFCHttpManager::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJ
 	if (ParsedJsonData)
 	{
 		OnParsedJsonObjectPtrReady.Execute(ParsedJsonData);
-		OnRequestingProcessEvent.Broadcast();
+		OnDynamicRequestingEvent.Broadcast();
 	}
 }
 

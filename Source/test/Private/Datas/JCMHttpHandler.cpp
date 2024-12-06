@@ -60,6 +60,7 @@ void UJCMHttpHandler::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJ
 			UE_LOG(JCMlog, Error, TEXT("%s : Delegate function not found"), *this->GetName());
 		}
 		OnParsedJsonObjectPtrReady.ExecuteIfBound(ParsedJsonData);
+		OnDynamicRequestingEvent.Broadcast();
 	}
 }
 

@@ -62,7 +62,7 @@ public:
 
 	// Blueprint Callable Delegate 
 	UPROPERTY(BlueprintAssignable, Category = "SFC")
-	FOnDynamicRequestDelegate OnRequestingProcessEvent;
+	FOnDynamicRequestDelegate OnDynamicRequestingEvent;
 
 	// Return Serialized JsonString
 	UFUNCTION(BlueprintCallable, Category = "SFC")
