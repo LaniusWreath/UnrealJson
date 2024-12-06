@@ -224,19 +224,20 @@ void AJCM3DChartActorBar::SetDataContainer(UJCMDataContainer* DataContainerRef)
 // 차트 타이틀, X축, Y축 이름 초기화 함수
 void AJCM3DChartActorBar::SetChartDefaultTexts()
 {
-	if (ChartGeneratorComponent)
+	if (!DataContainerBar)
 	{
-		UJCMDataContainerBar* TempCastedDataClass = Cast<UJCMDataContainerBar>(ChartGeneratorComponent);
-		FString ChartTitle = TempCastedDataClass->GetChartDataStruct().ChartTitle;
-
-		TextRenderComponent_chartTitle->SetText(FText::FromString(ChartTitle));
-
-		FString ChartXAxisName = TempCastedDataClass->GetChartDataStruct().XName;
-		TextRenderComponent_chartXaxisName->SetText(FText::FromString(ChartXAxisName));
-
-		FString ChartYAxisName = TempCastedDataClass->GetChartDataStruct().YName;
-		TextRenderComponent_chartYaxisName->SetText(FText::FromString(ChartYAxisName));
+		UE_LOG(JCMlog, Error, TEXT("%s : not found DataContainerBar"), *this->GetActorLabel());
+		return;
 	}
+
+	FString ChartTitle = DataContainerBar->GetChartDataStruct().ChartTitle;
+	TextRenderComponent_chartTitle->SetText(FText::FromString(ChartTitle));
+
+	FString ChartXAxisName = DataContainerBar->GetChartDataStruct().XName;
+	TextRenderComponent_chartXaxisName->SetText(FText::FromString(ChartXAxisName));
+
+	FString ChartYAxisName = DataContainerBar->GetChartDataStruct().YName;
+	TextRenderComponent_chartYaxisName->SetText(FText::FromString(ChartYAxisName));
 }
 
 void AJCM3DChartActorBar::GenerateChartRoutine()
@@ -261,11 +262,8 @@ void AJCM3DChartActorBar::GenerateChartRoutine()
 		return;
 	}
 
-	// 바 데이터 객체로 데이터 클래스 객체 캐스팅
-	UJCMDataContainerBar* BarDataClassInstance = Cast<UJCMDataContainerBar>(ChartGeneratorComponent);
-
 	// GenerateBarChart() : 데이터 입력 받아 차트 생성 루틴 함수 호출 / GetShapeChartData() : Bar(모양)차트 데이터 Get
-	ChartGeneratorComponent->GenerateBarChart(BarDataClassInstance->GetChartDataStruct(), EnableGenerateMeshAtSplinePoint);
+	ChartGeneratorComponent->GenerateBarChart(DataContainerBar->GetChartDataStruct(), EnableGenerateMeshAtSplinePoint);
 }
 
 // Bar 액터 무결성 체크 함수
@@ -273,7 +271,7 @@ bool AJCM3DChartActorBar::CheckJCMActorIntegrity()
 {
 	bool bIsValid = Super::CheckJCMActorIntegrity();
 
-	if (!ChartGeneratorComponent)
+	if (!DataContainerBar)
 	{
 		UE_LOG(JCMlog, Warning, TEXT("Integrity Check : %s : DataContainer is Invalid"), *this->GetActorLabel());
 		bIsValid = false;
