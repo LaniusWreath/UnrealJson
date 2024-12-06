@@ -19,13 +19,23 @@ UUserWidget* UJCMWidgetManager::CreateWidgetFromClass(TSubclassOf<UUserWidget> W
 		return nullptr;
 	}
 
+	// À§Á¬ ±âº» ¼ÒÀ¯ÀÚ
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+
 	// À§Á¬ »ý¼º
-	UUserWidget* NewWidget = CreateWidget<UUserWidget>(GetWorld(), WidetClass);
-	if (NewWidget)
+	UUserWidget* NewWidget = CreateWidget<UUserWidget>(PlayerController, WidetClass);
+	if (!NewWidget)
 	{
-		WidgetMap.Emplace(WidgetName, NewWidget);
+		UE_LOG(JCMlog, Error, TEXT("JCMWidgetManager : Creating Widget failed"));
+
+		if (!GetWorld())
+		{
+			UE_LOG(JCMlog, Error, TEXT("World not found"));
+		}
 	}
 
+	// À§Á¬ ¸Ê¿¡ »õ·Î ¸¸µç À§Á¬ Ãß°¡
+	WidgetMap.Emplace(WidgetName, NewWidget);
 	return NewWidget;
 }
 
