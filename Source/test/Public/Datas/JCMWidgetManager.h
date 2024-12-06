@@ -24,6 +24,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "JCM")
 	void HideWidget(FName WidgetName);
 
+	UFUNCTION(BlueprintCallable , Category ="JCM")
+	void ClearWidgetMap();
+
 private:
 	// Cached Widgets
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "JCM", meta = (AllowPrivateAccess = true))

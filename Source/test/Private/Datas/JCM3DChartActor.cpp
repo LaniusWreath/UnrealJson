@@ -226,13 +226,13 @@ void AJCM3DChartActorBar::SetChartDefaultTexts()
 		return;
 	}
 
-	FString ChartTitle = DataContainerBar->GetChartDataStruct().ChartTitle;
+	FString ChartTitle = DataContainerBar->GetDataStruct().ChartTitle;
 	TextRenderComponent_chartTitle->SetText(FText::FromString(ChartTitle));
 
-	FString ChartXAxisName = DataContainerBar->GetChartDataStruct().XName;
+	FString ChartXAxisName = DataContainerBar->GetDataStruct().XName;
 	TextRenderComponent_chartXaxisName->SetText(FText::FromString(ChartXAxisName));
 
-	FString ChartYAxisName = DataContainerBar->GetChartDataStruct().YName;
+	FString ChartYAxisName = DataContainerBar->GetDataStruct().YName;
 	TextRenderComponent_chartYaxisName->SetText(FText::FromString(ChartYAxisName));
 }
 
@@ -259,7 +259,7 @@ void AJCM3DChartActorBar::GenerateChartRoutine()
 	}
 
 	// GenerateBarChart() : 데이터 입력 받아 차트 생성 루틴 함수 호출 / GetShapeChartData() : Bar(모양)차트 데이터 Get
-	ChartGeneratorComponent->GenerateBarChart(DataContainerBar->GetChartDataStruct(), EnableGenerateMeshAtSplinePoint);
+	ChartGeneratorComponent->GenerateBarChart(DataContainerBar->GetDataStruct(), EnableGenerateMeshAtSplinePoint);
 }
 
 // Bar 액터 무결성 체크 함수

@@ -11,6 +11,7 @@ UUserWidget* UJCMWidgetManager::CreateWidgetFromClass(TSubclassOf<UUserWidget> W
 {
 	if (WidgetMap.Contains(WidgetName))
 	{
+		UE_LOG(JCMlog, Warning, TEXT("Widet instanced"));
 		return WidgetMap[WidgetName];
 	}
 
@@ -23,7 +24,7 @@ UUserWidget* UJCMWidgetManager::CreateWidgetFromClass(TSubclassOf<UUserWidget> W
 	// 위젯 기본 소유자
 	if (!Owner)
 	{
-		UE_LOG(JCMlog, Error, TEXT("JCMWidgetManager : PlayerController not found"));
+		UE_LOG(JCMlog, Error, TEXT("JCMWidgetManager : Owner is invalid"));
 		return nullptr;
 	}
 
@@ -64,4 +65,9 @@ void UJCMWidgetManager::HideWidget(FName WidgetName)
 			TargetWidget->RemoveFromViewport();
 		}
 	}
+}
+
+void UJCMWidgetManager::ClearWidgetMap()
+{
+	WidgetMap.Empty();
 }

@@ -235,7 +235,7 @@ void AJCMBarBaseActor::InitializeCustomStaticMeshPhysics(UStaticMeshComponent* T
 	TargetStaticMesh->SetRelativeScale3D(TemplateComponent->GetRelativeScale3D());
 
 	// 피직스 복사 : BodyInstance를 직접 복사할 수 있지만, 그 경우에는 AttachToComponent를 사용할 수 없음. -> 개별 복사 필요
-	TargetStaticMesh->SetSimulatePhysics(true); // 피직스 여부 복사
+	TargetStaticMesh->SetSimulatePhysics(true); // 시뮬레이션 여부 복사
 	TargetStaticMesh->SetEnableGravity(TemplateComponent->IsGravityEnabled()); // 중력 on
 	TargetStaticMesh->SetLinearDamping(TemplateComponent->GetLinearDamping()); // 선형 댐핑
 	TargetStaticMesh->SetAngularDamping(TemplateComponent->GetAngularDamping()); // 회전각 댐핑

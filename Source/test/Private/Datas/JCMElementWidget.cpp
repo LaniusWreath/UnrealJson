@@ -16,7 +16,7 @@ void UJCMElementBarWidget::SetDataContainerRef(UJCMDataContainer* UJCMDataContai
 	DataContainerBarRef = CastDataContainer(UJCMDataContainer);
 }
 
-UJCMDataContainer* UJCMElementBarWidget::GetDataContainer()
+const UJCMDataContainer* UJCMElementBarWidget::GetDataContainer() const
 {
 	return DataContainerBarRef;
 }

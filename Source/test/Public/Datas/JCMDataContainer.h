@@ -34,7 +34,7 @@ private:
 	FJCMChartDataShape ShapeChartData;
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UFUNCTION(BlueprintCallable, Category = "JCM")
 	UJCMDataContainerBar* SetChartData(const FJCMChartDataShape& InputData);
 	UJCMDataContainerBar* SetChartData(const FString& ChartTitle, const FString& ChartTypeName, const FString& XName, const TArray<FString>& Labels,
 		const FString& YName, const TArray<float>& Values);
@@ -45,11 +45,14 @@ public:
 		return ChartType;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Chart")
-	const FJCMChartDataShape& GetChartDataStruct() const
+	UFUNCTION(BlueprintCallable, Category = "JCM")
+	const FJCMChartDataShape& GetDataStruct() const
 	{
 		return ShapeChartData;
 	}
+
+	UFUNCTION(BlueprintCallable, Category = "JCM")
+	const TArray<FText> GetChartDataFTextLabels() const;
 };
 
 UCLASS()
@@ -91,7 +94,7 @@ private:
 public:
 
 	virtual bool SetChartData(const FString& XName, const TArray<float>& XData, const FString& YName, const TArray<float>& YData);
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UFUNCTION(BlueprintCallable, Category = "JCM")
 	virtual bool SetChartData(const FJCMChartDataXY& InputData);
 };
 
@@ -106,6 +109,6 @@ private:
 
 public:
 	virtual bool SetChartData(const TArray<FString>& LabelNames, const TArray<FVector>& VectorValues);
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UFUNCTION(BlueprintCallable, Category = "JCM")
 	virtual bool SetChartData(const FJCMChartDataXYZ& InputData);
 };

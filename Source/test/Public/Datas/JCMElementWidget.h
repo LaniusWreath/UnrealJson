@@ -40,7 +40,7 @@ public:
 	void SetDataContainerRef(UJCMDataContainer* UJCMDataContainer);
 
 	UFUNCTION(BlueprintCallable, Category = "JCM")
-	UJCMDataContainer* GetDataContainer();
+	const UJCMDataContainer* GetDataContainer() const;
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "JCM", meta = (AllowPrivateAccess = "true"))

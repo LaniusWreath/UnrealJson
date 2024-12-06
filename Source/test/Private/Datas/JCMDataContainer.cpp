@@ -86,3 +86,16 @@ UJCMDataContainerBar* UJCMDataContainerBar::SetChartData(const FString& ChartTit
 
     return this;
 }
+
+// 데이터 라벨 데이터 FText로 변환하여 리턴
+const TArray<FText> UJCMDataContainerBar::GetChartDataFTextLabels() const
+{
+    TArray<FText> ReturnArray;
+
+    for (const FString& Label : ShapeChartData.Labels)
+    {
+        ReturnArray.Emplace(FText::FromString(Label));
+    }
+
+    return ReturnArray;
+}
