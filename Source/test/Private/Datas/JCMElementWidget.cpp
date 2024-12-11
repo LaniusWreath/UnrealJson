@@ -20,3 +20,7 @@ const UJCMDataContainer* UJCMElementBarWidget::GetDataContainer() const
 {
 	return DataContainerBarRef;
 }
+
+void UJCMElementWidget::WidgetRedraw()
+{
+}

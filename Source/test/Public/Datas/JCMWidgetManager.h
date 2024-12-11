@@ -16,7 +16,7 @@ class TEST_API UJCMWidgetManager : public UObject
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "JCM")
-	UUserWidget* CreateWidgetFromClass(TSubclassOf<UUserWidget> WidetClass, FName WidgetName, APlayerController* Owner);
+	UUserWidget* CreateWidgetFromClass(TSubclassOf<UUserWidget> WidetClass, FName InWidgetName, APlayerController* Owner);
 
 	UFUNCTION(BlueprintCallable, Category = "JCM")
 	void ShowWidget(FName WidgetName);
@@ -26,6 +26,9 @@ public:
 
 	UFUNCTION(BlueprintCallable , Category ="JCM")
 	void ClearWidgetMap();
+
+	UFUNCTION(BlueprintCallable, Category = "JCM")
+	const UUserWidget* GetWidgetFromClass(FName InWidgetName) const;
 
 private:
 	// Cached Widgets

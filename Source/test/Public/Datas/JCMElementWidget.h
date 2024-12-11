@@ -18,6 +18,8 @@ class TEST_API UJCMElementWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "JCM")
+	void WidgetRedraw();
 
 protected:
 	
@@ -41,6 +43,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "JCM")
 	const UJCMDataContainer* GetDataContainer() const;
+
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "JCM", meta = (AllowPrivateAccess = "true"))

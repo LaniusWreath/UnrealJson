@@ -18,13 +18,19 @@ class TEST_API UJCMCore : public UObject
 	GENERATED_BODY()
 
 public:
+	UJCMCore();
+
 	// Get Jcm Core Instance
 	UFUNCTION(BlueprintCallable, Category = "JCM")
-	static UJCMCore* GetJCMCore();
+	static const UJCMCore* GetJCMCore();
 
 	// Initialize JCM Core
 	UFUNCTION(BlueprintCallable, Category = "JCM")
-	static const UJCMCore* InitializeJCMCore();
+	static const UJCMCore* InitializeJCMCore(UObject* Outer, TSubclassOf<UJCMCore> ManagerClass = nullptr);
+
+	// Initialize JCM Managers
+	UFUNCTION(BlueprintCallable, Category = "JCM")
+	void InitializeManagers();
 	
 	// Deleting JCM Core 
 	UFUNCTION(BlueprintCallable, Category = "JCM")
@@ -32,7 +38,7 @@ public:
 
 	// Get JCM HttpManager Reference
 	UFUNCTION(BlueprintCallable, Category = "JCM")
-	UJCMHttpHandler* GetHttpRequestManager() const { return RequestManagerInstance; }
+	const UJCMHttpHandler* GetHttpRequestManager() const { return RequestManagerInstance; }
 
 	// Get JCM Data Containing Manager Reference
 	UFUNCTION(BlueprintCallable, Category = "JCM")
@@ -41,18 +47,26 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "JCM")
 	const UJCMWidgetManager* GetWidgetManager() const { return WidgetManagerInstance; }
 
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "JCM")
+	TSubclassOf<class UJCMWidgetManager> WidgetManagerType;
+
+protected:
+	virtual void initializeWidgetManager();
+
 private:
 	static UJCMCore* JCMCoreInstance;
 	UJCMDataManager* GetJCMDataManager();
 	UJCMHttpHandler* GetJCMRequestManager();
 
+private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "JCM", meta = (AllowPrivateAccess = true))
 	UJCMDataManager* DataManagerInstance;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "JCM", meta = (AllowPrivateAccess = true))
 	UJCMHttpHandler* RequestManagerInstance;
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "JCM", meta = (AllowPrivateAccess = true))
-	TObjectPtr<class UJCMWidgetManager> WidgetManagerInstance;
+	UJCMWidgetManager* WidgetManagerInstance;
 
 };

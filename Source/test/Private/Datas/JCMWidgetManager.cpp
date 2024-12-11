@@ -6,13 +6,13 @@
 #include "Datas/JCMLog.h"
 
 // À§Á¬ Å¬·¡½º ÀÌ¸§À¸·Î Ä³½Ì
-UUserWidget* UJCMWidgetManager::CreateWidgetFromClass(TSubclassOf<UUserWidget> WidetClass, FName WidgetName, 
+UUserWidget* UJCMWidgetManager::CreateWidgetFromClass(TSubclassOf<UUserWidget> WidetClass, FName InWidgetName, 
 	APlayerController* Owner)
 {
-	if (WidgetMap.Contains(WidgetName))
+	if (WidgetMap.Contains(InWidgetName))
 	{
 		UE_LOG(JCMlog, Warning, TEXT("Widet instanced"));
-		return WidgetMap[WidgetName];
+		return WidgetMap[InWidgetName];
 	}
 
 	if (!WidetClass)
@@ -37,7 +37,7 @@ UUserWidget* UJCMWidgetManager::CreateWidgetFromClass(TSubclassOf<UUserWidget> W
 	}
 
 	// À§Á¬ ¸Ê¿¡ »õ·Î ¸¸µç À§Á¬ Ãß°¡
-	WidgetMap.Emplace(WidgetName, NewWidget);
+	WidgetMap.Emplace(InWidgetName, NewWidget);
 	return NewWidget;
 }
 
@@ -70,4 +70,15 @@ void UJCMWidgetManager::HideWidget(FName WidgetName)
 void UJCMWidgetManager::ClearWidgetMap()
 {
 	WidgetMap.Empty();
+}
+
+const UUserWidget* UJCMWidgetManager::GetWidgetFromClass(FName InWidgetName) const
+{
+	if (!WidgetMap.Contains(InWidgetName))
+	{
+		UE_LOG(JCMlog, Error, TEXT("No such widget"));
+		return nullptr;
+	}
+
+	return WidgetMap[InWidgetName];
 }

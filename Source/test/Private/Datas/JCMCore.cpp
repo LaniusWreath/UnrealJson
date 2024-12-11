@@ -9,23 +9,60 @@
 
 UJCMCore* UJCMCore::JCMCoreInstance = nullptr;
 
-// Initializing JCMCore static
-const UJCMCore* UJCMCore::InitializeJCMCore()
+UJCMCore::UJCMCore()
 {
+	WidgetManagerType = nullptr;
+	WidgetManagerInstance = nullptr;
+}
+
+// JCMCore 인스턴스 생성 
+const UJCMCore* UJCMCore::InitializeJCMCore(UObject* Outer, TSubclassOf<UJCMCore> ManagerClass)
+{
+	// 지정 안할경우 기본
+	if (!ManagerClass)
+	{
+		ManagerClass = UJCMCore::StaticClass();
+	}
+	// 지정한 경우 블루프린트 클래스
+	JCMCoreInstance = NewObject<UJCMCore>(Outer, ManagerClass);
+
 	if (!JCMCoreInstance)
 	{
-		JCMCoreInstance = NewObject<UJCMCore>();
-		JCMCoreInstance->AddToRoot();  // GC 방지
-
-		JCMCoreInstance->DataManagerInstance = NewObject<UJCMDataManager>();
-		JCMCoreInstance->RequestManagerInstance = NewObject<UJCMHttpHandler>();
-		JCMCoreInstance->WidgetManagerInstance = NewObject<UJCMWidgetManager>();
+		UE_LOG(JCMlog, Error, TEXT("Failed instancing JCMCore"));
+		return nullptr;
 	}
+
 	return JCMCoreInstance;
 }
 
+void UJCMCore::InitializeManagers()
+{
+	JCMCoreInstance->DataManagerInstance = NewObject<UJCMDataManager>();
+	JCMCoreInstance->RequestManagerInstance = NewObject<UJCMHttpHandler>();
+
+	//JCMCoreInstance->WidgetManagerInstance = NewObject<UJCMWidgetManager>();
+	initializeWidgetManager();
+}
+
+// 위젯 매니저 인스턴스 생성
+void UJCMCore::initializeWidgetManager()
+{
+	// 블루프린트상에서 다른 위젯 매니저를 선택했을 경우
+	if (WidgetManagerType)
+	{
+		WidgetManagerInstance = NewObject<UJCMWidgetManager>(this, WidgetManagerType);
+	}
+	//기본 타입
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AClass is not set! Default UA instance will be created."));
+		WidgetManagerInstance = NewObject<UJCMWidgetManager>(this); // 기본 위젯 생성
+	}
+}
+
+
 // Get JCMCore Instance
-UJCMCore* UJCMCore::GetJCMCore()
+const UJCMCore* UJCMCore::GetJCMCore()
 {
 	if (JCMCoreInstance)
 	{
