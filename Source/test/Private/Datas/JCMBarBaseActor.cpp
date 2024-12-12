@@ -73,7 +73,7 @@ void AJCMBarBaseActor::CreateProceduralBoxMesh(float BarHeight)
 	TArray<FVector2D> UV0;
 	TArray<FProcMeshTangent> Tangents;
 
-	float BarWidth = UnitSize*Width_bar;
+	float BarWidth = Width_bar;
 	float w = BarWidth / 2;
 
 	// 박스의 크기 설정 (박스 너비)
@@ -83,7 +83,7 @@ void AJCMBarBaseActor::CreateProceduralBoxMesh(float BarHeight)
 	UKismetProceduralMeshLibrary::GenerateBoxMesh(BoxRadius, Vertices, Triangles, Normals, UV0, Tangents);
 
 	// 박스 높이만큼 스케일 계산해서 높이 올림.
-	float zScaler = BarHeight / (UnitSize*BarWidth);
+	float zScaler = BarHeight / (BarWidth);
 	//UE_LOG(LogTemp, Log, TEXT("BarBaseActor : zScaler is %f"), zScaler);
 	ProcMeshComponent->SetWorldScale3D(FVector(1.f, 1.f, zScaler));
 	ProcMeshComponent->AddWorldOffset(FVector(0, 0, (BarHeight / 2)));
@@ -161,11 +161,9 @@ void AJCMBarBaseActor::CreateSingleCustomMeshComponent(const float BarHeight, co
 		// StaticMeshComponent를 동적으로 생성하고, 부모 액터에 속하도록 설정
 		UStaticMeshComponent* UnitMeshComponent = NewObject<UStaticMeshComponent>(this);
 
-		// 인벤토리가 아닌 템플릿 스태틱 메쉬 컴포넌트로부터 메쉬, 머티리얼, 스케일 복사
+		// 템플릿 스태틱 메쉬 컴포넌트로부터 메쉬, 머티리얼, 스케일 복사
 		InitializeStaticMeshProperty(UnitMeshComponent, CustomStaticMeshTemplateComponent);
 		
-		// 템플릿으로부터 메쉬, 머티리얼, 스케일 복사
-		InitializeStaticMeshProperty(UnitMeshComponent, CustomStaticMeshTemplateComponent);
 
 		if (bEnablePhysics)
 		{
@@ -257,6 +255,8 @@ void AJCMBarBaseActor::InitializeStaticMeshProperty(UStaticMeshComponent* Target
 	TargetStaticMeshComponent->SetStaticMesh(TemplateMeshComponent->GetStaticMesh());
 	TargetStaticMeshComponent->SetMaterial(0, TemplateMeshComponent->GetMaterial(0));
 	TargetStaticMeshComponent->SetRelativeScale3D(TemplateMeshComponent->GetRelativeScale3D());
+	TargetStaticMeshComponent->SetCastShadow(TemplateMeshComponent->CastShadow);
+
 }
 
 // 단위로 나누고 나머지 남은 높이, 스케일링 된 유닛 상자 만들어 스폰 : 현재는 안씀
@@ -306,6 +306,7 @@ void AJCMBarBaseActor::InitializeCustomStaticMeshPhysics(UStaticMeshComponent* T
 	// 충격량 반영 여부
 	TargetStaticMesh->bApplyImpulseOnDamage = TemplateComponent->bApplyImpulseOnDamage;
 }
+
 
 // 에디터 상에 Procedural Mesh 또는 커스텀 메시 생성 유무 bool로 추출해놓음 분기하여 메시 생성 함수 결정
 void AJCMBarBaseActor::CreateMesh(float BarHeight, int Value)
@@ -440,5 +441,8 @@ void AJCMBarBaseActor::OnAnimationUpdate(float Value)
 	SetActorScale3D(FVector(CurrentScale.X, CurrentScale.Y, Value));
 }
 
-
+void AJCMBarBaseActor::SetParentSplineIndex(const int32 InIndex)
+{
+	ParentSplineIndex = InIndex;
+}
 

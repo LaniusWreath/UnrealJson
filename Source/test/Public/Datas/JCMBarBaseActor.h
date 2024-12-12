@@ -18,7 +18,8 @@ class TEST_API AJCMBarBaseActor : public AActor
 private:
 
 protected:
-	int32 UnitSize = 1;
+
+	int32 ParentSplineIndex;
 
 	UPROPERTY()
 	UTimelineComponent* BarAnimationTimeline;
@@ -157,11 +158,10 @@ public:
 	void CreateCustomMeshRoutine(float BarHeight, int32 amount);
 	void CreateCustomMeshRoutine();
 
-	
-
-
 	void CreateAdditionalCustomMeshComponent(float BarHeight, float restHeight, float UnitMeshHeight);
 
 	void InitializeCustomStaticMeshPhysics(UStaticMeshComponent* TargetStaticMesh,
 		UStaticMeshComponent* TemplateComponent);
+
+	void SetParentSplineIndex(const int32 InIndex);
 };

@@ -24,16 +24,26 @@ public:
 	// Get StaticMesh from Inventory
 	UStaticMesh* GetStaticMeshFromInventory(const int32 InInventoryIndex);
 
+	// Creating Mesh
+	void CreateSingleCustomMeshComponent(const float BarHeight, const float UnitMeshHeight, int32 SpawnAmount) override;
+	// Creating Mesh Only One
+	void CreateSingleCustomMeshComponent(const float UnitMeshHeight) override;
+
+	void InitializeItemStaticMeshPrepertyFromTemplate(UStaticMeshComponent* TargetStaticMeshComponent, const int32 InventoryIndex);
+	
+	// Scaling Target Mesh Bounds same as TemplateMesh Bounds
+	UStaticMeshComponent* ScaleStaticMeshToTemplateBounds(UStaticMeshComponent* NewMesh, UStaticMeshComponent* TemplateMesh);
+	
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "bUseStaticMeshInventory", AllowPrivateAccess = "true"), Category = "JCM")
+	TObjectPtr<class UStaticMeshInventory> InventoryDataAsset;
+
 private:
 
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "bEnableSpawnCustomMesh", AllowPrivateAccess = "true"), Category = "JCM")
 	bool bUseStaticMeshInventory;
 
-	// Add Static Mesh to Spawn, you have to match
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "bUseStaticMeshInventory", AllowPrivateAccess = "true"), Category = "JCM")
-	TArray<UStaticMesh*> StaticMeshComponentInventory;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "bUseStaticMeshInventory", AllowPrivateAccess = "true"), Category = "JCM")
-	TObjectPtr<UStaticMeshComponent> InventoryMesh;
+	TObjectPtr<UStaticMeshComponent> TemplateItemMeshComponent;
 
 };
