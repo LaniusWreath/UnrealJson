@@ -17,6 +17,7 @@ class TEST_API AJCMBarBaseActor : public AActor
 
 private:
 
+protected:
 	int32 UnitSize = 1;
 
 	UPROPERTY()
@@ -37,42 +38,23 @@ private:
 	UPROPERTY()
 	int32 SpawnedCustomMeshAmount;
 
-	// TimeLine Animation Binding Function
-	UFUNCTION()
-	void OnAnimationUpdate(float Value); // 타임라인에 바인딩될 함수는 UFUNCTION() 붙여야 함
-
-	// Mesh Create Preference Routine
-	void CreateCustomMeshRoutine(float BarHeight);
-	void CreateCustomMeshRoutine(float BarHeight, int32 amount);
-	void CreateCustomMeshRoutine();
-
-	// Creating Mesh
-	void CreateSingleCustomMeshComponent(const float BarHeight, const float UnitMeshHeight, int32 SpawnAmount, bool bUseInventory);
-	// Creating Mesh Only One
-	void CreateSingleCustomMeshComponent(const float UnitMeshHeight, const bool bUseInventory);
-
-
-	void CreateAdditionalCustomMeshComponent(float BarHeight, float restHeight, float UnitMeshHeight);
-
-	void InitializeCustomStaticMeshPhysics(UStaticMeshComponent* TargetStaticMesh,
-		UStaticMeshComponent* TemplateComponent);
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"), Category = "JCM")
+	bool bEnablePhysics;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	// Creating Mesh
+	virtual void CreateSingleCustomMeshComponent(const float BarHeight, const float UnitMeshHeight, int32 SpawnAmount);
+	// Creating Mesh Only One
+	virtual void CreateSingleCustomMeshComponent(const float UnitMeshHeight);
 
 public:	
 
 	// On : Spawning custom mesh, Off: Spawning default bar mesh
 	UPROPERTY(EditAnywhere, Category = "JCM")
 	bool bEnableSpawnCustomMesh;
-
-	UPROPERTY(EditAnywhere, meta = (EditCondition = "bEnableSpawnCustomMesh"), Category = "JCM")
-	bool bUseStaticMeshInventory;
-
-	// Add Static Mesh to Spawn, you have to match
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "bUseStaticMeshInventory"), Category = "JCM")
-	TArray<UStaticMesh*> StaticMeshComponentInventory;
 
 	UPROPERTY(VisibleAnywhere, Category = "JCM")
 	UProceduralMeshComponent* ProcMeshComponent;
@@ -128,13 +110,6 @@ public:
 	void InitializeStaticMeshProperty(UStaticMeshComponent* TargetStaticMeshComponent, 
 		const UStaticMeshComponent* TemplateMeshComponent);
 
-	// Set StaticMesh in StaticMeshComponent with Mesh Inventory
-	void InitializeStaticMeshPropertyFromInventory(UStaticMeshComponent* TargetStaticMeshComponent,
-		const int32 InInventoryIndex);
-
-	// Get StaticMesh from Inventory
-	UStaticMesh* GetStaticMeshFromInventory(const int32 InInventoryIndex);
-
 	// Get current custom mesh unit size
 	UFUNCTION(BlueprintCallable, Category = "JCM")
 	FVector GetStaticMeshBoxUnitSize(UStaticMesh* TargetStaticMesh) const;
@@ -144,11 +119,9 @@ public:
 	void PlayBarAnimation();
 
 	// Create procedural mesh
-	UFUNCTION()
 	void CreateProceduralBoxMesh(float BarHeight);
 
 	// Create custom mesh
-	UFUNCTION()
 	void CreateMesh(float BarHeight, int Value);
 
 	// Initialize Lbel Text Mesh
@@ -174,4 +147,21 @@ public:
 	// Calculated custom mesh unit height
 	UFUNCTION(BlueprintCallable, Category = "JCM")
 	float GetCustomMeshUnitHeight();
+
+	// TimeLine Animation Binding Function
+	UFUNCTION()
+	void OnAnimationUpdate(float Value); // 타임라인에 바인딩될 함수는 UFUNCTION() 붙여야 함
+
+	// Mesh Create Preference Routine
+	void CreateCustomMeshRoutine(float BarHeight);
+	void CreateCustomMeshRoutine(float BarHeight, int32 amount);
+	void CreateCustomMeshRoutine();
+
+	
+
+
+	void CreateAdditionalCustomMeshComponent(float BarHeight, float restHeight, float UnitMeshHeight);
+
+	void InitializeCustomStaticMeshPhysics(UStaticMeshComponent* TargetStaticMesh,
+		UStaticMeshComponent* TemplateComponent);
 };

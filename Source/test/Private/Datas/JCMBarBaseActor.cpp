@@ -111,7 +111,7 @@ void AJCMBarBaseActor::CreateCustomMeshRoutine(float BarHeight)
 	// 타이머 실행, 람다로 매개변수 있는 함수 캡쳐
 	GetWorldTimerManager().SetTimer(SpawnTimerHandle, [this, BarHeight, UnitMeshHeight, UnitMeshAmount]()
 	{
-		CreateSingleCustomMeshComponent(BarHeight, UnitMeshHeight, UnitMeshAmount, bUseStaticMeshInventory); 
+		CreateSingleCustomMeshComponent(BarHeight, UnitMeshHeight, UnitMeshAmount); 
 	}, CustomMeshSpawnWaitingTime, true);
 }
 
@@ -127,7 +127,7 @@ void AJCMBarBaseActor::CreateCustomMeshRoutine(float BarHeight, int32 amount)
 	// 타이머 실행, 람다로 매개변수 있는 함수 캡쳐
 	GetWorldTimerManager().SetTimer(SpawnTimerHandle, [this, BarHeight, UnitMeshHeight, UnitMeshAmount]()
 		{
-			CreateSingleCustomMeshComponent(BarHeight, UnitMeshHeight, UnitMeshAmount, bUseStaticMeshInventory);
+			CreateSingleCustomMeshComponent(BarHeight, UnitMeshHeight, UnitMeshAmount);
 		}, CustomMeshSpawnWaitingTime, true);
 }
 
@@ -137,7 +137,7 @@ void AJCMBarBaseActor::CreateCustomMeshRoutine()
 	// 커스텀 메시 유닛 높이 : 유닛 높이 * 로컬 스케일러
 	float UnitMeshHeight = GetCustomMeshUnitHeight();
 
-	CreateSingleCustomMeshComponent(UnitMeshHeight, bUseStaticMeshInventory);
+	CreateSingleCustomMeshComponent(UnitMeshHeight);
 }
 
 // 박스형태 메시 유닛 사이즈 리턴
@@ -149,7 +149,7 @@ FVector AJCMBarBaseActor::GetStaticMeshBoxUnitSize(UStaticMesh* TargetStaticMesh
 
 // 커스텀 스태틱 메쉬 생성 함수
 void AJCMBarBaseActor::CreateSingleCustomMeshComponent(const float BarHeight, const float UnitMeshHeight, 
-	const int32 SpawnAmount, bool bUseInventory)
+	const int32 SpawnAmount)
 {
 	// 스폰 카운트 제한 체크, 
 	if (SpawnCount >= SpawnAmount)
@@ -161,23 +161,18 @@ void AJCMBarBaseActor::CreateSingleCustomMeshComponent(const float BarHeight, co
 		// StaticMeshComponent를 동적으로 생성하고, 부모 액터에 속하도록 설정
 		UStaticMeshComponent* UnitMeshComponent = NewObject<UStaticMeshComponent>(this);
 
-		if (bUseInventory)
-		{
-			// 인벤토리를 사용하는 경우.
-			InitializeStaticMeshPropertyFromInventory(UnitMeshComponent, SpawnCount);
-		}
-		else
-		{
-			// 인벤토리가 아닌 템플릿 스태틱 메쉬 컴포넌트로부터 메쉬, 머티리얼, 스케일 복사
-			InitializeStaticMeshProperty(UnitMeshComponent, CustomStaticMeshTemplateComponent);
-		}
+		// 인벤토리가 아닌 템플릿 스태틱 메쉬 컴포넌트로부터 메쉬, 머티리얼, 스케일 복사
+		InitializeStaticMeshProperty(UnitMeshComponent, CustomStaticMeshTemplateComponent);
 		
 		// 템플릿으로부터 메쉬, 머티리얼, 스케일 복사
 		InitializeStaticMeshProperty(UnitMeshComponent, CustomStaticMeshTemplateComponent);
 
-		// 템플릿으로부터 피직스 복사
-		InitializeCustomStaticMeshPhysics(UnitMeshComponent, CustomStaticMeshTemplateComponent);
-
+		if (bEnablePhysics)
+		{
+			// 템플릿으로부터 피직스 복사
+			InitializeCustomStaticMeshPhysics(UnitMeshComponent, CustomStaticMeshTemplateComponent);
+		}
+		
 		// 부착
 		UnitMeshComponent->AttachToComponent(CustomActorSceneComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
@@ -200,23 +195,19 @@ void AJCMBarBaseActor::CreateSingleCustomMeshComponent(const float BarHeight, co
 }
 
 // 메시 하나만 생성하는 함수
-void AJCMBarBaseActor::CreateSingleCustomMeshComponent(const float UnitMeshHeight, bool bUseInventory)
+void AJCMBarBaseActor::CreateSingleCustomMeshComponent(const float UnitMeshHeight)
 {
 	// StaticMeshComponent를 동적으로 생성하고, 부모 액터에 속하도록 설정
 	UStaticMeshComponent* UnitMeshComponent = NewObject<UStaticMeshComponent>(this);
 
-	if (bUseInventory)
+	// 인벤토리가 아닌 템플릿 스태틱 메쉬 컴포넌트로부터 메쉬, 머티리얼, 스케일 복사
+	InitializeStaticMeshProperty(UnitMeshComponent, CustomStaticMeshTemplateComponent);
+	
+	if (bEnablePhysics)
 	{
-		// 인벤토리를 사용하는 경우, 하나만 생성하니 인벤토리 크기도 1이어야 함.
-		InitializeStaticMeshPropertyFromInventory(UnitMeshComponent, 0);
+		// 템플릿으로부터 피직스 복사
+		InitializeCustomStaticMeshPhysics(UnitMeshComponent, CustomStaticMeshTemplateComponent);
 	}
-	else
-	{
-		// 인벤토리가 아닌 템플릿 스태틱 메쉬 컴포넌트로부터 메쉬, 머티리얼, 스케일 복사
-		InitializeStaticMeshProperty(UnitMeshComponent, CustomStaticMeshTemplateComponent);
-	}
-	// 피직스 복사
-	InitializeCustomStaticMeshPhysics(UnitMeshComponent, CustomStaticMeshTemplateComponent);
 
 	// 부착
 	UnitMeshComponent->AttachToComponent(CustomActorSceneComponent, FAttachmentTransformRules::KeepRelativeTransform);
@@ -267,32 +258,6 @@ void AJCMBarBaseActor::InitializeStaticMeshProperty(UStaticMeshComponent* Target
 	TargetStaticMeshComponent->SetMaterial(0, TemplateMeshComponent->GetMaterial(0));
 	TargetStaticMeshComponent->SetRelativeScale3D(TemplateMeshComponent->GetRelativeScale3D());
 }
-
-void AJCMBarBaseActor::InitializeStaticMeshPropertyFromInventory(UStaticMeshComponent* TargetStaticMeshComponent, 
-	const int32 InInventoryIndex)
-{
-	UStaticMesh* TemplateStaticMesh= GetStaticMeshFromInventory(InInventoryIndex);
-
-	if (!TemplateStaticMesh)
-	{
-		UE_LOG(JCMlog, Error, TEXT("%s : Invalid StaticMesh"), *this->GetActorLabel());
-		return;
-	}
-
-	TargetStaticMeshComponent->SetStaticMesh(TemplateStaticMesh);
-}
-
-UStaticMesh* AJCMBarBaseActor::GetStaticMeshFromInventory(const int32 InInventoryIndex)
-{
-	if (!StaticMeshComponentInventory[InInventoryIndex])
-	{
-		UE_LOG(JCMlog, Warning, TEXT("%s : Invalid Inventory Index"), *this->GetActorLabel())
-		return CustomStaticMeshTemplateComponent->GetStaticMesh();
-	}
-
-	return StaticMeshComponentInventory[InInventoryIndex];
-}
-
 
 // 단위로 나누고 나머지 남은 높이, 스케일링 된 유닛 상자 만들어 스폰 : 현재는 안씀
 void AJCMBarBaseActor::CreateAdditionalCustomMeshComponent(float BarHeight, float RestHeight, float UnitMeshHeight)
@@ -437,8 +402,10 @@ void AJCMBarBaseActor::BindTimelineAnimation()
 	}
 	else
 	{
-		if(!bEnableSpawnCustomMesh)
+		if (!bEnableSpawnCustomMesh)
+		{
 			UE_LOG(JCMlog, Warning, TEXT("%s : Failed finding animation cuvrve"), *this->GetAttachParentActor()->GetActorLabel());
+		}
 	}
 }
 
