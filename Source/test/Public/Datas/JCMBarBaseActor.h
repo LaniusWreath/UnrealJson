@@ -39,12 +39,18 @@ private:
 
 	// TimeLine Animation Binding Function
 	UFUNCTION()
-	void OnAnimationUpdate(float Value); // 타임라인에 바인딩될 함수는 UFUNCTION() 안붙이면 안됨
+	void OnAnimationUpdate(float Value); // 타임라인에 바인딩될 함수는 UFUNCTION() 붙여야 함
 
+	// Mesh Create Preference Routine
 	void CreateCustomMeshRoutine(float BarHeight);
-	void CreateCustomMeshRoutine(float BarHeight, int amount);
+	void CreateCustomMeshRoutine(float BarHeight, int32 amount);
+	void CreateCustomMeshRoutine();
 
-	void CreateSingleCustomMeshComponent(float BarHeight, float UnitMeshHeight, int32 SpawnAmount);
+	// Creating Mesh
+	void CreateSingleCustomMeshComponent(const float BarHeight, const float UnitMeshHeight, int32 SpawnAmount, bool bUseInventory);
+	// Creating Mesh Only One
+	void CreateSingleCustomMeshComponent(const float UnitMeshHeight, const bool bUseInventory);
+
 
 	void CreateAdditionalCustomMeshComponent(float BarHeight, float restHeight, float UnitMeshHeight);
 
@@ -56,61 +62,81 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Sets default values for this actor's properties
-	AJCMBarBaseActor();
 
 	// On : Spawning custom mesh, Off: Spawning default bar mesh
-	UPROPERTY(EditAnywhere, Category = "Chart")
-	bool EnableSpawnCustomMesh;
+	UPROPERTY(EditAnywhere, Category = "JCM")
+	bool bEnableSpawnCustomMesh;
 
-	UPROPERTY(VisibleAnywhere, Category = "Chart")
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "bEnableSpawnCustomMesh"), Category = "JCM")
+	bool bUseStaticMeshInventory;
+
+	// Add Static Mesh to Spawn, you have to match
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "bUseStaticMeshInventory"), Category = "JCM")
+	TArray<UStaticMesh*> StaticMeshComponentInventory;
+
+	UPROPERTY(VisibleAnywhere, Category = "JCM")
 	UProceduralMeshComponent* ProcMeshComponent;
 
 	// Specify static mesh to generate, Don't forget to check off isProceduralMeshUsing
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chart")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "JCM")
 	UStaticMeshComponent* CustomStaticMeshTemplateComponent;
 
 	// Bar procedural mesh material
-	UPROPERTY(EditAnywhere, meta = (EditCondition = "!EnableSpawnCustomMesh"), Category = "Chart")
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "!EnableSpawnCustomMesh"), Category = "JCM")
 	UMaterialInstance* MeshMaterial;
 
 	// Bar generate animation curve
-	UPROPERTY(EditAnywhere, meta = (EditCondition = "!EnableSpawnCustomMesh"), Category = "Chart")
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "!EnableSpawnCustomMesh"), Category = "JCM")
 	UCurveFloat* AnimationCurve;
 
-	// Visulalizing each chart label data
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chart")
+	// Visulalizing each JCM label data
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "JCM")
 	UTextRenderComponent* TextRenderComponentValue;
 
-	// Visualizing each chart value data
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chart")
+	// Visualizing each JCM value data
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "JCM")
 	UTextRenderComponent* TextRenderComponentLabel;
 
 	// Basic bar mesh width
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "!EnableSpawnCustomMesh"), Category = "Chart")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "!EnableSpawnCustomMesh"), Category = "JCM")
 	float Width_bar = 100.f;
 
 	// Spawning custom mesh with user-defined division unit size
-	UPROPERTY(EditAnywhere, meta = (EditCondition = "EnableSpawnCustomMesh"), Category = "Chart")
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "EnableSpawnCustomMesh"), Category = "JCM")
 	bool SpawnPerUnitValue= false;
 
 	// Division unit size
-	UPROPERTY(EditAnywhere, meta = (EditCondition = "SpawnPerUnitValue"), Category = "Chart")
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "SpawnPerUnitValue"), Category = "JCM")
 	float UnitValue=10;
 
 	// Custom mesh spawning delay
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "EnableSpawnCustomMesh"), Category = "Chart")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "EnableSpawnCustomMesh"), Category = "JCM")
 	float CustomMeshSpawnWaitingTime = 0.5f;
 
-	// TextRender(Value) offset from chart mesh
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chart")
+	// TextRender(Value) offset from JCM mesh
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "JCM")
 	float TextRenderComponentOffset_Value = 30;
+
+public:
+	// Sets default values for this actor's properties
+	AJCMBarBaseActor();
 
 	void ClearCustomMeshes();
 	void ClearSpawnTimerHandle();
 
+	// Set StaticMeshComponent same as TemplateStaticMeshComponent
+	void InitializeStaticMeshProperty(UStaticMeshComponent* TargetStaticMeshComponent, 
+		const UStaticMeshComponent* TemplateMeshComponent);
+
+	// Set StaticMesh in StaticMeshComponent with Mesh Inventory
+	void InitializeStaticMeshPropertyFromInventory(UStaticMeshComponent* TargetStaticMeshComponent,
+		const int32 InInventoryIndex);
+
+	// Get StaticMesh from Inventory
+	UStaticMesh* GetStaticMeshFromInventory(const int32 InInventoryIndex);
+
 	// Get current custom mesh unit size
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UFUNCTION(BlueprintCallable, Category = "JCM")
 	FVector GetStaticMeshBoxUnitSize(UStaticMesh* TargetStaticMesh) const;
 
 	// Animation Control Function
@@ -137,7 +163,7 @@ public:
 	void AdjustTextMeshValueOffset(const int32& amount);
 
 	// Custom mesh spawned amount
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UFUNCTION(BlueprintCallable, Category = "JCM")
 	int32 GetCustomMeshSpawnedAmount() const
 	{
 		return SpawnedCustomMeshAmount;
@@ -146,6 +172,6 @@ public:
 	void BindTimelineAnimation();
 
 	// Calculated custom mesh unit height
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UFUNCTION(BlueprintCallable, Category = "JCM")
 	float GetCustomMeshUnitHeight();
 };

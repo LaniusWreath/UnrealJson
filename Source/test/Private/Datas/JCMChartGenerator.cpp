@@ -203,7 +203,7 @@ bool UJCMChartGeneratorBar::CreateBar(const TArray<float>& ValueArray, const TAr
 					ChildBar->BindTimelineAnimation();
 					// 이동 : 이동 먼저 시켜줘야 생성 좌표가 고정됨
 					ChildBar->SetActorRelativeLocation(BarLocation);
-					// 바 프로시저럴 메쉬 생성
+					// 바 메쉬 생성
 					ChildBar->CreateMesh(ScaledHeight, CurrentValue);
 					// 바 라벨 텍스트 렌더러 값 초기화
 					ChildBar->InitializeTextMeshLabel(LabelName); 
@@ -282,7 +282,7 @@ bool UJCMChartGeneratorBar::CreateBarAlongSplinePoint(const TArray<float>& Value
 					ChildBar->BindTimelineAnimation();
 					// 이동 : 이동 먼저 시켜줘야 생성 좌표가 고정됨
 					ChildBar->SetActorRelativeLocation(BarLocation);
-					// 바 프로시저럴 메쉬 생성
+					// 바 메쉬 생성
 					ChildBar->CreateMesh(ScaledHeight, CurrentValue);
 					// 바 라벨 텍스트 렌더러 초기화
 					ChildBar->InitializeTextMeshLabel(LabelName);
