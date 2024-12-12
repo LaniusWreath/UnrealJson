@@ -112,6 +112,9 @@ void AJCMInventoryBarBaseActor::CreateSingleCustomMeshComponent(const float BarH
 
 		// 스폰 카운트
 		SpawnCount++;
+
+		// 회전 애니메이션 바인딩
+		InitializeItemMeshRotation(ItemMeshComponent, RotationSpeed);
 	}
 }
 
@@ -148,6 +151,8 @@ void AJCMInventoryBarBaseActor::CreateSingleCustomMeshComponent(const float Unit
 	CoverMeshComponent->RegisterComponent();
 	ItemMeshComponent->RegisterComponent();
 
+	// 회전 애니메이션 바인딩
+	InitializeItemMeshRotation(ItemMeshComponent, RotationSpeed);
 }
 
 
@@ -182,4 +187,26 @@ UStaticMeshComponent* AJCMInventoryBarBaseActor::ScaleStaticMeshToTemplateBounds
 		UE_LOG(JCMlog, Warning, TEXT("New mesh bounds are invalid."));
 		return nullptr;
 	}
+}
+
+void AJCMInventoryBarBaseActor::InitializeItemMeshRotation(UStaticMeshComponent* TargetStaticMeshComponent, 
+	const float InRotationSpeed)
+{
+	// 타이머를 사용해 회전 함수 호출
+    FTimerHandle RotationTimerHandle;
+
+	GetWorld()->GetTimerManager().SetTimer(RotationTimerHandle, FTimerDelegate::CreateLambda([TargetStaticMeshComponent, 
+		InRotationSpeed]()
+		{
+			if (TargetStaticMeshComponent)
+			{
+				// 기존 회전
+				FRotator CurrentRotation = TargetStaticMeshComponent->GetRelativeRotation();
+
+				// 회전 추가
+				CurrentRotation.Yaw += InRotationSpeed;
+
+				TargetStaticMeshComponent->SetRelativeRotation(CurrentRotation);
+			}
+		}), 0.01f, true);
 }

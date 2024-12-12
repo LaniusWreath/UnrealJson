@@ -34,9 +34,18 @@ public:
 	// Scaling Target Mesh Bounds same as TemplateMesh Bounds
 	UStaticMeshComponent* ScaleStaticMeshToTemplateBounds(UStaticMeshComponent* NewMesh, UStaticMeshComponent* TemplateMesh);
 	
+	// 회전 타이머 함수
+	void InitializeItemMeshRotation(UStaticMeshComponent* TargetStaticMeshComponent, const float InRotationSpeed);
+
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "bUseStaticMeshInventory", AllowPrivateAccess = "true"), Category = "JCM")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "bUseStaticMeshInventory"), Category = "JCM")
 	TObjectPtr<class UStaticMeshInventory> InventoryDataAsset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "bEnableItemRotation"), Category = "JCM")
+	float RotationSpeed = 0.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "bUseStaticMeshInventory"), Category = "JCM")
+	bool bEnableItemRotation = false;
 
 private:
 
