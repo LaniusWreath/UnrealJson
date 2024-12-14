@@ -203,6 +203,8 @@ bool UJCMChartGeneratorBar::CreateBar(const TArray<float>& ValueArray, const TAr
 					ChildBar->BindTimelineAnimation();
 					// 몇 번째 차트 라인인지 입력
 					ChildBar->SetParentSplineIndex(i);
+					// 차트 생성 종료시 발생할 함수 바인딩하는 루틴함수에 델리게이트 전달
+					ChildBar->BindToChartGeneratingEnd(ChartGeneratingDoneDelegate);
 					// 이동 : 이동 먼저 시켜줘야 생성 좌표가 고정됨
 					ChildBar->SetActorRelativeLocation(BarLocation);
 					// 바 메쉬 생성
@@ -229,12 +231,16 @@ bool UJCMChartGeneratorBar::CreateBar(const TArray<float>& ValueArray, const TAr
 				return false;
 			}
 		}
-		//UE_LOG(JCMlog, Log, TEXT("ChartGenerator: Created bar Number with Height: %f"), ScaledHeight);
 	}
 
-	//ChartGeneratingDoneDelegate.Execute();
+	ChartGeneratingDoneDelegate.Execute();
 
 	return true;
+}
+
+// 차트 데이터 업데이트
+void UJCMChartGeneratorBar::UpdateBarChartData(const TArray<float>& ValueArray, const TArray<FString>& LabelArray)
+{
 }
 
 bool UJCMChartGeneratorBar::CreateBarAlongSplinePoint(const TArray<float>& ValueArray, const TArray<FString>& LabelArray,
@@ -287,6 +293,8 @@ bool UJCMChartGeneratorBar::CreateBarAlongSplinePoint(const TArray<float>& Value
 					ChildBar->BindTimelineAnimation();
 					// 몇 번째 차트 라인인지 입력
 					ChildBar->SetParentSplineIndex(i);
+					// 차트 생성 종료시 발생할 함수 바인딩하는 루틴함수에 델리게이트 전달
+					ChildBar->BindToChartGeneratingEnd(ChartGeneratingDoneDelegate);
 					// 이동 : 이동 먼저 시켜줘야 생성 좌표가 고정됨
 					ChildBar->SetActorRelativeLocation(BarLocation);
 					// 바 메쉬 생성
@@ -313,7 +321,7 @@ bool UJCMChartGeneratorBar::CreateBarAlongSplinePoint(const TArray<float>& Value
 
 		}
 
-		//ChartGeneratingDoneDelegate.execute();
+		ChartGeneratingDoneDelegate.Execute();
 	}
 	return true;
 }

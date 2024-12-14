@@ -9,6 +9,8 @@
 /**
  * 
  */
+DECLARE_DELEGATE(FChartGeneratingDoneDelegate);
+
 UCLASS(BlueprintType)
 class HAE_API UStaticMeshInventory : public UDataAsset
 {
@@ -31,5 +33,9 @@ public:
 
 	// Get Amount
 	const int32 GetAmount(const int32 InventoryIndex);
+
+	// Set SafeAmountArray Data
+	UFUNCTION(BlueprintCallable, Category = "JCM")
+	void SetSafeAmountArray(const TArray<int32>& InDataArray);
 	
 };

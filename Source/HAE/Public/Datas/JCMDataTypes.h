@@ -5,6 +5,9 @@
 #include "CoreMinimal.h"
 #include "JCMDataTypes.generated.h"
 
+// Commonly use delegate
+DECLARE_DELEGATE(FChartGeneratingDoneDelegate);
+
 // Struct for Shape Chart Data
 USTRUCT(BlueprintType)
 struct FJCMChartDataShape

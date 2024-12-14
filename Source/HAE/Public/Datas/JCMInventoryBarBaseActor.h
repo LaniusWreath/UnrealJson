@@ -57,10 +57,10 @@ public:
 	// Change CoverMeshMaterial
 	UStaticMeshComponent* ChangeStaticMeshComponentMaterial(UStaticMeshComponent* TargetStaticMeshComponent , UMaterialInterface* InMaterial);
 
+	// Update TextRenderComponent Text
+	void UpdateData(const int CurrentAmount, const int SafeAmount, const FString& ItemLabel);
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "bUseStaticMeshInventory"), Category = "JCM")
-	TObjectPtr<class UStaticMeshInventory> InventoryDataAsset;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "bEnableItemRotation"), Category = "JCM")
 	float RotationSpeed = 0.5f;
@@ -84,4 +84,8 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "JCM")
 	TObjectPtr<UMaterialInterface> DefaultMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true", EditCondition = "bUseStaticMeshInventory"), 
+		Category = "JCM")
+	TObjectPtr<class UStaticMeshInventory> InventoryDataAsset;
 };

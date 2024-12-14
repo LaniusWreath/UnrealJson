@@ -29,19 +29,19 @@ public:
 
 public:
 	// Call json request function, Result data will be stored in actor as container
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UFUNCTION(BlueprintCallable, Category = "JCM")
 	void RequestJsonObject(const FString& URL);
 
 	// Call json request function, Result data will be returned as string
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UFUNCTION(BlueprintCallable, Category = "JCM")
 	void RequestJsonString(const FString& URL);
 
 	// Load local json file, Result data will be stored in actor as container
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UFUNCTION(BlueprintCallable, Category = "JCM")
 	UJCMDataContainer* LoadFromLocalJsonFile(const FString& FilePath);
 
 	// Get Http request handler reference from JCM actor
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UFUNCTION(BlueprintCallable, Category = "JCM")
 	const UJCMHttpHandler* GetHttpRequestHandler() const
 	{
 		if (RequestHandlerInstance) {
@@ -53,7 +53,7 @@ public:
 	
 public:
 	// Visualizating Chart Title
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chart")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "JCM")
 	UTextRenderComponent* TextRenderComponent_chartTitle;
 
 protected:
@@ -62,8 +62,11 @@ protected:
 	virtual bool CheckJCMActorIntegrity();
 
 	// Initializing Request Manager Instance : this instance have to be initialized in every CallJsonRoutine
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UFUNCTION(BlueprintCallable, Category = "JCM")
 	const UJCMHttpHandler* InitializeRequestHandler();
+
+	UFUNCTION(BlueprintCallable, Category = "JCM")
+	virtual void UpdateChartRoutine() { return; };
 
 protected:
 	// Called when the game starts or when spawned
@@ -121,7 +124,7 @@ private:
 
 protected:
 	// chart genrating function sequence
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UFUNCTION(BlueprintCallable, Category = "JCM")
 	virtual void GenerateChartRoutine() override;
 
 public:
@@ -134,39 +137,41 @@ public:
 
 public:
 	// On : Spawn Chart Mesh At Each Spline Point / Off : Spawn Chart Mesh by Equally Deviding whole Spline
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chart")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "JCM")
 	bool EnableGenerateMeshAtSplinePoint;
 
 	// Select JCM BarBaseActor Blueprint Actor Source to Generate
-	UPROPERTY(EditAnywhere, BlueprintReadOnly ,Category = "Chart")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly ,Category = "JCM")
 	TSubclassOf<AJCMBarBaseActor> BarBaseActorBPClass;
 
 	// Component for generating JCM Bar Chart 
-	UPROPERTY(BlueprintReadOnly, Category = "Chart")
+	UPROPERTY(BlueprintReadOnly, Category = "JCM")
 	UJCMChartGeneratorBar* ChartGeneratorComponent;
 
 	// Visualization Chart Xaxis Name
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chart")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "JCM")
 	UTextRenderComponent* TextRenderComponent_chartXaxisName;
 
 	// Visualization Chart Yaxis Name
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chart")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "JCM")
 	UTextRenderComponent* TextRenderComponent_chartYaxisName;
 	
 public:
 	//Get data container Ref
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UFUNCTION(BlueprintCallable, Category = "JCM")
 	const UJCMDataContainerBar* GetDataContainerRef();
 	
 	// Set Processed Json Data Container Instance Directly
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UFUNCTION(BlueprintCallable, Category = "JCM")
 	void SetDataContainer(UJCMDataContainer* DataContainerRef);
 	
 	// Delete Data Container Instance
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UFUNCTION(BlueprintCallable, Category = "JCM")
 	void DeleteDataContainerInstance()
 	{
 		ChartGeneratorComponent = nullptr;
 		bDataContainerSet = false;
 	}
+
+	void UpdateChartRoutine() override;
 };

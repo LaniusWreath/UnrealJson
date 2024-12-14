@@ -9,6 +9,7 @@
 
 AJCMInventoryBarBaseActor::AJCMInventoryBarBaseActor()
 {
+
 	// 아이템 메쉬 컴포넌트 초기화
 	TemplateItemMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("InventoryItemStaticMeshComponent"));
 	TemplateItemMeshComponent->SetupAttachment(CustomStaticMeshTemplateComponent);
@@ -48,12 +49,12 @@ void AJCMInventoryBarBaseActor::InitializeTextRenderComponentMaxValue(UTextRende
 	}
 
 	int32 Amount = InventoryDataAsset->GetAmount(InInventoryIndex);
+
 	TargetTextRenderComponent->SetText(FText::AsNumber(Amount));
 
 	// 델리게이트 바인딩
 
 }
-
 
 // 델리게이트에 바인딩 할 함수 묶음
 void AJCMInventoryBarBaseActor::OnChartGeneratingDoneBindingRoutine()
@@ -64,12 +65,11 @@ void AJCMInventoryBarBaseActor::OnChartGeneratingDoneBindingRoutine()
 // 알람 기능 함수 묶음
 void AJCMInventoryBarBaseActor::SafeAmountAlarmRoutine()
 {
-
 	int32 SafeAmount = GetValueFromTextRenderComponent(TextRenderComponentSafeValue);
 	int32 CurrentAmount = GetValueFromTextRenderComponent(TextRenderComponentValue);
 
 	// 첫 번째 생성된 스태틱 메쉬 컴포넌트 참조
-	UStaticMeshComponent* TargetStaticMeshComponent = GetCustomStaticMeshComponent(ParentSplineIndex);
+	UStaticMeshComponent* TargetStaticMeshComponent = GetCustomStaticMeshComponent(0);
 	if (!TargetStaticMeshComponent)
 	{
 		UE_LOG(JCMlog, Error, TEXT("SafeAmountAlarmRoutine : couldn't find GeneratedStaticMeshComponent"));
@@ -85,7 +85,11 @@ void AJCMInventoryBarBaseActor::SafeAmountAlarmRoutine()
 			UE_LOG(JCMlog, Error, TEXT("SafeAmountAlarmRoutine : couldn't find DefaultMaterial"));
 			return;
 		}
+		// 머티리얼 기본으로 변경
 		ChangeStaticMeshComponentMaterial(TargetStaticMeshComponent, DefaultMaterial);
+		// 텍스트 색상 변경
+		TextRenderComponentValue->SetTextRenderColor(FColor::White);
+
 		return;
 	}
 	else
@@ -98,6 +102,9 @@ void AJCMInventoryBarBaseActor::SafeAmountAlarmRoutine()
 
 		// 머티리얼 알람용으로 변경
 		ChangeStaticMeshComponentMaterial(TargetStaticMeshComponent, AlarmMaterial);
+		// 텍스트 색상 변경
+		TextRenderComponentValue->SetTextRenderColor(FColor::Red);
+
 	}
 }
 
@@ -118,6 +125,14 @@ UStaticMeshComponent* AJCMInventoryBarBaseActor::ChangeStaticMeshComponentMateri
 	// 이부분 머티리얼 0번 슬롯만 바꾸도록 하드코딩 했는데, 오류 생길 수 있음.
 	TargetStaticMeshComponent->SetMaterial(0, InMaterial);
 	return nullptr;
+}
+
+// 메시 컴포넌트 재생성 없이 숫자 데이터만 직접 접근하여 업데이트
+void AJCMInventoryBarBaseActor::UpdateData(const int CurrentAmount, const int SafeAmount, const FString& ItemLabel)
+{
+	TextRenderComponentValue->SetText(FText::AsNumber(CurrentAmount));
+	TextRenderComponentSafeValue->SetText(FText::AsNumber(SafeAmount));
+	TextRenderComponentLabel->SetText(FText::FromString(ItemLabel));
 }
 
 // 수량 검사
@@ -141,8 +156,9 @@ UStaticMesh* AJCMInventoryBarBaseActor::GetStaticMeshFromInventory(const int32 I
 
 	if (!InventoryDataAsset->GetStaticMesh(InInventoryIndex))
 	{
-		UE_LOG(JCMlog, Error, TEXT("%s : Inventory member is invalid"), *this->GetName());
-		return nullptr;
+		UE_LOG(JCMlog, Warning, TEXT("%s : Inventory member is invalid"), *this->GetName());
+		// 유효하지 않으면, 템플릿 스태틱 메쉬 사용
+		return TemplateItemMeshComponent->GetStaticMesh();
 	}
 
 	return InventoryDataAsset->GetStaticMesh(InInventoryIndex);
@@ -158,14 +174,20 @@ void AJCMInventoryBarBaseActor::InitializeItemStaticMeshPrepertyFromTemplate(USt
 		return;
 	}
 
+	if (!TargetStaticMeshComponent)
+	{
+		UE_LOG(JCMlog, Error, TEXT("TargetStaticMeshComponent is Invalid"));
+		return;
+	}
+
 	// 스태틱 메쉬 적용
 	TargetStaticMeshComponent->SetStaticMesh(GetStaticMeshFromInventory(InventoryIndex));
 
 	// 스태틱 메쉬 스케일링
-	TargetStaticMeshComponent = ScaleStaticMeshToTemplateBounds(TargetStaticMeshComponent, TemplateItemMeshComponent);
+	TargetStaticMeshComponent = ScaleStaticMeshToTemplateBounds(TargetStaticMeshComponent, CustomStaticMeshTemplateComponent);
 
-	// 섀도우 
-	TargetStaticMeshComponent->SetCastShadow(TemplateItemMeshComponent->CastShadow);
+	// 섀도우
+	TargetStaticMeshComponent->SetCastShadow(false);
 }
 
 // 개수 만큼 커스텀 메쉬 컴포넌트 생성
@@ -242,7 +264,7 @@ void AJCMInventoryBarBaseActor::CreateSingleCustomMeshComponent(const float Unit
 	InitializeItemStaticMeshPrepertyFromTemplate(ItemMeshComponent, ParentSplineIndex);
 
 	// 데이터 애셋으로부터 최대 수량 가져와 텍스트 변경
-	InitializeTextRenderComponentMaxValue(TextRenderComponentSafeValue, SpawnCount);
+	InitializeTextRenderComponentMaxValue(TextRenderComponentSafeValue, ParentSplineIndex);
 
 	if (bEnablePhysics)
 	{
@@ -287,20 +309,15 @@ UStaticMeshComponent* AJCMInventoryBarBaseActor::ScaleStaticMeshToTemplateBounds
 	float NewMaxSize = FMath::Max3(NewBounds.BoxExtent.X, NewBounds.BoxExtent.Y, NewBounds.BoxExtent.Z) * 2.0f;
 
 	// 크기 비교 계산
-	if (NewMaxSize > 0.0f)
+	if (NewMaxSize > TemplateMaxSize)
 	{
 		float ScaleFactor = TemplateMaxSize / NewMaxSize;
 
 		// 템플릿 스케일 값만큼 추가 조정
 		ScaleFactor *= TemplateMesh->GetRelativeScale3D().X;
 		NewMesh->SetRelativeScale3D(FVector(ScaleFactor));
-		return NewMesh;
 	}
-	else
-	{
-		UE_LOG(JCMlog, Warning, TEXT("New mesh bounds are invalid."));
-		return nullptr;
-	}
+	return NewMesh;
 }
 
 void AJCMInventoryBarBaseActor::InitializeItemMeshRotation(UStaticMeshComponent* TargetStaticMeshComponent, 

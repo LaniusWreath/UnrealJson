@@ -10,8 +10,6 @@
  * 
  */
 
-DECLARE_DELEGATE(FChartGeneratingDoneDelegate);
-
 class UTextRenderComponent;
 
 // ChartGenerator Abstract Component Class
@@ -61,6 +59,9 @@ private:
 	// Create BarChart Function
 	bool CreateBar(const TArray<float>& ValueArray, const TArray<FString>& LabelArray, const int BarSpacing,
 		const float BarPaddingScaler, const float BarHeightScaler);
+
+	// Update BarChart Data
+	void UpdateBarChartData(const TArray<float>& ValueArray, const TArray<FString>& LabelArray);
 
 	bool CreateBarAlongSplinePoint(const TArray<float>& ValueArray, const TArray<FString>& LabelArray,
 		const float BarPaddingScaler, const float BarHeightScaler);

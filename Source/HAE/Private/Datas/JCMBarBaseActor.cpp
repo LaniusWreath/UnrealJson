@@ -10,6 +10,7 @@
 #include "PhysicsEngine/BodyInstance.h"
 #include "TimerManager.h"
 #include "Datas/JCMLog.h"
+#include "Datas/JCMChartGenerator.h"
 
 
 // Sets default values
@@ -399,9 +400,15 @@ void AJCMBarBaseActor::AdjustTextMeshOffset(UTextRenderComponent* TargetTextRedn
 		+ TextRenderComponentOffset_Value));
 }
 
+// 차트 생성 종료시 바인딩할 델리게이트 함수 
 void AJCMBarBaseActor::OnChartGeneratingDoneBindingRoutine()
 {
 	return;
+}
+
+void AJCMBarBaseActor::BindToChartGeneratingEnd(FChartGeneratingDoneDelegate& Delegate)
+{
+	Delegate.BindUObject(this, &AJCMBarBaseActor::OnChartGeneratingDoneBindingRoutine);
 }
 
 // 애니메이션 제어
@@ -503,6 +510,4 @@ UStaticMeshComponent* AJCMBarBaseActor::GetCustomStaticMeshComponent(const int32
 		return nullptr;
 	}
 }
-
-
 

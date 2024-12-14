@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "JCMDataTypes.h"
 #include "JCMBarBaseActor.generated.h"
 
 class UTextRenderComponent;
@@ -24,11 +25,11 @@ protected:
 	UPROPERTY()
 	UTimelineComponent* BarAnimationTimeline;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, Category = "JCM")
 	USceneComponent* DefaultSceneRootComponent;
 
 	// Custom Static Mesh Component Offset Layer
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, Category = "JCM")
 	USceneComponent* CustomActorSceneComponent;
 
 	// Custome Static Mesh Spawn Timer
@@ -62,6 +63,8 @@ protected:
 	virtual void OnChartGeneratingDoneBindingRoutine();
 
 public:	
+	
+	void BindToChartGeneratingEnd(FChartGeneratingDoneDelegate& Delegate);
 
 	// On : Spawning custom mesh, Off: Spawning default bar mesh
 	UPROPERTY(EditAnywhere, Category = "JCM")
@@ -143,7 +146,6 @@ public:
 	UFUNCTION()
 	void InitializeTextMeshValue(const float& FloatValue);
 
-
 	// Custom mesh spawned amount
 	UFUNCTION(BlueprintCallable, Category = "JCM")
 	int32 GetCustomMeshSpawnedAmount() const
@@ -180,4 +182,5 @@ public:
 	// Get Generated Custom StaticMeshComponent at SplineIndex
 	UStaticMeshComponent* GetCustomStaticMeshComponent(const int32 SplineIndex);
 
+	
 };

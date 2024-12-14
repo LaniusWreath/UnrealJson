@@ -217,6 +217,8 @@ void AJCM3DChartActorBar::SetDataContainer(UJCMDataContainer* DataContainerRef)
 	DataContainerBar = NewContainer;
 }
 
+
+
 // 차트 타이틀, X축, Y축 이름 초기화 함수
 void AJCM3DChartActorBar::SetChartDefaultTexts()
 {
@@ -261,6 +263,16 @@ void AJCM3DChartActorBar::GenerateChartRoutine()
 	// GenerateBarChart() : 데이터 입력 받아 차트 생성 루틴 함수 호출 / GetShapeChartData() : Bar(모양)차트 데이터 Get
 	ChartGeneratorComponent->GenerateBarChart(DataContainerBar->GetDataStruct(), EnableGenerateMeshAtSplinePoint);
 }
+
+void AJCM3DChartActorBar::UpdateChartRoutine()
+{
+	if (!ChartGeneratorComponent)
+	{
+		UE_LOG(JCMlog, Warning, TEXT("%s : GenerateChartRoutine : DataContainer is invalid"), *this->GetName());
+		return;
+	}
+}
+
 
 // Bar 액터 무결성 체크 함수
 bool AJCM3DChartActorBar::CheckJCMActorIntegrity()
