@@ -62,8 +62,14 @@ protected:
 	// ChartGenerator Delegate Binding Functions
 	virtual void OnChartGeneratingDoneBindingRoutine();
 
+	// ChartGenerator Searching Delegate Binding Function
+	virtual void OnChartSearchingBindingRoutine(int32 InIndex);
+
 public:	
-	
+	// chart searching done delegate binding function
+	void BindToChartSearching(FChartSearchingDelegate& Delegate);
+
+	// chart generating done delegate binding function
 	void BindToChartGeneratingEnd(FChartGeneratingDoneDelegate& Delegate);
 
 	// On : Spawning custom mesh, Off: Spawning default bar mesh

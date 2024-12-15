@@ -53,6 +53,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "JCM")
 	const TArray<FText> GetChartDataFTextLabels() const;
+
+	UFUNCTION(BlueprintCallable, Category = "JCM")
+	const int32 GetIndexByLabelName(const FString& InLabelName);
 };
 
 UCLASS()

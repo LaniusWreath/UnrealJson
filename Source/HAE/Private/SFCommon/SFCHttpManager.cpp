@@ -36,7 +36,11 @@ void USFCHttpManager::OnResponseReceivedWithString(FHttpRequestPtr Request, FHtt
 	{
 		// 결과는 HttpHandler 인스턴스의 ResultResponseString에 저장.
 		ResultResponseString = Response->GetContentAsString();
-		OnRequestedJsonStringReady.Execute(true);
+		// 델리게이트에 바인딩된 함수가 있을때만 execute()
+		if (OnRequestedJsonStringReady.IsBound())
+		{
+			OnRequestedJsonStringReady.Execute(true);
+		}
 		OnDynamicRequestingEvent.Broadcast();
 	}
 	else

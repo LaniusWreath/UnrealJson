@@ -89,17 +89,23 @@ public:
 
 	void SetAttachComponents(USceneComponent* TargetComponentInstance);
 
+	UFUNCTION(BlueprintCallable, Category = "Component")
+	const TArray<int32>& GetSpawnedMeshAmountArray() const
+	{
+		return SpawnedMeshAmounts;
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "JCM")
+	void ExecuteChartSearchingDelegate(const int32 InIndex);
+
+public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Component")
 	USplineComponent* SplineComponent_length;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Component")
 	USplineComponent* SplineComponent_height;
 
-	UFUNCTION(BlueprintCallable, Category = "Component")
-	const TArray<int32>& GetSpawnedMeshAmountArray() const
-	{
-		return SpawnedMeshAmounts;
-	}
+	FChartSearchingDelegate ChartSearchingDelegate;
 };
 
 UCLASS(Blueprintable)

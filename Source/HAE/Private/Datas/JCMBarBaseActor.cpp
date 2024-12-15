@@ -406,6 +406,16 @@ void AJCMBarBaseActor::OnChartGeneratingDoneBindingRoutine()
 	return;
 }
 
+void AJCMBarBaseActor::OnChartSearchingBindingRoutine(int32 InIndex)
+{
+	return;
+}
+
+void AJCMBarBaseActor::BindToChartSearching(FChartSearchingDelegate& Delegate)
+{
+	Delegate.AddUObject(this, &AJCMBarBaseActor::OnChartSearchingBindingRoutine);
+}
+
 void AJCMBarBaseActor::BindToChartGeneratingEnd(FChartGeneratingDoneDelegate& Delegate)
 {
 	Delegate.BindUObject(this, &AJCMBarBaseActor::OnChartGeneratingDoneBindingRoutine);

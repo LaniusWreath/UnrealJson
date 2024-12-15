@@ -59,11 +59,64 @@ void AJCMInventoryBarBaseActor::InitializeTextRenderComponentMaxValue(UTextRende
 // 델리게이트에 바인딩 할 함수 묶음
 void AJCMInventoryBarBaseActor::OnChartGeneratingDoneBindingRoutine()
 {
-	SafeAmountAlarmRoutine();
+	AlarmSafeAmount();
+
+}
+
+void AJCMInventoryBarBaseActor::OnChartSearchingBindingRoutine(int32 InIndex)
+{
+	ChangeSearchedComponentMaterial(InIndex);
+}
+
+void AJCMInventoryBarBaseActor::ChangeSearchedComponentMaterial(const int32 InIndex)
+{
+	// 첫 번째 생성된 스태틱 메쉬 컴포넌트 참조
+	UStaticMeshComponent* TargetStaticMeshComponent = GetCustomStaticMeshComponent(0);
+	if (!TargetStaticMeshComponent)
+	{
+		UE_LOG(JCMlog, Error, TEXT("ChangeSearchedComponentMaterial : couldn't find GeneratedStaticMeshComponent"));
+		return;
+	}
+
+	// 검색 대상이 되었을 때
+	if (InIndex == ParentSplineIndex)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ChangeSearchedComponentMaterial : index = %d, current : %d : searching"), InIndex, ParentSplineIndex);
+		ChangeStaticMeshComponentMaterial(TargetStaticMeshComponent, SearchedMaterial);
+		if (CurrentMaterialState != EMaterialState::SEARCH)
+		{
+			PreMaterialState = CurrentMaterialState;
+		}
+		CurrentMaterialState = EMaterialState::SEARCH;
+	}
+	else
+	{
+		// 이전에 검색 대상이었지만 아니게 되었을 때
+		if (CurrentMaterialState == EMaterialState::SEARCH)
+		{
+			CurrentMaterialState = PreMaterialState;
+			if (CurrentMaterialState == EMaterialState::DEFAULT)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("ChangeSearchedComponentMaterial : index = %d, current : %d : back to default"), InIndex, ParentSplineIndex);
+				ChangeStaticMeshComponentMaterial(TargetStaticMeshComponent, DefaultMaterial);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("ChangeSearchedComponentMaterial : index = %d, current : %d : back to alarm"), InIndex, ParentSplineIndex);
+				ChangeStaticMeshComponentMaterial(TargetStaticMeshComponent, AlarmMaterial);
+			}
+		}
+		else
+		{
+			// 이도저도 아닐때
+			UE_LOG(LogTemp, Warning, TEXT("ChangeSearchedComponentMaterial : index = %d, current : %d : nothing"), InIndex, ParentSplineIndex);
+			return;
+		}
+	}
 }
 
 // 알람 기능 함수 묶음
-void AJCMInventoryBarBaseActor::SafeAmountAlarmRoutine()
+void AJCMInventoryBarBaseActor::AlarmSafeAmount()
 {
 	int32 SafeAmount = GetValueFromTextRenderComponent(TextRenderComponentSafeValue);
 	int32 CurrentAmount = GetValueFromTextRenderComponent(TextRenderComponentValue);
@@ -87,6 +140,7 @@ void AJCMInventoryBarBaseActor::SafeAmountAlarmRoutine()
 		}
 		// 머티리얼 기본으로 변경
 		ChangeStaticMeshComponentMaterial(TargetStaticMeshComponent, DefaultMaterial);
+		CurrentMaterialState = EMaterialState::DEFAULT;
 		// 텍스트 색상 변경
 		TextRenderComponentValue->SetTextRenderColor(FColor::White);
 
@@ -102,9 +156,9 @@ void AJCMInventoryBarBaseActor::SafeAmountAlarmRoutine()
 
 		// 머티리얼 알람용으로 변경
 		ChangeStaticMeshComponentMaterial(TargetStaticMeshComponent, AlarmMaterial);
+		CurrentMaterialState = EMaterialState::ALARM;
 		// 텍스트 색상 변경
 		TextRenderComponentValue->SetTextRenderColor(FColor::Red);
-
 	}
 }
 
@@ -135,14 +189,10 @@ void AJCMInventoryBarBaseActor::UpdateData(const int CurrentAmount, const int Sa
 	TextRenderComponentLabel->SetText(FText::FromString(ItemLabel));
 }
 
-// 수량 검사
-void AJCMInventoryBarBaseActor::CheckSafeAmount(const int32 InSafeAmount, const int32 InCurrentAmount)
+void AJCMInventoryBarBaseActor::OnSearched()
 {
-	/*if (InSafeAmount > InCurrentAmount)
-	{
-		CustomActorSceneComponent->GetChildrenComponents();
-	}*/
 }
+
 
 
 // 인벤토리에서 스태틱 메쉬 가져오기

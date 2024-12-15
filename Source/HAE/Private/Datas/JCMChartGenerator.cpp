@@ -71,6 +71,12 @@ void UJCMChartGeneratorBar::SetAttachComponents(USceneComponent* TargetComponent
 	SplineComponent_length->SetupAttachment(TargetComponentInstance);
 }
 
+// 차트 검색 대상이 정해졌을 때 실행될 델리게이트 발생 함수
+void UJCMChartGeneratorBar::ExecuteChartSearchingDelegate(const int32 InIndex)
+{
+	ChartSearchingDelegate.Broadcast(InIndex);
+}
+
 // ChildActorComponent로 소유힌 BarBaseActor 인스턴스 삭제
 void UJCMChartGeneratorBar::ClearChildrenActors()
 {
@@ -205,6 +211,8 @@ bool UJCMChartGeneratorBar::CreateBar(const TArray<float>& ValueArray, const TAr
 					ChildBar->SetParentSplineIndex(i);
 					// 차트 생성 종료시 발생할 함수 바인딩하는 루틴함수에 델리게이트 전달
 					ChildBar->BindToChartGeneratingEnd(ChartGeneratingDoneDelegate);
+					// 차트 검색 대상 시 발생할 함수 바인딩하는 루틴함수에 델리게이트 전달
+					ChildBar->BindToChartSearching(ChartSearchingDelegate);
 					// 이동 : 이동 먼저 시켜줘야 생성 좌표가 고정됨
 					ChildBar->SetActorRelativeLocation(BarLocation);
 					// 바 메쉬 생성
@@ -295,6 +303,8 @@ bool UJCMChartGeneratorBar::CreateBarAlongSplinePoint(const TArray<float>& Value
 					ChildBar->SetParentSplineIndex(i);
 					// 차트 생성 종료시 발생할 함수 바인딩하는 루틴함수에 델리게이트 전달
 					ChildBar->BindToChartGeneratingEnd(ChartGeneratingDoneDelegate);
+					// 차트 검색 대상 시 발생할 함수 바인딩하는 루틴함수에 델리게이트 전달
+					ChildBar->BindToChartSearching(ChartSearchingDelegate);
 					// 이동 : 이동 먼저 시켜줘야 생성 좌표가 고정됨
 					ChildBar->SetActorRelativeLocation(BarLocation);
 					// 바 메쉬 생성

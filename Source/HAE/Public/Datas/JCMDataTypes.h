@@ -7,6 +7,7 @@
 
 // Commonly use delegate
 DECLARE_DELEGATE(FChartGeneratingDoneDelegate);
+DECLARE_MULTICAST_DELEGATE_OneParam(FChartSearchingDelegate, int32);
 
 // Struct for Shape Chart Data
 USTRUCT(BlueprintType)

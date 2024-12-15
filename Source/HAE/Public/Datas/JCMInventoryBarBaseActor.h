@@ -10,7 +10,14 @@
  * 
  */
 
-
+UENUM(BlueprintType)
+enum class EMaterialState : uint8 
+{
+	DEFAULT UMETA(DisplayName = "Default"), 
+	ALARM UMETA(DisplayName = "Alarm"),
+	SEARCH UMETA(DisplayName = "Search"),
+	NONE      UMETA(Hidden) // 숨겨진 값 (사용하지 않음)
+};
 
 UCLASS()
 class HAE_API AJCMInventoryBarBaseActor : public AJCMBarBaseActor
@@ -51,14 +58,17 @@ public:
 
 	// ChartGenerator Delegate Binding Functions
 	void OnChartGeneratingDoneBindingRoutine() override;
-	void CheckSafeAmount(const int32 InAmount, const int32 InCurrentAmount);
-	void SafeAmountAlarmRoutine();
+	void AlarmSafeAmount();
+	void OnChartSearchingBindingRoutine(int32 InIndex) override;
+	void ChangeSearchedComponentMaterial(const int32 InIndex);
 
 	// Change CoverMeshMaterial
 	UStaticMeshComponent* ChangeStaticMeshComponentMaterial(UStaticMeshComponent* TargetStaticMeshComponent , UMaterialInterface* InMaterial);
 
 	// Update TextRenderComponent Text
 	void UpdateData(const int CurrentAmount, const int SafeAmount, const FString& ItemLabel);
+
+	void OnSearched();
 
 public:
 
@@ -84,6 +94,15 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "JCM")
 	TObjectPtr<UMaterialInterface> DefaultMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "JCM")
+	TObjectPtr<UMaterialInstance> SearchedMaterial;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "JCM")
+	EMaterialState CurrentMaterialState;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "JCM")
+	EMaterialState PreMaterialState;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true", EditCondition = "bUseStaticMeshInventory"), 
 		Category = "JCM")

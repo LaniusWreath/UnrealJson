@@ -99,3 +99,16 @@ const TArray<FText> UJCMDataContainerBar::GetChartDataFTextLabels() const
 
     return ReturnArray;
 }
+
+// 라벨 이름으로 인덱스 찾기
+const int32 UJCMDataContainerBar::GetIndexByLabelName(const FString& InLabelName)
+{
+    int32 Index = ShapeChartData.Labels.IndexOfByKey(InLabelName);
+    if (Index == INDEX_NONE)
+    {
+        UE_LOG(JCMlog, Warning, TEXT("Value '%s' not found in the array"), *InLabelName);
+        return 0;
+    }
+
+    return Index;
+}
