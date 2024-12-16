@@ -42,7 +42,7 @@ public:
 	void InitializeItemStaticMeshPrepertyFromTemplate(UStaticMeshComponent* TargetStaticMeshComponent, const int32 InventoryIndex);
 	
 	// Scaling Target Mesh Bounds same as TemplateMesh Bounds
-	UStaticMeshComponent* ScaleStaticMeshToTemplateBounds(UStaticMeshComponent* NewMesh, UStaticMeshComponent* TemplateMesh);
+	void ScaleStaticMeshToTemplateBounds(UStaticMeshComponent* NewMesh, UStaticMeshComponent* TemplateMesh);
 	
 	// Binding Rotation Timer Function
 	void InitializeItemMeshRotation(UStaticMeshComponent* TargetStaticMeshComponent, const float InRotationSpeed);
@@ -79,6 +79,8 @@ public:
 	bool bEnableItemRotation = false;
 
 private:
+
+	FTimerHandle RotationTimerHandle;
 
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "bEnableSpawnCustomMesh", AllowPrivateAccess = "true"), Category = "JCM")
 	bool bUseStaticMeshInventory;

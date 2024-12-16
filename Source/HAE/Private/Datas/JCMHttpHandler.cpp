@@ -87,3 +87,9 @@ TArray<FString> UJCMHttpHandler::ParseStringToStringArray(const FString& ArraySt
 {
 	return Super::ParseStringToStringArray(ArrayString);
 }
+
+// HTTPHander 인스턴스 직접 생성하여 소유시키는 함수
+UJCMHttpHandler* UJCMHttpHandler::CreateHttpHandlerInstance(UObject* Outer)
+{
+	return NewObject<UJCMHttpHandler>(Outer, UJCMHttpHandler::StaticClass());
+}

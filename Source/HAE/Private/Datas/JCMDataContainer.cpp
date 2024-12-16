@@ -112,3 +112,8 @@ const int32 UJCMDataContainerBar::GetIndexByLabelName(const FString& InLabelName
 
     return Index;
 }
+
+bool UJCMDataContainerBar::DoesLabelExistInArray(const FString& ValueToCheck)
+{
+    return ShapeChartData.Labels.Contains(ValueToCheck);
+}

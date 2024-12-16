@@ -30,6 +30,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	static TArray<FString> ParseStringToStringArray(const FString& ArrayString);
 
+	UFUNCTION(BlueprintCallable, Category = "JCM")
+	static UJCMHttpHandler* CreateHttpHandlerInstance(UObject* Outer);
+
 public:
 
 private:

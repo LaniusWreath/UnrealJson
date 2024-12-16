@@ -256,8 +256,7 @@ void AJCMBarBaseActor::InitializeStaticMeshProperty(UStaticMeshComponent* Target
 	TargetStaticMeshComponent->SetStaticMesh(TemplateMeshComponent->GetStaticMesh());
 	TargetStaticMeshComponent->SetMaterial(0, TemplateMeshComponent->GetMaterial(0));
 	TargetStaticMeshComponent->SetRelativeScale3D(TemplateMeshComponent->GetRelativeScale3D());
-	TargetStaticMeshComponent->SetCastShadow(TemplateMeshComponent->CastShadow);
-
+	TargetStaticMeshComponent->SetCastShadow(false);
 }
 
 // 단위로 나누고 나머지 남은 높이, 스케일링 된 유닛 상자 만들어 스폰 : 현재는 안씀

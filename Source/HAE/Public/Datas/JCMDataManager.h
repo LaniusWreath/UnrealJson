@@ -37,24 +37,28 @@ private:
 
 	// DataHander Instances
 	UJCMJsonHandler* JSONHandlerInstance;
-
-	// JSON String Serialization Function
-	FString SerializeJSONToString(const TSharedPtr<FJsonObject> JSONObject);
 	FString DataString;
-
-	// Instancing JsonHandler and Get JsonObject Ptr
-	TSharedPtr<FJsonObject> LoadDataFromJSON(const FString& FilePath);
-
+	
+private:
 	// Instancing CSVHandler and Get JsonObject Ptr
 	void LoadDataFromCSV(const FString& FilePath);
 
 	// Instancing HTTPHandler and Get JsonObject Ptr
 	void FetchDataFromHTTP(const FString& URL);
 
+	// Instancing JsonHandler and Get JsonObject Ptr
+	TSharedPtr<FJsonObject> LoadDataFromJSON(const FString& FilePath);
+
 	TSharedPtr<FJsonObject> DeserializeJsonStringToJsonObject(const FString& JsonString);
 
+	// JSON String Serialization Function
+	FString SerializeJSONToString(const TSharedPtr<FJsonObject> JSONObject);
 
 public:
+	// Create JCMDataContainer Instance
+	UFUNCTION(BlueprintCallable, Category = "JCM")
+	static UJCMDataManager* CreateJCMDataManagerInstance(UObject* Outer);
+
 	// JsonObject Ptr to Data Struct <String Header, UDataClasses* DataClassInstance>
 	FDataInstancePair InstancingDataContainer(const TSharedPtr<FJsonObject> Data);
 

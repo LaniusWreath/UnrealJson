@@ -7,6 +7,12 @@
 #include "Datas/JCMLog.h"
 
 
+// 데이터 매니저 객체 직접 생성 및 전달
+UJCMDataManager* UJCMDataManager::CreateJCMDataManagerInstance(UObject* Outer)
+{
+	return NewObject<UJCMDataManager>(Outer, UJCMDataManager::StaticClass());
+}
+
 // json 로컬 파일 직접 읽고 처리하는 루틴
 UJCMDataContainer* UJCMDataManager::InstancingDataContainerFromLocalJson(const FString& FilePath)
 {

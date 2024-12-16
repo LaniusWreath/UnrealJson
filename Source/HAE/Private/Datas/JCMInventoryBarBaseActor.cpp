@@ -234,7 +234,7 @@ void AJCMInventoryBarBaseActor::InitializeItemStaticMeshPrepertyFromTemplate(USt
 	TargetStaticMeshComponent->SetStaticMesh(GetStaticMeshFromInventory(InventoryIndex));
 
 	// 스태틱 메쉬 스케일링
-	TargetStaticMeshComponent = ScaleStaticMeshToTemplateBounds(TargetStaticMeshComponent, CustomStaticMeshTemplateComponent);
+	ScaleStaticMeshToTemplateBounds(TargetStaticMeshComponent, CustomStaticMeshTemplateComponent);
 
 	// 섀도우
 	TargetStaticMeshComponent->SetCastShadow(false);
@@ -340,12 +340,12 @@ void AJCMInventoryBarBaseActor::CreateSingleCustomMeshComponent(const float Unit
 
 
 // 템플릿 스태틱 메쉬 컴포넌트의 바운딩 크기 만큼 타겟 컴포넌트 스케일링
-UStaticMeshComponent* AJCMInventoryBarBaseActor::ScaleStaticMeshToTemplateBounds(UStaticMeshComponent* NewMesh, UStaticMeshComponent* TemplateMesh)
+void AJCMInventoryBarBaseActor::ScaleStaticMeshToTemplateBounds(UStaticMeshComponent* NewMesh, UStaticMeshComponent* TemplateMesh)
 {
 	if (!NewMesh || !NewMesh->GetStaticMesh() || !TemplateMesh || !TemplateMesh->GetStaticMesh())
 	{
 		UE_LOG(JCMlog, Warning, TEXT("Invalid Mesh Components"));
-		return nullptr;
+		return;
 	}
 
 	// 템플릿 메쉬 바운드
@@ -367,14 +367,12 @@ UStaticMeshComponent* AJCMInventoryBarBaseActor::ScaleStaticMeshToTemplateBounds
 		ScaleFactor *= TemplateMesh->GetRelativeScale3D().X;
 		NewMesh->SetRelativeScale3D(FVector(ScaleFactor));
 	}
-	return NewMesh;
 }
 
 void AJCMInventoryBarBaseActor::InitializeItemMeshRotation(UStaticMeshComponent* TargetStaticMeshComponent, 
 	const float InRotationSpeed)
 {
 	// 타이머를 사용해 회전 함수 호출
-    FTimerHandle RotationTimerHandle;
 
 	GetWorld()->GetTimerManager().SetTimer(RotationTimerHandle, FTimerDelegate::CreateLambda([TargetStaticMeshComponent, 
 		InRotationSpeed]()
@@ -413,5 +411,3 @@ void AJCMInventoryBarBaseActor::AdjustTextMeshComponentOffsetRoutine(const float
 	AdjustTextMeshOffset(TextRenderComponentLabel);
 	AdjustTextMeshOffset(TextRenderComponentSafeValue);
 }
-
-
