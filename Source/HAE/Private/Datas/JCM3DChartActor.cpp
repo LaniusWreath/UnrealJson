@@ -260,6 +260,12 @@ void AJCM3DChartActorBar::GenerateChartRoutine()
 		return;
 	}
 
+	if (!DataContainerBar)
+	{
+		UE_LOG(JCMlog, Error, TEXT("%s : DataContainer is invalid"), *this->GetName());
+		return;
+	}
+
 	// GenerateBarChart() : 데이터 입력 받아 차트 생성 루틴 함수 호출 / GetShapeChartData() : Bar(모양)차트 데이터 Get
 	ChartGeneratorComponent->GenerateBarChart(DataContainerBar->GetDataStruct(), EnableGenerateMeshAtSplinePoint);
 }

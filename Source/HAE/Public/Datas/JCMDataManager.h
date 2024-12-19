@@ -62,12 +62,18 @@ public:
 	// JsonObject Ptr to Data Struct <String Header, UDataClasses* DataClassInstance>
 	FDataInstancePair InstancingDataContainer(const TSharedPtr<FJsonObject> Data);
 
+	// JsonObject Ptr to Data Struct <String Header, UDataClasses* DataClassInstance>
+	FDataInstancePair InstancingDataContainerToOuter(UObject* Outer, const TSharedPtr<FJsonObject> Data);
+
 	// Routine Function for Controlling Json Reading to Processing Functions
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	UJCMDataContainer* InstancingDataContainerFromLocalJson(const FString& FilePath);
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	UJCMDataContainer* InstancingDataContainerFromJsonString(const FString& JsonBody);
+
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UJCMDataContainer* GetInstancedDataContainerFromJsonString(UObject* Outer, const FString& JsonBody);
 
 	// Getter Serialized JSON String Data
 	UFUNCTION(BlueprintCallable, Category = "Data")

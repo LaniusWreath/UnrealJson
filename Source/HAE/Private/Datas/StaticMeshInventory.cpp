@@ -18,7 +18,7 @@ UStaticMesh* UStaticMeshInventory::GetStaticMesh(const int32 InventoryIndex)
 {
 	if (!StaticMeshArray.IsValidIndex(InventoryIndex))
 	{
-		UE_LOG(JCMlog, Error, TEXT("StaticMeshInventory : Invalid Inventory Index"));
+		UE_LOG(JCMlog, Warning, TEXT("StaticMeshInventory : Invalid Inventory Index"));
 		return nullptr;
 	}
 
@@ -29,7 +29,7 @@ const int32 UStaticMeshInventory::GetAmount(const int32 InventoryIndex)
 {
 	if (!SafeAmountArray.IsValidIndex(InventoryIndex))
 	{
-		UE_LOG(JCMlog, Error, TEXT("StaticMeshInventory : Invalid Inventory Index"));
+		UE_LOG(JCMlog, Warning, TEXT("StaticMeshInventory : Invalid Inventory Index"));
 		// 인덱스 유효하지 않으면 마지막 것 참조
 		return 0;
 	}

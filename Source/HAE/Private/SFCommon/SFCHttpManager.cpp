@@ -28,6 +28,78 @@ void USFCHttpManager::MakeGetRequest(const FString& Url, const bool GetResultWit
 	Request->ProcessRequest();
 }
 
+// 헤더 포함해서 요청
+void USFCHttpManager::MakeGetRequestWithHeader(const FString& Url, const TMap<FString, FString>& Headers, 
+	const TMap<FString, FString>& Parameters, const bool GetResultWithFString)
+{
+	FHttpModule* Http = &FHttpModule::Get();
+	if (!Http) return;
+
+	// URL에 파라미터 추가
+	FString FinalUrl = Url;
+	if (Parameters.Num() > 0)
+	{
+		FinalUrl += TEXT("?");
+		for (const TPair<FString, FString>& Param : Parameters)
+		{
+			FinalUrl += FString::Printf(TEXT("%s=%s&"), *Param.Key, *Param.Value);
+		}
+		// 마지막 '&' 제거
+		FinalUrl.RemoveFromEnd(TEXT("&"));
+	}
+
+	// 요청 생성
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
+	Request->SetURL(FinalUrl);
+	Request->SetVerb(TEXT("GET"));
+
+	// 헤더 설정
+	for (const TPair<FString, FString>& Header : Headers)
+	{
+		Request->SetHeader(Header.Key, Header.Value);
+	}
+
+	// 응답 함수 델리게이트 바인딩
+	if (GetResultWithFString)
+	{
+		Request->OnProcessRequestComplete().BindUObject(this, &USFCHttpManager::OnResponseReceivedWithString);
+	}
+	else
+	{
+		Request->OnProcessRequestComplete().BindUObject(this, &USFCHttpManager::OnResponseReceivedWithPtr);
+	}
+
+	// 요청 실행
+	Request->ProcessRequest();
+}
+
+// data 만 추출
+FString USFCHttpManager::ExtractDataField(const FString& JsonString)
+{
+	TSharedPtr<FJsonObject> JsonObject;
+	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonString);
+
+	if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
+	{
+		// Check if the "data" field exists
+		TSharedPtr<FJsonObject> DataObject = JsonObject->GetObjectField(TEXT("data"));
+
+		if (DataObject.IsValid())
+		{
+			// Convert the "data" object back to a JSON string
+			FString DataString;
+			TSharedRef<TJsonWriter<>> JsonWriter = TJsonWriterFactory<>::Create(&DataString);
+
+			if (FJsonSerializer::Serialize(DataObject.ToSharedRef(), JsonWriter))
+			{
+				return DataString;
+			}
+		}
+	}
+
+	return FString(); // Return an empty string if extraction fails
+}
+
 // Request 응답 바인딩 함수 : 문자열.
 void USFCHttpManager::OnResponseReceivedWithString(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
@@ -35,7 +107,9 @@ void USFCHttpManager::OnResponseReceivedWithString(FHttpRequestPtr Request, FHtt
 	if (bWasSuccessful && Response.IsValid())
 	{
 		// 결과는 HttpHandler 인스턴스의 ResultResponseString에 저장.
-		ResultResponseString = Response->GetContentAsString();
+		FString TempResponseString = Response->GetContentAsString();
+		ResultResponseString = ExtractDataField(TempResponseString);
+
 		// 델리게이트에 바인딩된 함수가 있을때만 execute()
 		if (OnRequestedJsonStringReady.IsBound())
 		{

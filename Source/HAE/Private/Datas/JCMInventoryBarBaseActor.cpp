@@ -372,8 +372,10 @@ void AJCMInventoryBarBaseActor::ScaleStaticMeshToTemplateBounds(UStaticMeshCompo
 void AJCMInventoryBarBaseActor::InitializeItemMeshRotation(UStaticMeshComponent* TargetStaticMeshComponent, 
 	const float InRotationSpeed)
 {
-	// 타이머를 사용해 회전 함수 호출
+	// 기존 타이머 제거 (초기화)
+	GetWorld()->GetTimerManager().ClearTimer(RotationTimerHandle);
 
+	// 타이머를 사용해 회전 함수 호출
 	GetWorld()->GetTimerManager().SetTimer(RotationTimerHandle, FTimerDelegate::CreateLambda([TargetStaticMeshComponent, 
 		InRotationSpeed]()
 		{
@@ -387,7 +389,7 @@ void AJCMInventoryBarBaseActor::InitializeItemMeshRotation(UStaticMeshComponent*
 
 				TargetStaticMeshComponent->SetRelativeRotation(CurrentRotation);
 			}
-		}), 0.01f, true);
+		}), 0.1f, true);
 }
 
 void AJCMInventoryBarBaseActor::AdjustTextMeshValueOffset(UTextRenderComponent* TargetTextRednerComponent, const float& BarHeight)

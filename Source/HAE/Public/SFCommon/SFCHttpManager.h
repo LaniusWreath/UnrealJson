@@ -57,6 +57,10 @@ public:
 	FOneParamDelegate OnRequestedJsonStringReady;
 
 	virtual void MakeGetRequest(const FString& Url, const bool GetResultWithFString = true);
+	virtual void MakeGetRequestWithHeader(const FString& Url, const TMap<FString, FString>& Headers, 
+		const TMap<FString, FString>& Parameters, const bool GetResultWithFString = true);
+
+	FString ExtractDataField(const FString& JsonString);
 
 	// Blueprint Callable Delegate 
 	UPROPERTY(BlueprintAssignable, Category = "SFC")

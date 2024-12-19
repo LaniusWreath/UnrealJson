@@ -29,11 +29,19 @@ UJCMDataContainer* UJCMDataManager::InstancingDataContainerFromLocalJson(const F
 	}
 }
 
+
 // json FString 읽어 데이터 컨테이너 반환해주는 
 UJCMDataContainer* UJCMDataManager::InstancingDataContainerFromJsonString(const FString& JsonBody)
 {
 	TSharedPtr<FJsonObject> Data = DeserializeJsonStringToJsonObject(JsonBody);
 	FDataInstancePair NewChartData = InstancingDataContainer(Data);
+	return NewChartData.DataInstance;
+}
+
+UJCMDataContainer* UJCMDataManager::GetInstancedDataContainerFromJsonString(UObject* Outer, const FString& JsonBody)
+{
+	TSharedPtr<FJsonObject> Data = DeserializeJsonStringToJsonObject(JsonBody);
+	FDataInstancePair NewChartData = InstancingDataContainerToOuter(Outer, Data);
 	return NewChartData.DataInstance;
 }
 
@@ -256,6 +264,135 @@ FDataInstancePair UJCMDataManager::InstancingDataContainer(const TSharedPtr<FJso
 		return DataPair;
 	}
 		
+	case LINE:
+		break;
+	case PIE:
+		break;
+	case XY:
+		break;
+	case XYZ:
+		break;
+	case FREE:
+		break;
+	default:
+		UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : Instancing Data Class was failed"));
+	}
+	return DataPair;
+}
+
+// 소유권 명시하여 데이터 컨테이너 인스턴싱
+FDataInstancePair UJCMDataManager::InstancingDataContainerToOuter(UObject* Outer, const TSharedPtr<FJsonObject> Data)
+{
+	bool isFieldValid = true;
+	FDataInstancePair DataPair = FDataInstancePair();
+
+	if (!Data.IsValid())
+	{
+		UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : Input Data is invalid"));
+		return DataPair;
+	}
+
+	// 언리얼은 예외처리 비활성화됨. 하나 씩 필드 유효한지 검사
+	FString ChartType;
+	if (!Data->TryGetStringField(TEXT("chartType"), ChartType))
+	{
+		UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : 'chartType' is missing or invalid"));
+		return DataPair;
+	}
+
+	FString ChartTitle;
+	if (!Data->TryGetStringField(TEXT("chartTitle"), ChartTitle))
+	{
+		UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : 'ChartTitle' is missing or invalid"));
+		return DataPair;
+	}
+
+	EJCMChartTypes CurChartTypeEnum = JCMDataTypes::JCMMapChartTypes[ChartType];
+
+	switch (CurChartTypeEnum)
+	{
+	case NONE:
+		break;
+	case BAR:
+	{
+		// 데이터 컨테이너 객체 생성
+		UJCMDataContainerBar* NewChartBarClass = NewObject<UJCMDataContainerBar>(Outer);
+
+		// X축 데이터 추출
+		const TSharedPtr<FJsonObject>* XAxisObject;
+		FString XName;
+		TArray<FString> XLabels;
+		const TArray<TSharedPtr<FJsonValue>>* LabelArray;
+
+		if (!Data->TryGetObjectField(TEXT("xAxis"), XAxisObject))
+		{
+			UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'xAxis' is missing or invalid"));
+			isFieldValid = false;
+		}
+		else
+		{
+			// X축 라벨 이름 추출
+			if (!XAxisObject->Get()->TryGetStringField(TEXT("key"), XName))
+			{
+				UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'key (x)' is missing or invalid"));
+				isFieldValid = false;
+			}
+
+			// x축 데이터 배열 추출
+			if (!XAxisObject->Get()->TryGetArrayField(TEXT("label"), LabelArray))
+			{
+				UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'label' is missing or invalid"));
+				isFieldValid = false;
+			}
+			else
+			{
+				for (const TSharedPtr<FJsonValue>& Value : *LabelArray)
+				{
+					XLabels.Add(Value->AsString());
+				}
+			}
+		}
+
+		// Y축 데이터 추출
+		const TSharedPtr<FJsonObject>* YAxisObject;
+		FString YName;
+		TArray<float> YValues;
+		const TArray<TSharedPtr<FJsonValue>>* ValueArray;
+
+		if (!Data->TryGetObjectField(TEXT("yAxis"), YAxisObject))
+		{
+			UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'yAxis' is missing or invalid"));
+			isFieldValid = false;
+		}
+		else
+		{
+			// Y축 데이터 이름 추출
+			if (!YAxisObject->Get()->TryGetStringField(TEXT("key"), YName))
+			{
+				UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'key (y)' is missing or invalid"));
+				isFieldValid = false;
+			}
+			// Y축 데이터 배열 추출
+			if (!YAxisObject->Get()->TryGetArrayField(TEXT("value"), ValueArray))
+			{
+				UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'value' is missing or invalid"));
+				isFieldValid = false;
+			}
+			else
+			{
+				for (const TSharedPtr<FJsonValue>& Value : *ValueArray)
+				{
+					YValues.Add(Value->AsNumber());
+				}
+			}
+		}
+
+		NewChartBarClass->SetChartData(ChartTitle, ChartType, XName, XLabels, YName, YValues);
+		DataPair.IsValid = isFieldValid;
+		DataPair.DataInstance = NewChartBarClass;
+		return DataPair;
+	}
+
 	case LINE:
 		break;
 	case PIE:

@@ -12,6 +12,12 @@ void UJCMHttpHandler::MakeGetRequest(const FString& Url, const bool GetResultWit
 	Super::MakeGetRequest(Url, GetResultWithFString);
 }
 
+// 헤더 포함한 Request 함수
+void UJCMHttpHandler::MakeGetRequestWithHeader(const FString& Url, const TMap<FString, FString>& Headers, const TMap<FString, FString>& Parameters, const bool GetResultWithFString)
+{
+	Super::MakeGetRequestWithHeader(Url, Headers, Parameters, GetResultWithFString);
+}
+
 // String Response 함수
 void UJCMHttpHandler::OnResponseReceivedWithString(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
@@ -57,7 +63,7 @@ void UJCMHttpHandler::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJ
 		//델리게이트 바인딩된 함수 검사 후 execute, 검사 안하면 오류 발생
 		if (!OnParsedJsonObjectPtrReady.IsBound())
 		{
-			UE_LOG(JCMlog, Error, TEXT("%s : Delegate function not found"), *this->GetName());
+			UE_LOG(JCMlog, Warning, TEXT("%s : Delegate function not found"), *this->GetName());
 		}
 		OnParsedJsonObjectPtrReady.ExecuteIfBound(ParsedJsonData);
 		OnDynamicRequestingEvent.Broadcast();

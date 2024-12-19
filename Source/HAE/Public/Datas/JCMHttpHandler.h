@@ -21,6 +21,10 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (AdvancedDisplay = "GetResultWithFString"), Category = "Chart")
 	virtual void MakeGetRequest(const FString& Url, const bool GetResultWithFString = true) override;
 
+	UFUNCTION(BlueprintCallable, meta = (AdvancedDisplay = "GetResultWithFString"), Category = "Chart")
+	virtual void MakeGetRequestWithHeader(const FString& Url, const TMap<FString, FString>& Headers,
+		const TMap<FString, FString>& Parameters, const bool GetResultWithFString = true) override;
+
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	static TMap<FString, FString> ParseJsonStringToMap(const FString& JsonString);
 
