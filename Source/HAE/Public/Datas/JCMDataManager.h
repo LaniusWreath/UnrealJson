@@ -19,12 +19,12 @@ struct FDataInstancePair
 	GENERATED_BODY()
 
 	UPROPERTY()
-	bool IsValid;
+	FString Header;
 
 	UPROPERTY()
 	UJCMDataContainer* DataInstance;
 
-	FDataInstancePair() : IsValid(false), DataInstance(nullptr) {}
+	FDataInstancePair() : Header(""), DataInstance(nullptr) {}
 };
 
 // Manage Datas Class and Control those Member Function
@@ -34,12 +34,7 @@ class HAE_API UJCMDataManager : public UObject
 	GENERATED_BODY()
 	
 private:
-	// Instancing CSVHandler and Get JsonObject Ptr
-	void LoadDataFromCSV(const FString& FilePath);
-
-	// Instancing HTTPHandler and Get JsonObject Ptr
-	void FetchDataFromHTTP(const FString& URL);
-
+	// JsonString to JsonObjectPtr
 	TSharedPtr<FJsonObject> DeserializeJsonStringToJsonObject(const FString& JsonString);
 
 	// JSON String Serialization Function
@@ -50,17 +45,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "JCM")
 	static UJCMDataManager* CreateJCMDataManagerInstance(UObject* Outer);
 
-	// JsonObject Ptr to Data Struct <String Header, UDataClasses* DataClassInstance>
-	FDataInstancePair InstancingDataContainer(const TSharedPtr<FJsonObject> Data);
+	// JsonObject Ptr to Data Container <String Header, JCMDataContainer* DataClassInstance>
+	FDataInstancePair InstancingDataContainer(const TSharedPtr<FJsonObject> Data, const FString& InHeader);
 
-	// JsonObject Ptr to Data Struct <String Header, UDataClasses* DataClassInstance>
-	FDataInstancePair InstancingDataContainerToOuter(UObject* Outer, const TSharedPtr<FJsonObject> Data);
-
-	UFUNCTION(BlueprintCallable, Category = "Chart")
-	UJCMDataContainer* InstancingDataContainerFromJsonString(const FString& JsonBody);
+	// JsonObject Ptr to Data Container <String Header, JCMDataContainer* DataClassInstance>
+	FDataInstancePair InstancingDataContainerToOuter(UObject* Outer, const TSharedPtr<FJsonObject> Data, const FString& InHeader);
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
-	UJCMDataContainer* GetInstancedDataContainerFromJsonString(UObject* Outer, const FString& JsonBody);
+	UJCMDataContainer* InstancingDataContainerFromJsonString(const FString& JsonBody, const FString& InHeader);
+
+	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UJCMDataContainer* GetInstancedDataContainerFromJsonString(UObject* Outer, const FString& JsonBody, const FString& InHeader);
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	UJCMDataContainer* CreateEmptyDataContainer(EJCMChartTypes ChartType);

@@ -44,12 +44,14 @@ void AJCM3DChartActor::BeginPlay()
 }
 
 // JsonObjectPtr를 받는 함수
-void AJCM3DChartActor::RequestJsonObject(const FString& URL)
+void AJCM3DChartActor::RequestJsonObject(const FString& URL, const FString& InDataLabel)
 {
 	SetJCMDataManagerRef();
 	InitializeRequestHandler();
 	// Request 델리게이트 바인딩 함수 : DataClass 멤버변수 초기화 
 	// 멀티캐스트 델리게이트였다면 델리게이트 객체 매 번 청소해야 겠지만, 지금은 싱글캐스트. 객체 매 번 삭제 안해도 됨.
+
+	SetNextDataHeader(InDataLabel);
 	RequestHandlerInstance->OnParsedJsonObjectPtrReady.BindUObject(this, &AJCM3DChartActor::CallInstancingDataContainer);
 	SetbDataContainerSet(false);
 	RequestHandlerInstance->MakeGetRequest(URL, false);
@@ -119,8 +121,8 @@ void AJCM3DChartActor::CallInstancingDataContainer(const TSharedPtr<FJsonObject>
 		return;
 	}
 
-	FDataInstancePair ResultData = DataManagerRef->InstancingDataContainer(JsonData);
-	if (!ResultData.IsValid)
+	FDataInstancePair ResultData = DataManagerRef->InstancingDataContainer(JsonData, NextDataHeader);
+	if (ResultData.Header.IsEmpty())
 	{
 		UE_LOG(JCMlog, Error, TEXT("%s: Received source data is invalid "), *this->GetName());
 		return;
@@ -150,6 +152,11 @@ void AJCM3DChartActor::SetbDataContainerSet(const bool InState)
 const bool AJCM3DChartActor::GetbDataContainerSet() const
 {
 	return bDataContainerSet;
+}
+
+void AJCM3DChartActor::SetNextDataHeader(const FString& InHeader)
+{
+	NextDataHeader = InHeader;
 }
 
 // Called every frame
@@ -295,8 +302,8 @@ void AJCM3DChartActorBar::CallInstancingDataContainer(const TSharedPtr<FJsonObje
 		return;
 	}
 
-	FDataInstancePair ResultData = DataManagerRef->InstancingDataContainer(JsonData);
-	if (!ResultData.IsValid)
+	FDataInstancePair ResultData = DataManagerRef->InstancingDataContainer(JsonData, NextDataHeader);
+	if (ResultData.Header.IsEmpty())
 	{
 		UE_LOG(JCMlog, Error, TEXT("%s: Received source data is invalid "), *this->GetName());
 		return;

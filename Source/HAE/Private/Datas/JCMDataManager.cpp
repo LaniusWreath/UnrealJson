@@ -14,19 +14,19 @@ UJCMDataManager* UJCMDataManager::CreateJCMDataManagerInstance(UObject* Outer)
 }
 
 // json FString 읽어 데이터 컨테이너 반환해주는 
-UJCMDataContainer* UJCMDataManager::InstancingDataContainerFromJsonString(const FString& JsonBody)
+UJCMDataContainer* UJCMDataManager::InstancingDataContainerFromJsonString(const FString& JsonBody, const FString& InHeader)
 {
 	TSharedPtr<FJsonObject> Data = DeserializeJsonStringToJsonObject(JsonBody);
-	FDataInstancePair NewChartData = InstancingDataContainer(Data);
+	FDataInstancePair NewChartData = InstancingDataContainer(Data, InHeader);
 	return NewChartData.DataInstance;
 }
 
-UJCMDataContainer* UJCMDataManager::GetInstancedDataContainerFromJsonString(UObject* Outer, const FString& JsonBody)
+UJCMDataContainer* UJCMDataManager::GetInstancedDataContainerFromJsonString(UObject* Outer, const FString& JsonBody, const FString& InHeader)
 {
 	TSharedPtr<FJsonObject> Data = DeserializeJsonStringToJsonObject(JsonBody);
-	FDataInstancePair NewChartData = InstancingDataContainerToOuter(Outer, Data);
+	FDataInstancePair NewChartData = InstancingDataContainerToOuter(Outer, Data, InHeader);
 	return NewChartData.DataInstance;
-}
+}	
 
 // FString으로 Serialize된 Json문자열 객체로 다시 변환
 TSharedPtr<FJsonObject> UJCMDataManager::DeserializeJsonStringToJsonObject(const FString& JsonString)
@@ -44,14 +44,6 @@ TSharedPtr<FJsonObject> UJCMDataManager::DeserializeJsonStringToJsonObject(const
 		UE_LOG(JCMlog, Error, TEXT("JCMDataManager : Failed to deserialize JSON string."));
 		return nullptr;
 	}
-}
-
-void UJCMDataManager::LoadDataFromCSV(const FString& FilePath)
-{
-}
-
-void UJCMDataManager::FetchDataFromHTTP(const FString& URL)
-{
 }
 
 // Create Emtpy BarType Data Container Instance
@@ -104,9 +96,8 @@ FString UJCMDataManager::SerializeJSONToString(const TSharedPtr<FJsonObject> JSO
 }
 
 // 데이터 입력 받아 파싱, DataClass 객체 생성 -> Chart
-FDataInstancePair UJCMDataManager::InstancingDataContainer(const TSharedPtr<FJsonObject> Data) 
+FDataInstancePair UJCMDataManager::InstancingDataContainer(const TSharedPtr<FJsonObject> Data, const FString& InHeader) 
 {
-	bool isFieldValid = true;
 	FDataInstancePair DataPair = FDataInstancePair();
 
 	if (!Data.IsValid())
@@ -150,7 +141,7 @@ FDataInstancePair UJCMDataManager::InstancingDataContainer(const TSharedPtr<FJso
 		if (!Data->TryGetObjectField(TEXT("xAxis"), XAxisObject))
 		{
 			UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'xAxis' is missing or invalid"));
-			isFieldValid = false;
+			return DataPair;
 		}
 		else
 		{
@@ -158,14 +149,14 @@ FDataInstancePair UJCMDataManager::InstancingDataContainer(const TSharedPtr<FJso
 			if (!XAxisObject->Get()->TryGetStringField(TEXT("key"), XName))
 			{
 				UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'key (x)' is missing or invalid"));
-				isFieldValid = false;
+				return DataPair;
 			}
 
 			// x축 데이터 배열 추출
 			if (!XAxisObject->Get()->TryGetArrayField(TEXT("label"), LabelArray))
 			{
 				UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'label' is missing or invalid"));
-				isFieldValid = false;
+				return DataPair;
 			}
 			else
 			{
@@ -185,7 +176,7 @@ FDataInstancePair UJCMDataManager::InstancingDataContainer(const TSharedPtr<FJso
 		if (!Data->TryGetObjectField(TEXT("yAxis"), YAxisObject))
 		{
 			UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'yAxis' is missing or invalid"));
-			isFieldValid = false;
+			return DataPair;
 		}
 		else
 		{
@@ -193,13 +184,13 @@ FDataInstancePair UJCMDataManager::InstancingDataContainer(const TSharedPtr<FJso
 			if (!YAxisObject->Get()->TryGetStringField(TEXT("key"), YName))
 			{
 				UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'key (y)' is missing or invalid"));
-				isFieldValid = false;
+				return DataPair;
 			}
 			// Y축 데이터 배열 추출
 			if (!YAxisObject->Get()->TryGetArrayField(TEXT("value"), ValueArray))
 			{
 				UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'value' is missing or invalid"));
-				isFieldValid = false;
+				return DataPair;
 			}
 			else
 			{
@@ -210,8 +201,9 @@ FDataInstancePair UJCMDataManager::InstancingDataContainer(const TSharedPtr<FJso
 			}
 		}
 		
+		// 여기까지 와야 헤더 붙은 유효한 데이터 컨테이너, 클래스 밖에서 검사할 때는 헤더가 붙어있는지, "" 아닌지 검사하면 됨.
 		NewChartBarClass->SetChartData(ChartTitle, ChartType, XName, XLabels, YName, YValues);
-		DataPair.IsValid = isFieldValid;
+		DataPair.Header = InHeader;
 		DataPair.DataInstance = NewChartBarClass;
 		return DataPair;
 	}
@@ -233,9 +225,8 @@ FDataInstancePair UJCMDataManager::InstancingDataContainer(const TSharedPtr<FJso
 }
 
 // 소유권 명시하여 데이터 컨테이너 인스턴싱
-FDataInstancePair UJCMDataManager::InstancingDataContainerToOuter(UObject* Outer, const TSharedPtr<FJsonObject> Data)
+FDataInstancePair UJCMDataManager::InstancingDataContainerToOuter(UObject* Outer, const TSharedPtr<FJsonObject> Data, const FString& InHeader)
 {
-	bool isFieldValid = true;
 	FDataInstancePair DataPair = FDataInstancePair();
 
 	if (!Data.IsValid())
@@ -279,7 +270,7 @@ FDataInstancePair UJCMDataManager::InstancingDataContainerToOuter(UObject* Outer
 		if (!Data->TryGetObjectField(TEXT("xAxis"), XAxisObject))
 		{
 			UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'xAxis' is missing or invalid"));
-			isFieldValid = false;
+			return DataPair;
 		}
 		else
 		{
@@ -287,14 +278,14 @@ FDataInstancePair UJCMDataManager::InstancingDataContainerToOuter(UObject* Outer
 			if (!XAxisObject->Get()->TryGetStringField(TEXT("key"), XName))
 			{
 				UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'key (x)' is missing or invalid"));
-				isFieldValid = false;
+				return DataPair;
 			}
 
 			// x축 데이터 배열 추출
 			if (!XAxisObject->Get()->TryGetArrayField(TEXT("label"), LabelArray))
 			{
 				UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'label' is missing or invalid"));
-				isFieldValid = false;
+				return DataPair;
 			}
 			else
 			{
@@ -314,7 +305,7 @@ FDataInstancePair UJCMDataManager::InstancingDataContainerToOuter(UObject* Outer
 		if (!Data->TryGetObjectField(TEXT("yAxis"), YAxisObject))
 		{
 			UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'yAxis' is missing or invalid"));
-			isFieldValid = false;
+			return DataPair;
 		}
 		else
 		{
@@ -322,13 +313,13 @@ FDataInstancePair UJCMDataManager::InstancingDataContainerToOuter(UObject* Outer
 			if (!YAxisObject->Get()->TryGetStringField(TEXT("key"), YName))
 			{
 				UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'key (y)' is missing or invalid"));
-				isFieldValid = false;
+				return DataPair;
 			}
 			// Y축 데이터 배열 추출
 			if (!YAxisObject->Get()->TryGetArrayField(TEXT("value"), ValueArray))
 			{
 				UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : InstancingDataContainer : 'value' is missing or invalid"));
-				isFieldValid = false;
+				return DataPair;
 			}
 			else
 			{
@@ -340,7 +331,7 @@ FDataInstancePair UJCMDataManager::InstancingDataContainerToOuter(UObject* Outer
 		}
 
 		NewChartBarClass->SetChartData(ChartTitle, ChartType, XName, XLabels, YName, YValues);
-		DataPair.IsValid = isFieldValid;
+		DataPair.Header = InHeader;
 		DataPair.DataInstance = NewChartBarClass;
 		return DataPair;
 	}

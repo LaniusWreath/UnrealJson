@@ -32,10 +32,12 @@ public:
 	// Get State of JCM3DChartActor's bisDataContainerSet
 	const bool GetbDataContainerSet() const;
 
+	void SetNextDataHeader(const FString& InHeader);
+
 public:
 	// Call json request function, Result data will be stored in actor as container
 	UFUNCTION(BlueprintCallable, Category = "JCM")
-	void RequestJsonObject(const FString& URL);
+	void RequestJsonObject(const FString& URL, const FString& InDataLabel);
 
 	// Call json request function, Result data will be returned as string
 	UFUNCTION(BlueprintCallable, Category = "JCM")
@@ -100,10 +102,12 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "JCM")
 	bool bDataContainerSet;
 
+	UPROPERTY()
+	FString NextDataHeader;
+
 private:
 	UPROPERTY(BlueprintReadOnly, Category = "JCM", meta = (AllowPrivateAccess = "true"))
 	UJCMDataContainer* DataContainer;
-
 };
 
 
