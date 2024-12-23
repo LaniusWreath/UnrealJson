@@ -18,13 +18,13 @@ void UJCMHttpHandler::MakeGetRequestWithHeader(const FString& Url, const TMap<FS
 	Super::MakeGetRequestWithHeader(Url, Headers, Parameters, GetResultWithFString);
 }
 
-// String Response 함수
+// String Response 함수,request 델리게이트 바인딩 하기위해 명시적으로 재정의
 void UJCMHttpHandler::OnResponseReceivedWithString(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
 	Super::OnResponseReceivedWithString(Request, Response, bWasSuccessful);
 }
 
-// Object Response 함수
+// Object Response 함수, request 델리게이트 바인딩 하기 위해 명시적으로 재정의
 void UJCMHttpHandler::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
 	if (bWasSuccessful && Response.IsValid())
@@ -39,8 +39,7 @@ void UJCMHttpHandler::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpRe
 		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResultResponseString);
 		if (FJsonSerializer::Deserialize(Reader, JsonData) && JsonData.IsValid())
 		{
-			// 파싱 실행 함수 호출
-			ParsedJsonData = JsonData;
+			// 파싱 실행 함수 호출 및 델리게이트 응답 호출
 			ExecuteCustomParseFucntion(JsonData);
 		}
 		else
@@ -68,12 +67,6 @@ void UJCMHttpHandler::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJ
 		OnParsedJsonObjectPtrReady.ExecuteIfBound(ParsedJsonData);
 		OnDynamicRequestingEvent.Broadcast();
 	}
-}
-
-// 실제 파싱 함수
-TSharedPtr<FJsonObject> UJCMHttpHandler::ParseRequestBody(TSharedPtr<FJsonObject> RequestBody)
-{
-	return Super::ParseRequestBody(RequestBody);
 }
 
 // JsonString을 Map으로 반환하는 함수

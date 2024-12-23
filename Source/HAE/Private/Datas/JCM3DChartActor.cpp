@@ -155,9 +155,9 @@ void AJCM3DChartActor::CallInstancingDataContainer(const TSharedPtr<FJsonObject>
 }
 
 // 
-void AJCM3DChartActor::SetbRequestingJsonStringWorkDone(const bool IsWorkDone)
+void AJCM3DChartActor::SetbRequestingJsonStringWorkDone()
 {
-	IsRequestJsonStringDone = IsWorkDone;
+	
 }
 
 void AJCM3DChartActor::SetbDataContainerSet(const bool InState)

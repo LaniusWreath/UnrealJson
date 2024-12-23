@@ -18,20 +18,20 @@ class HAE_API UJCMHttpHandler : public USFCHttpManager
 
 public:
 	// Call HTTP Get Request
-	UFUNCTION(BlueprintCallable, meta = (AdvancedDisplay = "GetResultWithFString"), Category = "Chart")
+	UFUNCTION(BlueprintCallable, meta = (AdvancedDisplay = "GetResultWithFString"), Category = "JCM")
 	virtual void MakeGetRequest(const FString& Url, const bool GetResultWithFString = true) override;
 
-	UFUNCTION(BlueprintCallable, meta = (AdvancedDisplay = "GetResultWithFString"), Category = "Chart")
+	UFUNCTION(BlueprintCallable, meta = (AdvancedDisplay = "GetResultWithFString"), Category = "JCM")
 	virtual void MakeGetRequestWithHeader(const FString& Url, const TMap<FString, FString>& Headers,
 		const TMap<FString, FString>& Parameters, const bool GetResultWithFString = true) override;
 
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UFUNCTION(BlueprintCallable, Category = "JCM")
 	static TMap<FString, FString> ParseJsonStringToMap(const FString& JsonString);
 
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UFUNCTION(BlueprintCallable, Category = "JCM")
 	static TArray<float> ParseStringToFloatArray(const FString& ArrayString);
 
-	UFUNCTION(BlueprintCallable, Category = "Chart")
+	UFUNCTION(BlueprintCallable, Category = "JCM")
 	static TArray<FString> ParseStringToStringArray(const FString& ArrayString);
 
 	UFUNCTION(BlueprintCallable, Category = "JCM")
@@ -45,9 +45,6 @@ private:
 	void OnResponseReceivedWithString(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) override;
 
 	void OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) override;
-
-	// Custom JsonParsing Function.
-	TSharedPtr<FJsonObject> ParseRequestBody(TSharedPtr<FJsonObject> RequestBody) override;
 
 	void ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject) override;
 

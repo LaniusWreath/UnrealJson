@@ -24,7 +24,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	// Set State of HttpHandler Reference's Request String Work
-	void SetbRequestingJsonStringWorkDone(const bool IsWorkDone);
+	void SetbRequestingJsonStringWorkDone();
 
 	// Set State of DataManger Reference's Containing Data Work
 	void SetbDataContainerSet(const bool InState);

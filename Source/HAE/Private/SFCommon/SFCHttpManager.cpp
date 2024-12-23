@@ -117,7 +117,7 @@ void USFCHttpManager::OnResponseReceivedWithString(FHttpRequestPtr Request, FHtt
 		// 델리게이트에 바인딩된 함수가 있을때만 execute() : cpp 전용
 		if (OnRequestedJsonStringReady.IsBound())
 		{
-			OnRequestedJsonStringReady.Execute(true);
+			OnRequestedJsonStringReady.Execute();
 		}
 		// 다이나믹 델리게이트는 조건 없이 Broadcast
 		OnDynamicRequestingEvent.Broadcast();
