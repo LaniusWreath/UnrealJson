@@ -13,23 +13,6 @@ UJCMDataManager* UJCMDataManager::CreateJCMDataManagerInstance(UObject* Outer)
 	return NewObject<UJCMDataManager>(Outer, UJCMDataManager::StaticClass());
 }
 
-// json 로컬 파일 직접 읽고 처리하는 루틴
-UJCMDataContainer* UJCMDataManager::InstancingDataContainerFromLocalJson(const FString& FilePath)
-{
-	TSharedPtr<FJsonObject> Data = LoadDataFromJSON(FilePath);
-	FDataInstancePair NewChartData = InstancingDataContainer(Data);
-	if (NewChartData.IsValid)
-	{
-		return NewChartData.DataInstance;
-	}
-	else
-	{
-		UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : 'InstancingDataContainerFromLocalJson()' Failed"));
-		return nullptr;
-	}
-}
-
-
 // json FString 읽어 데이터 컨테이너 반환해주는 
 UJCMDataContainer* UJCMDataManager::InstancingDataContainerFromJsonString(const FString& JsonBody)
 {
@@ -63,43 +46,12 @@ TSharedPtr<FJsonObject> UJCMDataManager::DeserializeJsonStringToJsonObject(const
 	}
 }
 
-// 탐색기 패스로 파일 읽기, 나중에 오버로딩 하던 뭘 하던 JSON만 넘겨받는 함수 만들 것
-TSharedPtr<FJsonObject> UJCMDataManager::LoadDataFromJSON(const FString& FilePath)
-{
-	if (!JSONHandlerInstance)
-	{
-		JSONHandlerInstance = NewObject<UJCMJsonHandler>(this);
-	}
-	if (JSONHandlerInstance)
-	{
-		// JSONHandler에서 읽은 JSON 포인터 그대로 가져옴, 이거 받는 함수만 따로 분리
-		const TSharedPtr<FJsonObject> ParsedData = JSONHandlerInstance->GetJsonObjectData(FilePath);
-
-		DataString = SerializeJSONToString(ParsedData);
-		return ParsedData;
-	}
-	else
-	{
-		return nullptr;
-	}
-}
-
 void UJCMDataManager::LoadDataFromCSV(const FString& FilePath)
 {
 }
 
 void UJCMDataManager::FetchDataFromHTTP(const FString& URL)
 {
-}
-
-// Return JSON String Getter()
-const FString& UJCMDataManager::GetJSONStringData() const
-{
-	if (DataString == "")
-	{
-		UE_LOG(JCMlog, Warning, TEXT("JCMDataManager : String Data is null"));
-	}
-	return DataString;
 }
 
 // Create Emtpy BarType Data Container Instance

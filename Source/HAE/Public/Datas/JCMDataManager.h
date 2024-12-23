@@ -32,12 +32,6 @@ UCLASS(Blueprintable, BlueprintType)
 class HAE_API UJCMDataManager : public UObject
 {
 	GENERATED_BODY()
-
-private:
-
-	// DataHander Instances
-	UJCMJsonHandler* JSONHandlerInstance;
-	FString DataString;
 	
 private:
 	// Instancing CSVHandler and Get JsonObject Ptr
@@ -45,9 +39,6 @@ private:
 
 	// Instancing HTTPHandler and Get JsonObject Ptr
 	void FetchDataFromHTTP(const FString& URL);
-
-	// Instancing JsonHandler and Get JsonObject Ptr
-	TSharedPtr<FJsonObject> LoadDataFromJSON(const FString& FilePath);
 
 	TSharedPtr<FJsonObject> DeserializeJsonStringToJsonObject(const FString& JsonString);
 
@@ -65,19 +56,11 @@ public:
 	// JsonObject Ptr to Data Struct <String Header, UDataClasses* DataClassInstance>
 	FDataInstancePair InstancingDataContainerToOuter(UObject* Outer, const TSharedPtr<FJsonObject> Data);
 
-	// Routine Function for Controlling Json Reading to Processing Functions
-	UFUNCTION(BlueprintCallable, Category = "Chart")
-	UJCMDataContainer* InstancingDataContainerFromLocalJson(const FString& FilePath);
-
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	UJCMDataContainer* InstancingDataContainerFromJsonString(const FString& JsonBody);
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	UJCMDataContainer* GetInstancedDataContainerFromJsonString(UObject* Outer, const FString& JsonBody);
-
-	// Getter Serialized JSON String Data
-	UFUNCTION(BlueprintCallable, Category = "Data")
-	const FString& GetJSONStringData() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Chart")
 	UJCMDataContainer* CreateEmptyDataContainer(EJCMChartTypes ChartType);

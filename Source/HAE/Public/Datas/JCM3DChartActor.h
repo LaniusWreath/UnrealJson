@@ -41,10 +41,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "JCM")
 	void RequestJsonString(const FString& URL);
 
-	// Load local json file, Result data will be stored in actor as container
-	UFUNCTION(BlueprintCallable, Category = "JCM")
-	UJCMDataContainer* LoadFromLocalJsonFile(const FString& FilePath);
-
 	// Get Http request handler reference from JCM actor
 	UFUNCTION(BlueprintCallable, Category = "JCM")
 	const UJCMHttpHandler* GetHttpRequestHandler() const

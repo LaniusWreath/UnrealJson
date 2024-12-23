@@ -65,24 +65,6 @@ void AJCM3DChartActor::RequestJsonString(const FString& URL)
 	RequestHandlerInstance->MakeGetRequest(URL);
 }
 
-// 로컬 Json 읽어 데이터 컨테이너 세팅
-UJCMDataContainer* AJCM3DChartActor::LoadFromLocalJsonFile(const FString& FilePath)
-{
-	SetJCMDataManagerRef();
-	bDataContainerSet = false;
-	UJCMDataContainer* NewDataContainer = DataManagerRef->InstancingDataContainerFromLocalJson(FilePath);
-	if (NewDataContainer)
-	{
-		SetbDataContainerSet(true);
-		return NewDataContainer;
-	}
-	else
-	{
-		UE_LOG(JCMlog, Error, TEXT("%s : Load from local json failed"), *this->GetName());
-		return nullptr;
-	}
-}
-
 // 기본 액터 무결성 체크 함수
 bool AJCM3DChartActor::CheckJCMActorIntegrity()
 {

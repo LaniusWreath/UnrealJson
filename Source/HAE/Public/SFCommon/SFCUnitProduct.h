@@ -6,6 +6,11 @@
 #include "GameFramework/Actor.h"
 #include "SFCUnitProduct.generated.h"
 
+/*
+* 커버 메쉬와 센터 메쉬로 이루어졌으며 회전하는 액터
+* 
+*/
+
 UCLASS()
 class HAE_API ASFCUnitProduct : public AActor
 {
