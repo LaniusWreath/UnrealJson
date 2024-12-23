@@ -4,7 +4,7 @@
 #include "SFCommon/SFCHttpManager.h"
 #include "SFCommon/SFCLog.h"
 
-// 메인 request 함수
+// 헤더 없는 request 함수
 void USFCHttpManager::MakeGetRequest(const FString& Url, const bool GetResultWithFString)
 {
 	FHttpModule* Http = &FHttpModule::Get();
@@ -28,7 +28,7 @@ void USFCHttpManager::MakeGetRequest(const FString& Url, const bool GetResultWit
 	Request->ProcessRequest();
 }
 
-// 헤더 포함해서 요청
+// 헤더 포함해서 request
 void USFCHttpManager::MakeGetRequestWithHeader(const FString& Url, const TMap<FString, FString>& Headers, 
 	const TMap<FString, FString>& Parameters, const bool GetResultWithFString)
 {
@@ -73,8 +73,10 @@ void USFCHttpManager::MakeGetRequestWithHeader(const FString& Url, const TMap<FS
 	Request->ProcessRequest();
 }
 
-// data 만 추출
-FString USFCHttpManager::ExtractDataField(const FString& JsonString)
+//------------------------------------------------------------------------------------------------------------//
+
+// FString으로 입력받은 json에서 data 키에 해당하는 데이터만 추출하여 FString으로 리턴
+FString USFCHttpManager::ExtractDataFieldFromJsonString(const FString& JsonString)
 {
 	TSharedPtr<FJsonObject> JsonObject;
 	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonString);
@@ -100,7 +102,7 @@ FString USFCHttpManager::ExtractDataField(const FString& JsonString)
 	return FString(); // Return an empty string if extraction fails
 }
 
-// Request 응답 바인딩 함수 : 문자열.
+// Request 응답 바인딩 함수 : 문자열로 요청했을 경우
 void USFCHttpManager::OnResponseReceivedWithString(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
 	// 응답 데이터 확인.
@@ -108,13 +110,16 @@ void USFCHttpManager::OnResponseReceivedWithString(FHttpRequestPtr Request, FHtt
 	{
 		// 결과는 HttpHandler 인스턴스의 ResultResponseString에 저장.
 		FString TempResponseString = Response->GetContentAsString();
-		ResultResponseString = ExtractDataField(TempResponseString);
 
-		// 델리게이트에 바인딩된 함수가 있을때만 execute()
+		// 전체 결과 중 data 필드에 해당하는 값만 떼어내 저장
+		ResultResponseString = ExtractDataFieldFromJsonString(TempResponseString);
+
+		// 델리게이트에 바인딩된 함수가 있을때만 execute() : cpp 전용
 		if (OnRequestedJsonStringReady.IsBound())
 		{
 			OnRequestedJsonStringReady.Execute(true);
 		}
+		// 다이나믹 델리게이트는 조건 없이 Broadcast
 		OnDynamicRequestingEvent.Broadcast();
 	}
 	else
@@ -123,7 +128,7 @@ void USFCHttpManager::OnResponseReceivedWithString(FHttpRequestPtr Request, FHtt
 	}
 }
 
-// Request 응답 바인딩 함수 : 객체 포인터 : 블루프린트에 리플렉션 되지 않으므로, cpp단에서 추가 작업 요구됨.
+// Request 응답 바인딩 함수 : 객체 포인터로 요청했을 경우 : 블루프린트에 리플렉션 되지 않으므로, cpp에서 추가 작업 요구됨.
 void USFCHttpManager::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
 	if (bWasSuccessful && Response.IsValid())
@@ -135,8 +140,11 @@ void USFCHttpManager::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpRe
 		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResultResponseString);
 		if (FJsonSerializer::Deserialize(Reader, ParsedJsonData))
 		{
-			// 파싱 실행 함수 호출
-			OnParsedJsonObjectPtrReady.Execute(ParsedJsonData);
+			// 파싱 실행 함수 호출로 대체 할 수 있지만 지금 형태가 default
+			if (OnParsedJsonObjectPtrReady.IsBound())
+			{
+				OnParsedJsonObjectPtrReady.Execute(ParsedJsonData);
+			}
 
 			// 블루프린트용 다이나믹 멀티캐스트 델리게이트
 			OnDynamicRequestingEvent.Broadcast();
@@ -152,13 +160,16 @@ void USFCHttpManager::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpRe
 	}
 }
 
-// 커스텀 파싱 함수 실행 델리게이트.
+// 커스텀 파싱 함수 호출 함수.
 void USFCHttpManager::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject)
 {
 	ParsedJsonData = ParseRequestBody(OriginJsonObject);
 	if (ParsedJsonData)
 	{
-		OnParsedJsonObjectPtrReady.Execute(ParsedJsonData);
+		if (OnParsedJsonObjectPtrReady.IsBound())
+		{
+			OnParsedJsonObjectPtrReady.Execute(ParsedJsonData);
+		}
 		OnDynamicRequestingEvent.Broadcast();
 	}
 }
@@ -174,9 +185,6 @@ TSharedPtr<FJsonObject> USFCHttpManager::ParseRequestBody(TSharedPtr<FJsonObject
 		FString JsonString;
 		TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
 		FJsonSerializer::Serialize(DataObject.ToSharedRef(), Writer);
-
-		// 디버깅 출력.
-		// UE_LOG(JCMlog, Log, TEXT("DataObject JSON: %s"), *JsonString);
 	}
 	else
 	{
@@ -185,6 +193,7 @@ TSharedPtr<FJsonObject> USFCHttpManager::ParseRequestBody(TSharedPtr<FJsonObject
 	return DataObject;
 }
 
+// JsonString을 Map으로 변환해주는 스태틱 함수
 TMap<FString, FString> USFCHttpManager::ParseJsonStringToMap(const FString& JsonString)
 {
 	TMap<FString, FString> ParsedMap;
@@ -233,6 +242,7 @@ TMap<FString, FString> USFCHttpManager::ParseJsonStringToMap(const FString& Json
 	return ParsedMap;
 }
 
+// "["가", "나", "다", "라"]" 같은 전체가 문자열로 처리된 문자열 배열을 cpp형식 {"가", "나", "다","라"}로 변환해주는 스태틱 함수
 TArray<FString> USFCHttpManager::ParseStringToStringArray(const FString& ArrayString)
 {
 	TArray<FString> StringArray;
@@ -254,6 +264,7 @@ TArray<FString> USFCHttpManager::ParseStringToStringArray(const FString& ArraySt
 	return StringArray;
 }
 
+// "[1,2,3,4,5]" 같은 문자열로 처리된 전체가 문자열로 처리된 숫자 배열을 cpp형식 {1,2,3,4,5}로 변환해주는 스태틱 함수
 TArray<float> USFCHttpManager::ParseStringToFloatArray(const FString& ArrayString)
 {
 	TArray<float> FloatArray;
@@ -276,6 +287,7 @@ TArray<float> USFCHttpManager::ParseStringToFloatArray(const FString& ArrayStrin
 	return FloatArray;
 }
 
+// jsonObject를 map으로 변환해주는 스태틱 함수 : cpp전용
 TMap<FString, FString> USFCHttpManager::ParseJsonObjToMap(const TSharedPtr<FJsonObject> OriginJsonObject)
 {
 	TMap<FString, FString> ParsedMap;

@@ -30,8 +30,6 @@
 
 AJCM3DChartActor::AJCM3DChartActor()
 {
-	UE_LOG(JCMlog, Log, TEXT("Data3DActor : Initializing %s"), *GetName());
-
 	RootSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponet"));
 	TextRenderComponent_chartTitle = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Text_title"));
 	TextRenderComponent_chartTitle->SetupAttachment(RootSceneComponent);
@@ -62,7 +60,7 @@ void AJCM3DChartActor::RequestJsonString(const FString& URL)
 {
 	SetJCMDataManagerRef();
 	InitializeRequestHandler();
-	RequestHandlerInstance->OnRequestedJsonStringReady.BindUObject(this, &AJCM3DChartActor::SetJsonString);
+	RequestHandlerInstance->OnRequestedJsonStringReady.BindUObject(this, &AJCM3DChartActor::SetbRequestingJsonStringWorkDone);
 	bDataContainerSet = false;
 	RequestHandlerInstance->MakeGetRequest(URL);
 }
@@ -72,7 +70,7 @@ UJCMDataContainer* AJCM3DChartActor::LoadFromLocalJsonFile(const FString& FilePa
 {
 	SetJCMDataManagerRef();
 	bDataContainerSet = false;
-	UJCMDataContainer* NewDataContainer = DataManagerInstanceRef->InstancingDataContainerFromLocalJson(FilePath);
+	UJCMDataContainer* NewDataContainer = DataManagerRef->InstancingDataContainerFromLocalJson(FilePath);
 	if (NewDataContainer)
 	{
 		SetbDataContainerSet(true);
@@ -89,7 +87,7 @@ UJCMDataContainer* AJCM3DChartActor::LoadFromLocalJsonFile(const FString& FilePa
 bool AJCM3DChartActor::CheckJCMActorIntegrity()
 {
 	bool bIsValid= true;
-	if (!DataManagerInstanceRef)
+	if (!DataManagerRef)
 	{
 		UE_LOG(JCMlog, Warning, TEXT("Integrity Check : %s : DataManager is Invalid "), *this->GetName());
 		bIsValid = false;
@@ -100,12 +98,12 @@ bool AJCM3DChartActor::CheckJCMActorIntegrity()
 
 void AJCM3DChartActor::SetJCMDataManagerRef()
 {	
-	if (!DataManagerInstanceRef)
+	if (!DataManagerRef)
 	{
 		if (UJCMCore::GetJCMCore())
 		{
-			DataManagerInstanceRef = UJCMCore::GetJCMCore()->GetDataManager();
-			if (!DataManagerInstanceRef)
+			DataManagerRef = UJCMCore::GetJCMCore()->GetDataManager();
+			if (!DataManagerRef)
 			{
 				UE_LOG(JCMlog, Warning, TEXT("%s: Getting DataManager Reference Failed"), *this->GetName());
 			}
@@ -139,7 +137,7 @@ void AJCM3DChartActor::CallInstancingDataContainer(const TSharedPtr<FJsonObject>
 		return;
 	}
 
-	FDataInstancePair ResultData = DataManagerInstanceRef->InstancingDataContainer(JsonData);
+	FDataInstancePair ResultData = DataManagerRef->InstancingDataContainer(JsonData);
 	if (!ResultData.IsValid)
 	{
 		UE_LOG(JCMlog, Error, TEXT("%s: Received source data is invalid "), *this->GetName());
@@ -156,12 +154,13 @@ void AJCM3DChartActor::CallInstancingDataContainer(const TSharedPtr<FJsonObject>
 	SetbDataContainerSet(true);
 }
 
-void AJCM3DChartActor::SetJsonString(const bool IsWorkDone)
+// 
+void AJCM3DChartActor::SetbRequestingJsonStringWorkDone(const bool IsWorkDone)
 {
 	IsRequestJsonStringDone = IsWorkDone;
 }
 
-void AJCM3DChartActor::SetbDataContainerSet(bool InState)
+void AJCM3DChartActor::SetbDataContainerSet(const bool InState)
 {
 	bDataContainerSet = InState;
 }
@@ -314,7 +313,7 @@ void AJCM3DChartActorBar::CallInstancingDataContainer(const TSharedPtr<FJsonObje
 		return;
 	}
 
-	FDataInstancePair ResultData = DataManagerInstanceRef->InstancingDataContainer(JsonData);
+	FDataInstancePair ResultData = DataManagerRef->InstancingDataContainer(JsonData);
 	if (!ResultData.IsValid)
 	{
 		UE_LOG(JCMlog, Error, TEXT("%s: Received source data is invalid "), *this->GetName());

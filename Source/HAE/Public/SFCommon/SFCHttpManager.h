@@ -35,7 +35,7 @@ protected:
 
 	// Main Request Function
 	
-	// You can receive request data with under these two function
+	// Request work delegate binding functions
 	virtual void OnResponseReceivedWithString(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); // with string
 	virtual void OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); // with objectptr
 
@@ -50,29 +50,32 @@ protected:
 	static TArray<FString> ParseStringToStringArray(const FString& ArrayString);
 	static TArray<float> ParseStringToFloatArray(const FString& ArrayString);
 	static TMap<FString, FString> ParseJsonObjToMap(const TSharedPtr<FJsonObject> OriginJsonObject);
+	static FString ExtractDataFieldFromJsonString(const FString& JsonString);
 
 public:
 	// Delegate for Alarming Request Done, Data Ready
 	FOnJsonObjectReceivedDelegate OnParsedJsonObjectPtrReady;
 	FOneParamDelegate OnRequestedJsonStringReady;
 
+	// RequestFunction only URL
 	virtual void MakeGetRequest(const FString& Url, const bool GetResultWithFString = true);
+
+	// Reqeust Function URL with Header
 	virtual void MakeGetRequestWithHeader(const FString& Url, const TMap<FString, FString>& Headers, 
 		const TMap<FString, FString>& Parameters, const bool GetResultWithFString = true);
-
-	FString ExtractDataField(const FString& JsonString);
 
 	// Blueprint Callable Delegate 
 	UPROPERTY(BlueprintAssignable, Category = "SFC")
 	FOnDynamicRequestDelegate OnDynamicRequestingEvent;
 
-	// Return Serialized JsonString
+	// Return Serialized JsonString member
 	UFUNCTION(BlueprintCallable, Category = "SFC")
 	const FString& GetResultResponseString()
 	{
 		return ResultResponseString;
 	}
 	
+	// Return JsonObjectPtr member
 	const TSharedPtr<FJsonObject> GetJsonObject(){
 		return ParsedJsonData;
 	};

@@ -23,8 +23,13 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void SetJsonString(const bool IsWorkDone);
+	// Set State of HttpHandler Reference's Request String Work
+	void SetbRequestingJsonStringWorkDone(const bool IsWorkDone);
+
+	// Set State of DataManger Reference's Containing Data Work
 	void SetbDataContainerSet(const bool InState);
+
+	// Get State of JCM3DChartActor's bisDataContainerSet
 	const bool GetbDataContainerSet() const;
 
 public:
@@ -84,7 +89,7 @@ protected:
 protected:
 	// JCM DataManager reference
 	UPROPERTY()
-	UJCMDataManager* DataManagerInstanceRef;
+	UJCMDataManager* DataManagerRef;
 
 	// HttpRequest Handler Instance ref
 	UPROPERTY()
