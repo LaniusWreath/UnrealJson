@@ -73,6 +73,11 @@ void USFCHttpManager::MakeGetRequestWithHeader(const FString& Url, const TMap<FS
 	Request->ProcessRequest();
 }
 
+USFCHttpManager* USFCHttpManager::CreateHttpManagerInstance(UObject* Outer)
+{
+	return NewObject<USFCHttpManager>(Outer, USFCHttpManager::StaticClass());
+}
+
 //------------------------------------------------------------------------------------------------------------//
 
 // FString으로 입력받은 json에서 data 키에 해당하는 데이터만 추출하여 FString으로 리턴

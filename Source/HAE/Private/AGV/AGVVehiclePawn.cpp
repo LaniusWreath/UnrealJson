@@ -38,98 +38,6 @@ void AAGVVehiclePawn::UpdateVehicleProperties(UAGVDataContainer* InAGVDataContai
 	AGVDataContainer = InAGVDataContainer;
 }
 
-void AAGVVehiclePawn::CallUpdateWheelRadiusRoutine(float InWheelRadius, float OriginRadius)
-{
-	UpdateWheelRadius(InWheelRadius, OriginRadius);
-	UpdateWheelMeshScale(InWheelRadius, OriginRadius);
-}
-
-// 카오스 비히클 휠 물리적 반지름 변경
-void AAGVVehiclePawn::UpdateWheelRadius(float InWheelRadius, float OriginRadius)
-{
-	UChaosWheeledVehicleMovementComponent* VehicleMovement = 
-		Cast<UChaosWheeledVehicleMovementComponent>(GetVehicleMovementComponent());
-	
-	if (!VehicleMovement)
-	{
-		UE_LOG(AGVlog, Error, TEXT("WheeledVehicleMovement Cast Failed"));
-		return;
-	}
-
-	for (int32 WheelIndex = 0; WheelIndex < VehicleMovement->WheelSetups.Num(); WheelIndex++)
-	{
-		// 휠 반지름 변경 API 함수 호출
-		VehicleMovement->SetWheelRadius(WheelIndex, InWheelRadius);
-
-		/*float RadiusDifference = InWheelRadius - OriginRadius;
-		VehicleMovement->WheelSetups[WheelIndex].AdditionalOffset.Z += RadiusDifference;*/
-		float RadiusDifference = InWheelRadius - OriginRadius;
-		VehicleMovement->WheelSetups[WheelIndex].AdditionalOffset.Z += RadiusDifference;
-	}
-	VehicleMovement->ResetVehicle();
-}
-
-// 휠 메쉬 스케일 업데이트
-void AAGVVehiclePawn::UpdateWheelMeshScale(float InWheelRadius, float OriginRadius)
-{
-	if (!WheelFL || !WheelFR || !WheelRL || !WheelRR)
-	{
-		UE_LOG(AGVlog, Error, TEXT("Wheel meshes are invalid"));
-		return;
-	}
-
-	TArray<UStaticMeshComponent*> WheelMeshes = { WheelFL, WheelFR, WheelRL, WheelRR };
-
-	UChaosWheeledVehicleMovementComponent* VehicleMovement =
-		Cast<UChaosWheeledVehicleMovementComponent>(GetVehicleMovementComponent());
-	if (!VehicleMovement)
-	{
-		UE_LOG(AGVlog, Error, TEXT("WheeledVehicleMovement Cast Failed"));
-		return;
-	}
-
-	float Scaler = InWheelRadius / OriginRadius;
-
-	for (int32 WheelIndex = 0; WheelIndex < VehicleMovement->WheelSetups.Num(); WheelIndex++)
-	{
-		if (UStaticMeshComponent* CurWheelMesh = WheelMeshes[WheelIndex])
-		{
-			FVector NewScale = CurWheelMesh->GetRelativeScale3D();
-			NewScale *= Scaler;
-			CurWheelMesh->SetRelativeScale3D(NewScale);
-
-			//FVector NewLocation = CurWheelMesh->GetRelativeLocation();
-			//float RadiusDifference = InWheelRadius - OriginRadius;
-			//NewLocation.Z += RadiusDifference; // Z축 위치 보정
-			//CurWheelMesh->SetRelativeLocation(NewLocation);
-
-			// 디버깅
-			//DrawDebugSphere(GetWorld(), NewLocation + FVector(0, 0, NewLocation.Z), InWheelRadius, 12, FColor::Red);
-			FVector NewLocation = CurWheelMesh->GetRelativeLocation();
-			float RadiusDifference = InWheelRadius - OriginRadius;
-			NewLocation.Z += RadiusDifference; // Z축 위치 보정
-			CurWheelMesh->SetRelativeLocation(NewLocation);
-
-			// 디버깅
-			DrawDebugSphere(GetWorld(), NewLocation + FVector(0, 0, NewLocation.Z), InWheelRadius, 12, FColor::Red);
-		}
-		else
-		{
-			UE_LOG(AGVlog, Error, TEXT("WheelMesh is invalid"));
-			return;
-		}
-	}
-}
-
-void AAGVVehiclePawn::UpdateWheelPhysics(float InWheelRadius, float OriginRadius)
-{
-	if (!GetMesh() || !GetMesh()->GetPhysicsAsset()) return;
-
-	UPhysicsAsset* PhysicsAsset = GetMesh()->GetPhysicsAsset();
-
-
-}
-
 void AAGVVehiclePawn::AttachWheelMeshToSocket()
 {
 	if (const USkeletalMeshSocket* Socket = GetMesh()->GetSocketByName(FName("Socket_RR")))
@@ -153,15 +61,33 @@ void AAGVVehiclePawn::AttachWheelMeshToSocket()
 	}
 }
 
+void AAGVVehiclePawn::UpdateVehiclePosition(const FVector& TargetLocation, float TargetYaw)
+{
+	FVector CurrentLocation = GetActorLocation();
+	FVector Direction = (TargetLocation - CurrentLocation).GetSafeNormal();
+	
+	// 현재 엔진의 토크 값 가져오기
+	float CurrentEngineTorque = GetEngineTorque();
+
+}
+
+float AAGVVehiclePawn::GetEngineTorque()
+{
+	UChaosVehicleMovementComponent* MovementComponent = GetVehicleMovementComponent();
+	// Chaos Vehicle의 엔진 컴포넌트에서 현재 토크 값 가져오기
+	if (MovementComponent && MovementComponent->)
+	{
+		return ChaosVehicle->VehicleComponent->GetEngineTorque();
+	}
+
+	// 기본값 반환 (엔진 토크가 없을 경우)
+	return 0.0f;
+}
+
 void AAGVVehiclePawn::SetAGVData(UAGVDataContainer* NewDataContainer)
 {
 	AGVDataContainer = NewDataContainer;
 }
-
-void AAGVVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-}
-
 
 
 void AAGVVehiclePawn::MoveForward(float Value)

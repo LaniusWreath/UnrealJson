@@ -22,21 +22,14 @@ public:
 
 	void UpdateVehicleProperties(UAGVDataContainer* AGVDataContainer);
 
-
-	UFUNCTION(BlueprintCallable, Category = "AGV")
-	void CallUpdateWheelRadiusRoutine(float InWheelRadius, float OriginRadius);
-	void UpdateWheelRadius(float InWheelRadius, float OriginRadius);
-	void UpdateWheelMeshScale(float InWheelRadius, float OriginRadius);
-
-	void UpdateWheelPhysics(float InWheelRadius, float OriginRadius);
-
-	UFUNCTION(BlueprintCallable, Category = "AGV")
-
-
 	void AttachWheelMeshToSocket();
 
+	UFUNCTION(BlueprintCallable, Category = "AGV")
+	void UpdateVehiclePosition(const FVector& TargetLocation, float TargetYaw);
+
+	float GetEngineTorque();
+
 protected:
-	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	virtual void BeginPlay() override;
 

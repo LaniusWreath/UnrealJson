@@ -63,6 +63,10 @@ public:
 	virtual void MakeGetRequestWithHeader(const FString& Url, const TMap<FString, FString>& Headers, 
 		const TMap<FString, FString>& Parameters, const bool GetResultWithFString = true);
 
+	UFUNCTION(BlueprintCallable, Category = "SFC")
+	static USFCHttpManager* CreateHttpManagerInstance(UObject* Outer);
+
+public:
 	// Blueprint Callable Delegate 
 	UPROPERTY(BlueprintAssignable, Category = "SFC")
 	FOnDynamicRequestDelegate OnDynamicRequestingEvent;

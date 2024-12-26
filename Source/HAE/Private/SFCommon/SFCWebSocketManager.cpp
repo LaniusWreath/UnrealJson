@@ -31,6 +31,12 @@ void USFCWebSocketManager::Connect(const FString& ServcerAddress)
 	WebSocket->Connect();
 }
 
+// 웹소켓 매니저 인스턴스 생성
+USFCWebSocketManager* USFCWebSocketManager::CreateWebSocketManagerInstance(UObject* Outer)
+{
+	return NewObject<USFCWebSocketManager>(Outer, USFCWebSocketManager::StaticClass());
+}
+
 // 연결 해제.
 void USFCWebSocketManager::Disconnect()
 {
@@ -40,7 +46,6 @@ void USFCWebSocketManager::Disconnect()
 		WebSocket.Reset();
 	}
 }
-
 
 void USFCWebSocketManager::OnConnected()
 {
@@ -66,12 +71,13 @@ void USFCWebSocketManager::OnMessageReceived(const FString& Message)
 	if (OnMessageReceivedDelegate.IsBound())
 	{
 		OnMessageReceivedDelegate.Execute(Message);
-		OnMessageReceivedEvent.Broadcast();
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No delegate bound to handle the message."));
 	}
+	// 다이나믹 델리게이트는 무조건 브로드캐스트
+	OnMessageReceivedEvent.Broadcast(Message);
 }
 
 // 서버에 메시지 송신.
@@ -90,5 +96,3 @@ void USFCWebSocketManager::SendMessage(const FString& Message)
 
 	WebSocket->Send(Message);
 }
-
-
