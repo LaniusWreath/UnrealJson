@@ -2,13 +2,14 @@
 
 #include "AGV/AGVVehiclePawn.h"
 #include "AGV/AGVLog.h"
-#include "GameFramework/SpringArmComponent.h"
-#include "Camera/CameraComponent.h"
+#include "AGV/AGVDataContainer.h"
 #include "Components/StaticMeshComponent.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
 #include "ChaosVehicles/Public/ChaosVehicleWheel.h"
 #include "ChaosVehicleMovementComponent.h"
-#include "AGV/AGVDataContainer.h"
+#include "EnhancedInput/Public/EnhancedInputComponent.h"
+#include "EnhancedInput/Public/EnhancedInputSubsystems.h"
+
 
 AAGVVehiclePawn::AAGVVehiclePawn()
 {
@@ -31,13 +32,21 @@ void AAGVVehiclePawn::BeginPlay()
 	Super::BeginPlay();
 	// 섀시 스켈레탈 메쉬 소켓에 타이어 스태틱 메쉬 부착
 	AttachWheelMeshToSocket();
+
+	// Enhanced Input Subsystem 가져오기
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController)
+	{
+		UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+		if (Subsystem && PlayerInputMappingContext)
+		{
+			// Input Mapping Context 추가
+			Subsystem->AddMappingContext(PlayerInputMappingContext, 0);
+		}
+	}
 }
 
-void AAGVVehiclePawn::UpdateVehicleProperties(UAGVDataContainer* InAGVDataContainer)
-{
-	AGVDataContainer = InAGVDataContainer;
-}
-
+// 휠 메시 소켓에 부착
 void AAGVVehiclePawn::AttachWheelMeshToSocket()
 {
 	if (const USkeletalMeshSocket* Socket = GetMesh()->GetSocketByName(FName("Socket_RR")))
@@ -61,43 +70,97 @@ void AAGVVehiclePawn::AttachWheelMeshToSocket()
 	}
 }
 
-void AAGVVehiclePawn::UpdateVehiclePosition(const FVector& TargetLocation, float TargetYaw)
+// 인풋
+void AAGVVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	FVector CurrentLocation = GetActorLocation();
-	FVector Direction = (TargetLocation - CurrentLocation).GetSafeNormal();
-	
-	// 현재 엔진의 토크 값 가져오기
-	float CurrentEngineTorque = GetEngineTorque();
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	if (EnhancedInputComponent)
+	{
+		// Throttle 함수 바인딩
+		EnhancedInputComponent->BindAction(ThrottleAction, ETriggerEvent::Triggered, this, &AAGVVehiclePawn::HandleThrottleInput);
+		EnhancedInputComponent->BindAction(ThrottleAction, ETriggerEvent::Completed, this, &AAGVVehiclePawn::HandleThrottleRelease);
+
+		// Steering 함수 바인딩
+		EnhancedInputComponent->BindAction(SteeringAction, ETriggerEvent::Triggered, this, &AAGVVehiclePawn::HandleSteeringInput);
+		EnhancedInputComponent->BindAction(SteeringAction, ETriggerEvent::Completed, this, &AAGVVehiclePawn::HandleSteeringRelease);
+
+		// 브레이크 함수 바인딩
+		EnhancedInputComponent->BindAction(BrakeAction, ETriggerEvent::Triggered, this, &AAGVVehiclePawn::HandleBrakeInput);
+		EnhancedInputComponent->BindAction(BrakeAction, ETriggerEvent::Completed, this, &AAGVVehiclePawn::HandleBrakeRelease);
+	}
 }
 
-float AAGVVehiclePawn::GetEngineTorque()
+// 직진 함수
+void AAGVVehiclePawn::HandleThrottleInput(const FInputActionValue& Value)
 {
-	UChaosVehicleMovementComponent* MovementComponent = GetVehicleMovementComponent();
-	// Chaos Vehicle의 엔진 컴포넌트에서 현재 토크 값 가져오기
-	if (MovementComponent && MovementComponent->)
-	{
-		return ChaosVehicle->VehicleComponent->GetEngineTorque();
-	}
+	float ThrottleValue = Value.Get<float>();
 
-	// 기본값 반환 (엔진 토크가 없을 경우)
-	return 0.0f;
+	if (GetVehicleMovementComponent())
+	{
+		if (ThrottleValue >= 0)
+		{
+			GetVehicleMovementComponent()->SetTargetGear(1, true);
+			GetVehicleMovementComponent()->SetThrottleInput(ThrottleValue);
+		}
+		else
+		{
+			GetVehicleMovementComponent()->SetTargetGear(-1, true);
+			GetVehicleMovementComponent()->SetThrottleInput(FMath::Abs(ThrottleValue));
+		}
+	}
+}
+
+// 스로틀 해제
+void AAGVVehiclePawn::HandleThrottleRelease(const FInputActionValue& Value)
+{
+	if (GetVehicleMovementComponent())
+	{
+		// 입력 해제 시 스로틀 해제
+		GetVehicleMovementComponent()->SetThrottleInput(0.0f); 
+	}
+}
+
+// 핸들 조향
+void AAGVVehiclePawn::HandleSteeringInput(const FInputActionValue& Value)
+{
+	float SteeringValue = Value.Get<float>();
+	if (GetVehicleMovementComponent())
+	{
+		GetVehicleMovementComponent()->SetSteeringInput(SteeringValue);
+	}
+}
+
+// 핸들 조향 해제
+void AAGVVehiclePawn::HandleSteeringRelease(const FInputActionValue& Value)
+{
+	if (GetVehicleMovementComponent())
+	{
+		GetVehicleMovementComponent()->SetSteeringInput(0.0f); // 입력 해제 시 조향 정지
+	}
+}
+
+// 브레이크 작동
+void AAGVVehiclePawn::HandleBrakeInput(const FInputActionValue& Value)
+{
+	float BrakeValue = Value.Get<float>();
+	if(GetVehicleMovementComponent())
+	{
+		GetVehicleMovementComponent()->SetBrakeInput(BrakeValue);
+	}
+}
+
+// 브레이크 해제
+void AAGVVehiclePawn::HandleBrakeRelease(const FInputActionValue& Value)
+{
+	if (GetVehicleMovementComponent())
+	{
+		GetVehicleMovementComponent()->SetBrakeInput(0);
+	}
 }
 
 void AAGVVehiclePawn::SetAGVData(UAGVDataContainer* NewDataContainer)
 {
 	AGVDataContainer = NewDataContainer;
-}
-
-
-void AAGVVehiclePawn::MoveForward(float Value)
-{
-}
-
-void AAGVVehiclePawn::MoveRight(float Value)
-{
-}
-
-void AAGVVehiclePawn::ApplyHandbrake(bool bPressed)
-{
 }
