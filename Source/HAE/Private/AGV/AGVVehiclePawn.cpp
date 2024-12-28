@@ -160,7 +160,44 @@ void AAGVVehiclePawn::HandleBrakeRelease(const FInputActionValue& Value)
 	}
 }
 
-void AAGVVehiclePawn::SetAGVData(UAGVDataContainer* NewDataContainer)
+// 데이터 연동
+void AAGVVehiclePawn::SetAGVData(UAGVDataContainer* InDataContainer)
 {
-	AGVDataContainer = NewDataContainer;
+	AGVDataContainer = InDataContainer;
+}
+
+// 차 포지션 및 회전 변경
+void AAGVVehiclePawn::UpdateVehiclePosition(const FVector& InLocation, float InYaw)
+{
+	if (!GetVehicleMovementComponent())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("VehicleMovementComponent not found!"));
+		return;
+	}
+
+	// 현재 차량 위치와 방향
+	FVector CurrentLocation = GetActorLocation();
+	FRotator CurrentRotation = GetActorRotation();
+
+	// 이동 방향 계산
+	FVector Direction = (InLocation - CurrentLocation).GetSafeNormal();
+
+	// 차량의 속도 계산 (단위: m/s)
+	float Distance = FVector::Dist(CurrentLocation, InLocation);
+	float DesiredSpeed = Distance * 2.0f; // 속도 스케일 조정 (예: 2.0배)
+
+	// 차량의 핸들 방향 설정
+	float SteeringAngle = FMath::Atan2(Direction.Y, Direction.X) - FMath::DegreesToRadians(CurrentRotation.Yaw);
+	GetVehicleMovementComponent()->SetSteeringInput(FMath::Clamp(SteeringAngle, -1.0f, 1.0f));
+
+	// 차량의 가속 설정
+	if (Distance > 100.0f) // 100cm 이상 거리만 가속
+	{
+		GetVehicleMovementComponent()->SetThrottleInput(FMath::Clamp(Distance / 1000.0f, 0.0f, 1.0f));
+	}
+	else
+	{
+		GetVehicleMovementComponent()->SetThrottleInput(0.0f); // 거리 가까울 경우 가속 중지
+		GetVehicleMovementComponent()->SetBrakeInput(1.0f); // 브레이크 적용
+	}
 }

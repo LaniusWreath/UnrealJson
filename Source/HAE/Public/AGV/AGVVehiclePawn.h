@@ -24,7 +24,11 @@ public:
 // Data
 	// Set AGVDataContainer
 	UFUNCTION(BlueprintCallable, Category = "AGV")
-	void SetAGVData(UAGVDataContainer* NewDataContainer);	
+	void SetAGVData(UAGVDataContainer* InDataContainer);	
+
+// Movement
+	UFUNCTION(BlueprintCallable, Category = "AGV")
+	void UpdateVehiclePosition(const FVector& InLocation, float InYaw);
 
 // Input
 	// Initialize Player Input Component

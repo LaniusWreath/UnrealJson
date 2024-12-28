@@ -12,6 +12,13 @@ USFCWebSocketManager::USFCWebSocketManager()
 	}
 }
 
+// 웹소켓 매니저 인스턴스 생성
+USFCWebSocketManager* USFCWebSocketManager::CreateWebSocketManagerInstance(UObject* Outer)
+{
+	return NewObject<USFCWebSocketManager>(Outer, USFCWebSocketManager::StaticClass());
+}
+
+
 // 웹소켓 연결 초기화 및 연결 함수 바인딩.
 void USFCWebSocketManager::Connect(const FString& ServcerAddress)
 {
@@ -29,12 +36,6 @@ void USFCWebSocketManager::Connect(const FString& ServcerAddress)
 	WebSocket->OnMessage().AddUObject(this, &USFCWebSocketManager::OnMessageReceived);
 
 	WebSocket->Connect();
-}
-
-// 웹소켓 매니저 인스턴스 생성
-USFCWebSocketManager* USFCWebSocketManager::CreateWebSocketManagerInstance(UObject* Outer)
-{
-	return NewObject<USFCWebSocketManager>(Outer, USFCWebSocketManager::StaticClass());
 }
 
 // 연결 해제.
