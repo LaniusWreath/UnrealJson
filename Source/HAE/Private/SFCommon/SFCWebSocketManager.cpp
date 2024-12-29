@@ -73,10 +73,6 @@ void USFCWebSocketManager::OnMessageReceived(const FString& Message)
 	{
 		OnMessageReceivedDelegate.Execute(Message);
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No delegate bound to handle the message."));
-	}
 	// 다이나믹 델리게이트는 무조건 브로드캐스트
 	OnMessageReceivedEvent.Broadcast(Message);
 }

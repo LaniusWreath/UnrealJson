@@ -35,6 +35,7 @@ public:
 	// Get AGVDataStruct from jsonObject
 	static FAGVData JsonObjectToAGVStruct(const TSharedPtr<FJsonObject> OriginObject);
 
+	UFUNCTION(BlueprintCallable, Category = "AGV")
 	static FAGVData JsonStringToAGVStruct(const FString& OriginString);
 
 private:
