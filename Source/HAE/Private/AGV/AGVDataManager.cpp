@@ -75,3 +75,15 @@ UAGVDataContainer* UAGVDataManager::CreateEmptyDataContainer(UObject* Outer)
 
 	return NewContainer;
 }
+
+// 데이터 컨테이너의 AGVData 구조체 업데이트
+UAGVDataContainer* UAGVDataManager::UpdateDataContainer(UAGVDataContainer* InContainer, const FAGVData& InData)
+{
+	if (!InContainer)
+	{
+		UE_LOG(AGVlog, Warning, TEXT("UpdateDataContainer: InDataContainer is invalid"));
+		return nullptr;
+	}
+	InContainer->SetAGVData(InData);
+	return InContainer;
+}

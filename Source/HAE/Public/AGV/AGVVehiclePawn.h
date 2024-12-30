@@ -55,6 +55,9 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+// Components
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UArrowComponent> DirectionArrow;
 
 // Player Input
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))

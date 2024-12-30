@@ -27,10 +27,13 @@ public:
 
 	// Instancing AGVDataContainer from Struct input
 	UFUNCTION(BlueprintCallable, Category = "AGV")
-	static UAGVDataContainer* InstancingDataContainer(UObject* Outer, const FAGVData& InputData);
+	UAGVDataContainer* InstancingDataContainer(UObject* Outer, const FAGVData& InData);
 
 	UFUNCTION(BlueprintCallable, Category = "AGV")
-	static UAGVDataContainer* CreateEmptyDataContainer(UObject* Outer);
+	UAGVDataContainer* CreateEmptyDataContainer(UObject* Outer);
+
+	UFUNCTION(BlueprintCallable, Category = "AGV")
+	UAGVDataContainer* UpdateDataContainer(UAGVDataContainer* InContainer, const FAGVData& InData);
 
 	// Get AGVDataStruct from jsonObject
 	static FAGVData JsonObjectToAGVStruct(const TSharedPtr<FJsonObject> OriginObject);

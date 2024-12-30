@@ -9,6 +9,7 @@
 #include "ChaosVehicleMovementComponent.h"
 #include "EnhancedInput/Public/EnhancedInputComponent.h"
 #include "EnhancedInput/Public/EnhancedInputSubsystems.h"
+#include "Components/ArrowComponent.h"
 
 
 AAGVVehiclePawn::AAGVVehiclePawn()
@@ -25,6 +26,8 @@ AAGVVehiclePawn::AAGVVehiclePawn()
 	WheelRR =CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Wheel RR"));
 	WheelRR->SetupAttachment(RootComponent);
 
+	DirectionArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("Direction Arrow"));
+	DirectionArrow->SetupAttachment(RootComponent);
 }
 
 void AAGVVehiclePawn::BeginPlay()
@@ -177,27 +180,27 @@ void AAGVVehiclePawn::UpdateVehiclePosition(const FVector& InLocation, float InY
 
 	// 현재 차량 위치와 방향
 	FVector CurrentLocation = GetActorLocation();
+
 	FRotator CurrentRotation = GetActorRotation();
 
 	// 이동 방향 계산
 	FVector Direction = (InLocation - CurrentLocation).GetSafeNormal();
-
-	// 차량의 속도 계산 (단위: m/s)
-	float Distance = FVector::Dist(CurrentLocation, InLocation);
-	float DesiredSpeed = Distance * 2.0f; // 속도 스케일 조정 (예: 2.0배)
+	UE_LOG(AGVlog, Log, TEXT("Direction : %f, %f, %f"), Direction.X, Direction.Y, Direction.Z);
 
 	// 차량의 핸들 방향 설정
 	float SteeringAngle = FMath::Atan2(Direction.Y, Direction.X) - FMath::DegreesToRadians(CurrentRotation.Yaw);
+	UE_LOG(AGVlog, Log, TEXT("SteeringAngle : %f"), SteeringAngle);
+
 	GetVehicleMovementComponent()->SetSteeringInput(FMath::Clamp(SteeringAngle, -1.0f, 1.0f));
 
-	// 차량의 가속 설정
-	if (Distance > 100.0f) // 100cm 이상 거리만 가속
-	{
-		GetVehicleMovementComponent()->SetThrottleInput(FMath::Clamp(Distance / 1000.0f, 0.0f, 1.0f));
-	}
-	else
-	{
-		GetVehicleMovementComponent()->SetThrottleInput(0.0f); // 거리 가까울 경우 가속 중지
-		GetVehicleMovementComponent()->SetBrakeInput(1.0f); // 브레이크 적용
-	}
+	//// 차량의 가속 설정
+	//if (Distance > 100.0f) // 100cm 이상 거리만 가속
+	//{
+	//	GetVehicleMovementComponent()->SetThrottleInput(FMath::Clamp(Distance / 1000.0f, 0.0f, 1.0f));
+	//}
+	//else
+	//{
+	//	GetVehicleMovementComponent()->SetThrottleInput(0.0f); // 거리 가까울 경우 가속 중지
+	//	GetVehicleMovementComponent()->SetBrakeInput(1.0f); // 브레이크 적용
+	//}
 }
