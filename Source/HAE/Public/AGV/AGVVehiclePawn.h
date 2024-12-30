@@ -76,6 +76,11 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAGVDataContainer> AGVDataContainer;
 
+	// IsMoving
+	bool bIsMoving = 0;
+
+	
+
 // Vehicle Wheels
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UStaticMeshComponent> WheelFL;

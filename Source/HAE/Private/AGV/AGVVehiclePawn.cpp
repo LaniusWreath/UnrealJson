@@ -192,6 +192,7 @@ void AAGVVehiclePawn::UpdateVehiclePosition(const FVector& InLocation, float InY
 	UE_LOG(AGVlog, Log, TEXT("SteeringAngle : %f"), SteeringAngle);
 
 	GetVehicleMovementComponent()->SetSteeringInput(FMath::Clamp(SteeringAngle, -1.0f, 1.0f));
+	//GetVehicleMovementComponent()->SetThrottleInput(FMath::Clamp(Distance / 1000.0f, 0.0f, 1.0f));
 
 	//// 차량의 가속 설정
 	//if (Distance > 100.0f) // 100cm 이상 거리만 가속

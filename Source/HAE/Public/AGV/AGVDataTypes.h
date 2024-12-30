@@ -53,11 +53,36 @@ public:
 	FPosition Position;
 
 	UPROPERTY(BlueprintReadWrite, Category = "AMR")
+	FString TargetObject;
+
+	UPROPERTY(BlueprintReadWrite, Category = "AMR")
 	FString Status;
 
 	FAGVData() :
-		RobotId(""), Timestamp(""), Position(), Status("") {};
+		RobotId(""), Timestamp(""), Position(), TargetObject(""), Status("") {};
 };
+
+USTRUCT(BlueprintType)
+struct FFacilityInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite, Category = "AMR")
+	FString ID;
+
+	UPROPERTY(BlueprintReadWrite, Category = "AMR")
+	FString Name;
+
+	UPROPERTY(BlueprintReadWrite, Category = "AMR")
+	FVector Location;
+
+	UPROPERTY(BlueprintReadWrite, Category = "AMR")
+	FRotator Rotation;
+
+	UPROPERTY(BlueprintReadWrite, Category = "AMR")
+	FString AssetPath;
+};
+
 
 UCLASS()
 class HAE_API UAGVDataTypes : public UDataTable
