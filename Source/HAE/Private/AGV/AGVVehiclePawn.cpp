@@ -9,6 +9,8 @@
 #include "ChaosVehicleMovementComponent.h"
 #include "EnhancedInput/Public/EnhancedInputComponent.h"
 #include "EnhancedInput/Public/EnhancedInputSubsystems.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Components/ArrowComponent.h"
 
 
@@ -20,14 +22,21 @@ AAGVVehiclePawn::AAGVVehiclePawn()
 	WheelFR = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Wheel FR"));
 	WheelFR->SetupAttachment(RootComponent);
 
-	WheelRL =CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Wheel RL"));
+	WheelRL = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Wheel RL"));
 	WheelRL->SetupAttachment(RootComponent);
 
-	WheelRR =CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Wheel RR"));
+	WheelRR = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Wheel RR"));
 	WheelRR->SetupAttachment(RootComponent);
 
 	DirectionArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("Direction Arrow"));
 	DirectionArrow->SetupAttachment(RootComponent);
+
+	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+	SpringArmComponent->SetupAttachment(RootComponent);
+	SpringArmComponent->TargetArmLength = DesiredZoomSize;
+
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	CameraComponent->SetupAttachment(SpringArmComponent);
 }
 
 void AAGVVehiclePawn::BeginPlay()
@@ -47,6 +56,11 @@ void AAGVVehiclePawn::BeginPlay()
 			Subsystem->AddMappingContext(PlayerInputMappingContext, 0);
 		}
 	}
+}
+
+void AAGVVehiclePawn::Tick(float DeltaTime)
+{
+	SetTargetArmLengthWithDeltaTime(DeltaTime);
 }
 
 // 휠 메시 소켓에 부착
@@ -92,6 +106,9 @@ void AAGVVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		// 브레이크 함수 바인딩
 		EnhancedInputComponent->BindAction(BrakeAction, ETriggerEvent::Triggered, this, &AAGVVehiclePawn::HandleBrakeInput);
 		EnhancedInputComponent->BindAction(BrakeAction, ETriggerEvent::Completed, this, &AAGVVehiclePawn::HandleBrakeRelease);
+
+		// 줌 함수 바인딩
+		EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Triggered, this, &AAGVVehiclePawn::SetZoomSize);
 	}
 }
 
@@ -161,6 +178,29 @@ void AAGVVehiclePawn::HandleBrakeRelease(const FInputActionValue& Value)
 	{
 		GetVehicleMovementComponent()->SetBrakeInput(0);
 	}
+}
+
+// 카메라 줌 길이 변경
+void AAGVVehiclePawn::SetZoomSize(const FInputActionValue& Value)
+{
+	float InWheelValue = Value.Get<float>();
+	if (GetVehicleMovementComponent())
+	{
+		float TempZoomSize = InWheelValue * 70 + DesiredZoomSize;
+		DesiredZoomSize = FMath::Clamp(TempZoomSize, 100, 3000);
+	}
+}
+
+// 카메라 줌 길이 변경 속도 보간 틱 전용 함수
+void AAGVVehiclePawn::SetTargetArmLengthWithDeltaTime(const float DeltaTime)
+{
+	if (!SpringArmComponent)
+	{
+		UE_LOG(AGVlog, Warning, TEXT("SpringArmComponent is invalid"));
+		return;
+	}
+	float CurrentTargetArmLength = SpringArmComponent->TargetArmLength;
+	SpringArmComponent->TargetArmLength = FMath::FInterpTo(CurrentTargetArmLength, DesiredZoomSize, DeltaTime, 2);
 }
 
 // 데이터 연동

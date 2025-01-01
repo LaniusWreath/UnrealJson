@@ -9,6 +9,7 @@
  * 
  */
 
+// AMR Position Data
 USTRUCT(BlueprintType)
 struct FPosition
 {
@@ -36,6 +37,7 @@ struct FPosition
 		X(0.0f), Y(0.0f), Z(0.0f), Yaw(0.0f), Pitch(0.0f), Roll(0.0f) {};
 };
 
+// AMR Data
 USTRUCT(BlueprintType)
 struct FAGVData : public FTableRowBase
 {
@@ -62,6 +64,7 @@ public:
 		RobotId(""), Timestamp(""), Position(), TargetObject(""), Status("") {};
 };
 
+// Factory Facility Data
 USTRUCT(BlueprintType)
 struct FFacilityInfo
 {
@@ -81,6 +84,19 @@ struct FFacilityInfo
 
 	UPROPERTY(BlueprintReadWrite, Category = "AMR")
 	FString AssetPath;
+};
+
+// Factory Floor Grid Tile Data
+USTRUCT(BlueprintType)
+struct FTile
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+	bool bIsOccupied;  // 차량이나 장애물이 있는지 여부
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+	bool bIsAccessible;  // 이동 가능한 타일인지 여부
 };
 
 

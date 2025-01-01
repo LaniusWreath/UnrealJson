@@ -48,29 +48,47 @@ public:
 
 	// Brake
 	void HandleBrakeInput(const FInputActionValue& Value);
-
 	void HandleBrakeRelease(const FInputActionValue& Value);
+
+	// Zoom
+	void SetZoomSize(const FInputActionValue& Value);
+	void SetTargetArmLengthWithDeltaTime(const float DeltaTime);
+
 
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void Tick(float DeltaTime) override;
+
 private:
 // Components
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UArrowComponent> DirectionArrow;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UCameraComponent> CameraComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class USpringArmComponent> SpringArmComponent;
+
 // Player Input
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputMappingContext> PlayerInputMappingContext;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> ThrottleAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> SteeringAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> BrakeAction;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> ZoomAction;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
+	int32 DesiredZoomSize = 700;
 
 // Data
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
@@ -79,19 +97,17 @@ private:
 	// IsMoving
 	bool bIsMoving = 0;
 
-	
-
 // Vehicle Wheels
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UStaticMeshComponent> WheelFL;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UStaticMeshComponent> WheelFR;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UStaticMeshComponent> WheelRL;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UStaticMeshComponent> WheelRR;
 
 };
