@@ -26,7 +26,8 @@ AGridTileFloorActor::AGridTileFloorActor()
 void AGridTileFloorActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
+    // 다이나믹 메쉬 머티리얼 초기화 함수 콜
+    // InitializeDynamicMeshMaterial();
 }
 
 #if WITH_EDITOR
@@ -37,7 +38,6 @@ void AGridTileFloorActor::OnConstruction(const FTransform& Transform)
     // 에디터에서 액터를 배치할 때 그리드 생성
     GenerateGrid(NumRows, NumColumns, TileSize);
     UpdateGridMesh(NumRows, NumColumns, TileSize);
-    UpdateTileVisuals(NumRows, NumColumns);
 }
 
 // 액터 속성 변경 시 
@@ -48,7 +48,6 @@ void AGridTileFloorActor::PostEditChangeProperty(FPropertyChangedEvent& Property
     // 속성이 변경될 때 그리드 재생성
     GenerateGrid(NumRows, NumColumns, TileSize);
     UpdateGridMesh(NumRows, NumColumns, TileSize);
-    UpdateTileVisuals(NumRows, NumColumns);
 }
 #endif
 
@@ -61,21 +60,46 @@ void AGridTileFloorActor::UpdateGridMesh(const int32 InNumRows, const int32 InNu
     GridMesh->SetWorldLocation(GridLocation);
 }
 
-void AGridTileFloorActor::UpdateTileVisuals(int32 Row, int32 Column)
+void AGridTileFloorActor::UpdateTileVisuals(const int32 InRow, const int32 InColumn, bool bIsAccessible, bool bIsOccupied)
 {
-    //int32 TileIndex = Row * NumColumns + Column;
-    //if (!Tiles.Contains(TileIndex))
-    //{
-    //    // Tile의 상태 변경이 있을 때만 머티리얼 업데이트
-    //    if (Tiles[TileIndex].bIsOccupied)
-    //    {
-    //        // Occupied 상태 반영
-    //    }
-    //    else
-    //    {
-    //        // Accessible 상태 반영
-    //    }
-    //}
+    if (!GridMeshDynamicMaterial)
+    {
+        UE_LOG(AGVlog, Warning, TEXT("UpdateTileVisual : DynamicMaterial is invalid"));
+        return;
+    }
+
+    if (InRow < 0 || InColumn < 0)
+    {
+        UE_LOG(AGVlog, Warning, TEXT("UpdateTileVisual : Row or Column is invalid"));
+        return;
+    }
+
+}
+
+// 전체 타일에 적용할 할 다이나믹 머티리얼 생성
+void AGridTileFloorActor::InitializeDynamicMeshMaterial()
+{
+    if (!GridMesh)
+    {
+        UE_LOG(AGVlog, Warning, TEXT("InitializeDynamicMeshMaterial : GridMesh is invalid"));
+        return;
+    }
+
+    // 다이나믹 머티리얼 Create
+    GridMeshDynamicMaterial = UMaterialInstanceDynamic::Create(GridMaterial, this);
+    
+    if (!GridMeshDynamicMaterial)
+    {
+        UE_LOG(AGVlog, Warning, TEXT("InitializeDynamicMeshMaterial : Creating DynamicMaterial Instance Failed"));
+        return;
+    }
+
+    // 초기 파라미터 설정
+    GridMeshDynamicMaterial->SetScalarParameterValue(TEXT("SnapTile"), 1000);
+    GridMeshDynamicMaterial->SetVectorParameterValue(TEXT("GridColor"), FVector4(0.1f, 0.1f, 0.12f, 0.5f));
+
+    // 머티리얼 적용
+    GridMesh->SetMaterial(0, GridMeshDynamicMaterial);
 }
 
 // Called every frame
@@ -122,7 +146,7 @@ FTile* AGridTileFloorActor::GetTileAt(const int32 InRow, const int32 InColumn)
 }
 
 // 타일의 월드 좌표 Get
-FIntPoint AGridTileFloorActor::GetWorldLocationFromTile(const FVector& InWorldLocation, float InTileSize)
+FIntPoint AGridTileFloorActor::GetWorldLocationFromTile(const FVector& InWorldLocation, const float InTileSize)
 {
     int32 Row = FMath::FloorToInt(InWorldLocation.X / TileSize);
     int32 Column = FMath::FloorToInt(InWorldLocation.Y / TileSize);

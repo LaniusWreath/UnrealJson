@@ -23,7 +23,7 @@ public:
 	//--------------------------------- DataManagement --------------------------------------------
 
 	UFUNCTION(BlueprintCallable, Category = "AGV")
-	static const UAGVDataManager* GetAGVDataManager();
+	static UAGVDataManager* CreateAGVDataManagerInstance(UObject* Outer);
 
 	// Instancing AGVDataContainer from Struct input
 	UFUNCTION(BlueprintCallable, Category = "AGV")

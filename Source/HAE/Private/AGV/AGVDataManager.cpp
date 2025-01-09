@@ -10,18 +10,21 @@
 
 //--------------------------------- Data Management --------------------------------------------
 
-// Static 객체
-UAGVDataManager* UAGVDataManager::AGVDataManagerInstance = nullptr;
-
-// 데이터 매니저 인스턴스 초기화
-const UAGVDataManager* UAGVDataManager::GetAGVDataManager()
+// 데이터 매니저 인스턴스 Get
+UAGVDataManager* UAGVDataManager::CreateAGVDataManagerInstance(UObject* Outer)
 {
-	if (!AGVDataManagerInstance)
+	return NewObject<UAGVDataManager>(Outer, UAGVDataManager::StaticClass());
+}
+
+// 구조체 입력받아 컨테이너 인스턴싱
+UAGVDataContainer* UAGVDataManager::InstancingDataContainer(UObject* Outer, const FAGVData& InputData)
+{
+	UAGVDataContainer* NewContainer = NewObject<UAGVDataContainer>(Outer);
+	if (NewContainer)
 	{
-		AGVDataManagerInstance = NewObject<UAGVDataManager>();
-		AGVDataManagerInstance->AddToRoot();  // GC 방지
+		NewContainer->SetAGVData(InputData);
 	}
-	return AGVDataManagerInstance;
+	return NewContainer;
 }
 
 // AGVData Json 오브젝트 전달받아 구조체로 변환
@@ -55,17 +58,6 @@ FAGVData UAGVDataManager::JsonStringToAGVStruct(const FString& OriginString)
 	}
 
 	return NewData;
-}
-
-// 구조체 입력받아 컨테이너 인스턴싱
-UAGVDataContainer* UAGVDataManager::InstancingDataContainer(UObject* Outer, const FAGVData& InputData)
-{
-	UAGVDataContainer* NewContainer = NewObject<UAGVDataContainer>(Outer);
-	if (NewContainer)
-	{
-		NewContainer->SetAGVData(InputData);
-	}
-	return NewContainer;
 }
 
 // 빈 AGV 데이터 컨테이너 생성

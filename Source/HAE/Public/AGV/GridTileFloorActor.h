@@ -29,7 +29,7 @@ public:
 
 	// Get Tile Data
 	FTile* GetTileAt(const int32 InRow, const int32 InColumn);
-	FIntPoint GetWorldLocationFromTile(const FVector& InWorldLocation, float InTileSize);
+	FIntPoint GetWorldLocationFromTile(const FVector& InWorldLocation, const float InTileSize);
 
 	// Call Generating GridTile Function
 #if WITH_EDITOR
@@ -37,11 +37,15 @@ public:
 	virtual void OnConstruction(const FTransform& Transform) override;
 #endif
 	
+// Mesh & Materials
 	// Update Mesh Scale
 	void UpdateGridMesh(const int32 InNumRows, const int32 InNumColumns, const float TileSize);
 
 	// Update Mesh Material
-	void UpdateTileVisuals(int32 Row, int32 Column);
+	void UpdateTileVisuals(const int32 InRow, const int32 InColumn, bool bIsAccessible, bool bIsOccupied);
+
+	// Initialize Dynamic Material Instance
+	void InitializeDynamicMeshMaterial();
 
 private:
 // Grid Data
@@ -62,4 +66,10 @@ private:
 	// Grid StaticMesh
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> GridMesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMaterialInterface> GridMaterial;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AGV", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMaterialInstanceDynamic> GridMeshDynamicMaterial;
 };

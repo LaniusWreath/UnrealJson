@@ -6,17 +6,6 @@
 #include "Datas/JCMHttpHandler.h"
 #include "Datas/JCMLog.h"
 
-// Object / String 공통 Request 함수
-void UJCMHttpHandler::MakeGetRequest(const FString& Url, const bool GetResultWithFString)
-{
-	Super::MakeGetRequest(Url, GetResultWithFString);
-}
-
-// 헤더 포함한 Request 함수
-void UJCMHttpHandler::MakeGetRequestWithHeader(const FString& Url, const TMap<FString, FString>& Headers, const TMap<FString, FString>& Parameters, const bool GetResultWithFString)
-{
-	Super::MakeGetRequestWithHeader(Url, Headers, Parameters, GetResultWithFString);
-}
 
 // String Response 함수,request 델리게이트 바인딩 하기위해 명시적으로 재정의
 void UJCMHttpHandler::OnResponseReceivedWithString(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
@@ -40,7 +29,7 @@ void UJCMHttpHandler::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpRe
 		if (FJsonSerializer::Deserialize(Reader, JsonData) && JsonData.IsValid())
 		{
 			// 파싱 실행 함수 호출 및 델리게이트 응답 호출
-			ExecuteCustomParseFucntion(JsonData);
+			CallCustomParseFucntion(JsonData);
 		}
 		else
 		{
@@ -54,7 +43,7 @@ void UJCMHttpHandler::OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpRe
 }
 
 // 데이터 형식에 맞는 커스텀 파싱 함수 호출. (Object Response 전용)
-void UJCMHttpHandler::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject)
+void UJCMHttpHandler::CallCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject)
 {
 	ParsedJsonData = ParseRequestBody(OriginJsonObject);
 	if (ParsedJsonData)
@@ -69,26 +58,8 @@ void UJCMHttpHandler::ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJ
 	}
 }
 
-// JsonString을 Map으로 반환하는 함수
-TMap<FString, FString> UJCMHttpHandler::ParseJsonStringToMap(const FString& JsonString)
-{
-	return Super::ParseJsonStringToMap(JsonString);
-}
-
-// "[1,2,3,4,5]" 형태 문자열 배열로 추출
-TArray<float> UJCMHttpHandler::ParseStringToFloatArray(const FString& ArrayString)
-{
-	return Super::ParseStringToFloatArray(ArrayString);
-}
-
-// "[a,b,c,d,e]" 형태 문자열 배열로 추출
-TArray<FString> UJCMHttpHandler::ParseStringToStringArray(const FString& ArrayString)
-{
-	return Super::ParseStringToStringArray(ArrayString);
-}
-
 // HTTPHander 인스턴스 직접 생성하여 소유시키는 함수
-UJCMHttpHandler* UJCMHttpHandler::CreateHttpHandlerInstance(UObject* Outer)
+UJCMHttpHandler* UJCMHttpHandler::CreateJCMHttpHandlerInstance(UObject* Outer)
 {
 	return NewObject<UJCMHttpHandler>(Outer, UJCMHttpHandler::StaticClass());
 }

@@ -39,17 +39,12 @@ protected:
 	virtual void OnResponseReceivedWithPtr(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); // with objectptr
 
 	// If you want to adjust custom parsing function, override this
-	virtual void ExecuteCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject);
+	virtual void CallCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject);
 
 	// Json Object Response -> String to Json Object
 	virtual TSharedPtr<FJsonObject> ParseRequestBody(TSharedPtr<FJsonObject> RequestBody);
 
-	// Commonly Usable Parsing Function
-	static TMap<FString, FString> ParseJsonStringToMap(const FString& JsonString);
-	static TArray<FString> ParseStringToStringArray(const FString& ArrayString);
-	static TArray<float> ParseStringToFloatArray(const FString& ArrayString);
 	static TMap<FString, FString> ParseJsonObjToMap(const TSharedPtr<FJsonObject> OriginJsonObject);
-	static FString ExtractDataFieldFromJsonString(const FString& JsonString);
 
 public:
 	// Delegate for Alarming Request Done, Data Ready
@@ -57,9 +52,11 @@ public:
 	FOnJsonStringReceivedDelegate OnRequestedJsonStringReady;
 
 	// RequestFunction only URL
+	UFUNCTION(BlueprintCallable, Category = "SFC")
 	virtual void MakeGetRequest(const FString& Url, const bool GetResultWithFString = true);
 
 	// Reqeust Function URL with Header
+	UFUNCTION(BlueprintCallable, Category = "SFC")
 	virtual void MakeGetRequestWithHeader(const FString& Url, const TMap<FString, FString>& Headers, 
 		const TMap<FString, FString>& Parameters, const bool GetResultWithFString = true);
 
