@@ -187,7 +187,7 @@ FString USFCDataManager::ExtractDataFieldFromJsonString(const FString& JsonStrin
 
 // FString으로 구성된 Map 멤버들 출력 디버깅용 함수
 void USFCDataManager::PrintStringMapMembers(const TMap<FString, FString>& InMap, const float Duration, 
-	const FColor& TextColor)
+	const FColor TextColor)
 {
 	for (const TPair<FString, FString>& Pair : InMap)
 	{

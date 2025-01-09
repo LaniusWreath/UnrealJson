@@ -54,5 +54,5 @@ public:
 	// ------------------------------ Debuging -------------------------------------------
 	UFUNCTION(BlueprintCallable, Category = "SFC")
 	static void PrintStringMapMembers(const TMap<FString, FString>& InMap, const float Duration = 5, 
-		const FColor& TextColor = FColor::Green);
+		const FColor TextColor = FColor::Green);
 };
