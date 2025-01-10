@@ -38,17 +38,17 @@ public:
 	USFCWebSocketManager();
 
 	// Call function to send message
-	UFUNCTION(BlueprintCallable, Category = "SFC")
+	UFUNCTION(BlueprintCallable, Category = "SFC|WebSocket")
 	void SendMessage(const FString& NotifyString);
 
 	// Delete socket object
-	UFUNCTION(BlueprintCallable, Category = "SFC")
+	UFUNCTION(BlueprintCallable, Category = "SFC|WebSocket")
 	void Disconnect();
 	
-	UFUNCTION(BlueprintCallable, Category = "SFC")
+	UFUNCTION(BlueprintCallable, Category = "SFC|WebSocket")
 	void Connect(const FString& ServcerAddress);
 
-	UFUNCTION(BlueprintCallable, Category = "SFC")
+	UFUNCTION(BlueprintCallable, Category = "SFC|WebSocket")
 	static USFCWebSocketManager* CreateWebSocketManagerInstance(UObject* Outer, TSubclassOf<USFCWebSocketManager> ManagerClass );
 
 public:

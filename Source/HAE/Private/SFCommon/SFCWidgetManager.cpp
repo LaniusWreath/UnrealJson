@@ -81,7 +81,7 @@ void USFCWidgetManager::ClearWidgetMap()
 	WidgetMap.Empty();
 }
 
-const UUserWidget* USFCWidgetManager::GetWidgetFromClass(FName InWidgetName) const
+const UUserWidget* USFCWidgetManager::GetWidgetRef(FName InWidgetName) const
 {
 	if (!WidgetMap.Contains(InWidgetName))
 	{
@@ -90,5 +90,15 @@ const UUserWidget* USFCWidgetManager::GetWidgetFromClass(FName InWidgetName) con
 	}
 
 	return WidgetMap[InWidgetName];
+}
+
+void USFCWidgetManager::SetPlayerControllerRef(APlayerController* InPlayerController)
+{
+	if (!InPlayerController)
+	{
+		UE_LOG(SFClog, Error, TEXT("InPlayerController is invalid"));
+		return;
+	}
+	PlayerControllerRef = InPlayerController;
 }
 

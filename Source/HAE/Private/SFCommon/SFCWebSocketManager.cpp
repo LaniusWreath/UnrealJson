@@ -46,6 +46,11 @@ void USFCWebSocketManager::Connect(const FString& ServcerAddress)
 // 연결 해제.
 void USFCWebSocketManager::Disconnect()
 {
+	if (!WebSocket)
+	{
+		return;
+	}
+
 	if (WebSocket->IsConnected())
 	{
 		WebSocket->Close();

@@ -15,26 +15,34 @@ class HAE_API USFCWidgetManager : public UObject
 	GENERATED_BODY()
 	
 public:
-	UFUNCTION(BlueprintCallable, Category = "SFC")
-	UUserWidget* CreateWidgetFromClass(TSubclassOf<UUserWidget> WidetClass, FName InWidgetName, APlayerController* Owner);
-
-	UFUNCTION(BlueprintCallable, Category = "SFC")
-	void ShowWidget(FName WidgetName);
-
-	UFUNCTION(BlueprintCallable, Category = "SFC")
-	void HideWidget(FName WidgetName);
-
-	UFUNCTION(BlueprintCallable, Category = "SFC")
-	void ClearWidgetMap();
-
-	UFUNCTION(BlueprintCallable, Category = "SFC")
-	const UUserWidget* GetWidgetFromClass(FName InWidgetName) const;
-
-	UFUNCTION(BlueprintCallable, Category = "SFC")
+	UFUNCTION(BlueprintCallable, Category = "SFC|Widget")
 	static USFCWidgetManager* CreateWidgetManagerInstance(UObject* Outer, TSubclassOf<USFCWidgetManager> ManagerClass);
 
+	UFUNCTION(BlueprintCallable, Category = "SFC|Widget")
+	UUserWidget* CreateWidgetFromClass(TSubclassOf<UUserWidget> WidetClass, FName InWidgetName, APlayerController* Owner);
+
+	UFUNCTION(BlueprintCallable, Category = "SFC|Widget")
+	void ShowWidget(FName WidgetName);
+
+	UFUNCTION(BlueprintCallable, Category = "SFC|Widget")
+	void HideWidget(FName WidgetName);
+
+	UFUNCTION(BlueprintCallable, Category = "SFC|Widget")
+	void ClearWidgetMap();
+
+	UFUNCTION(BlueprintCallable, Category = "SFC|Widget")
+	const UUserWidget* GetWidgetRef(FName InWidgetName) const;
+
+	UFUNCTION(BlueprintCallable, Category = "SFC|Widget")
+	void SetPlayerControllerRef(APlayerController* InPlayerController);
+	
 private:
+
+	// Player Controller Ref
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SFC|Widget", meta = (AllowPrivateAccess = true))
+	APlayerController* PlayerControllerRef;
+
 	// Cached Widgets
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "JCM", meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SFC|Widget", meta = (AllowPrivateAccess = true))
 	TMap<FName, UUserWidget*> WidgetMap;
 };
