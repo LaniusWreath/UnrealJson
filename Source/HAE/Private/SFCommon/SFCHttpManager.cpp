@@ -3,11 +3,17 @@
 
 #include "SFCommon/SFCHttpManager.h"
 #include "SFCommon/SFCLog.h"
-#include "SFCommon/SFCDataManager.h"
+#include "SFCommon/SFCDataManageUtilities.h"
 
-USFCHttpManager* USFCHttpManager::CreateHttpManagerInstance(UObject* Outer)
+USFCHttpManager* USFCHttpManager::CreateHttpManagerInstance(UObject* Outer, TSubclassOf<USFCHttpManager> ManagerClass)
 {
-	return NewObject<USFCHttpManager>(Outer, USFCHttpManager::StaticClass());
+	// 클래스 지정 안한 경우, CPP기반 StaticClass
+	if (!ManagerClass)
+	{
+		return NewObject<USFCHttpManager>(Outer, USFCHttpManager::StaticClass());
+	}
+	// 클래스 지정 한 경우, BP 기반 상속 클래스
+	return NewObject<USFCHttpManager>(Outer, ManagerClass);
 }
 
 // 헤더 없는 request 함수
@@ -91,7 +97,7 @@ void USFCHttpManager::OnResponseReceivedWithString(FHttpRequestPtr Request, FHtt
 		FString TempResponseString = Response->GetContentAsString();
 
 		// 전체 결과 중 data 필드에 해당하는 값만 떼어내 저장
-		ResultResponseString = USFCDataManager::ExtractDataFieldFromJsonString(TempResponseString);
+		ResultResponseString = USFCDataManageUtilities::ExtractDataFieldFromJsonString(TempResponseString);
 
 		// 델리게이트에 바인딩된 함수가 있을때만 execute() : cpp 전용
 		if (OnRequestedJsonStringReady.IsBound())

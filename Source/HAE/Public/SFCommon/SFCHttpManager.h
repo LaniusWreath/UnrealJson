@@ -41,9 +41,10 @@ protected:
 	// If you want to adjust custom parsing function, override this
 	virtual void CallCustomParseFucntion(TSharedPtr<FJsonObject> OriginJsonObject);
 
-	// Json Object Response -> String to Json Object
+	// Json Object -> String to Json Object
 	virtual TSharedPtr<FJsonObject> ParseRequestBody(TSharedPtr<FJsonObject> RequestBody);
 
+	// Json Object -> TMap<FString, FString>
 	static TMap<FString, FString> ParseJsonObjToMap(const TSharedPtr<FJsonObject> OriginJsonObject);
 
 public:
@@ -51,30 +52,31 @@ public:
 	FOnJsonObjectReceivedDelegate OnParsedJsonObjectPtrReady;
 	FOnJsonStringReceivedDelegate OnRequestedJsonStringReady;
 
+	// Blueprint Callable Delegate 
+	UPROPERTY(BlueprintAssignable, Category = "SFC|HTTP")
+	FOnDynamicRequestDelegate OnDynamicRequestingEvent;
+
+	UFUNCTION(BlueprintCallable, Category = "SFC|HTTP")
+	static USFCHttpManager* CreateHttpManagerInstance(UObject* Outer, TSubclassOf<USFCHttpManager> ManagerClass);
+
 	// RequestFunction only URL
-	UFUNCTION(BlueprintCallable, Category = "SFC")
+	UFUNCTION(BlueprintCallable, Category = "SFC|HTTP")
 	virtual void MakeGetRequest(const FString& Url, const bool GetResultWithFString = true);
 
 	// Reqeust Function URL with Header
-	UFUNCTION(BlueprintCallable, Category = "SFC")
+	UFUNCTION(BlueprintCallable, Category = "SFC|HTTP")
 	virtual void MakeGetRequestWithHeader(const FString& Url, const TMap<FString, FString>& Headers, 
 		const TMap<FString, FString>& Parameters, const bool GetResultWithFString = true);
 
-	UFUNCTION(BlueprintCallable, Category = "SFC")
-	static USFCHttpManager* CreateHttpManagerInstance(UObject* Outer);
-
-public:
-	// Blueprint Callable Delegate 
-	UPROPERTY(BlueprintAssignable, Category = "SFC")
-	FOnDynamicRequestDelegate OnDynamicRequestingEvent;
-
 	// Return Serialized JsonString member
-	UFUNCTION(BlueprintCallable, Category = "SFC")
+	UFUNCTION(BlueprintCallable, Category = "SFC|HTTP")
 	const FString& GetResultResponseString()
 	{
 		return ResultResponseString;
 	}
-	
+
+public:
+
 	// Return JsonObjectPtr member
 	const TSharedPtr<FJsonObject> GetJsonObject(){
 		return ParsedJsonData;

@@ -13,11 +13,16 @@ USFCWebSocketManager::USFCWebSocketManager()
 }
 
 // 웹소켓 매니저 인스턴스 생성
-USFCWebSocketManager* USFCWebSocketManager::CreateWebSocketManagerInstance(UObject* Outer)
+USFCWebSocketManager* USFCWebSocketManager::CreateWebSocketManagerInstance(UObject* Outer, TSubclassOf<USFCWebSocketManager> ManagerClass)
 {
-	return NewObject<USFCWebSocketManager>(Outer, USFCWebSocketManager::StaticClass());
+	// 클래스 지정 안한 경우, CPP기반 StaticClass
+	if (!ManagerClass)
+	{
+		return NewObject<USFCWebSocketManager>(Outer, USFCWebSocketManager::StaticClass());
+	}
+	// 클래스 지정 한 경우, BP 기반 상속 클래스
+	return NewObject<USFCWebSocketManager>(Outer, ManagerClass);
 }
-
 
 // 웹소켓 연결 초기화 및 연결 함수 바인딩.
 void USFCWebSocketManager::Connect(const FString& ServcerAddress)

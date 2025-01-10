@@ -62,7 +62,7 @@ void UJCMWidgetManager::HideWidget(FName WidgetName)
 		UUserWidget* TargetWidget = WidgetMap[WidgetName];
 		if (TargetWidget && TargetWidget->IsInViewport())
 		{
-			TargetWidget->RemoveFromViewport();
+			TargetWidget->RemoveFromParent();
 		}
 	}
 }

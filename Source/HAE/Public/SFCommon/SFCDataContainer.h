@@ -22,10 +22,10 @@ private:
 public:
 	USFCDataContainer();
 
-	UFUNCTION(BlueprintCallable, Category = "SFC")
+	UFUNCTION(BlueprintCallable, Category = "SFC|Container")
 	USFCDataContainer* SetData(const FGenericData& InputData);
 
-	UFUNCTION(BlueprintCallable, Category = "SFC")
+	UFUNCTION(BlueprintCallable, Category = "SFC|Container")
 	const FGenericData& GetData() const
 	{
 		return Data;

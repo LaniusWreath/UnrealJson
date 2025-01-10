@@ -24,9 +24,7 @@ private:
 
 protected:
 
-	// Initialize socket object & binding function
-
-	// Each binding functions : can be overrided
+	// ----------------------------- Binding functions ---------------------------------
 	
 	// Connection event binding
 	virtual void OnConnected();
@@ -51,7 +49,7 @@ public:
 	void Connect(const FString& ServcerAddress);
 
 	UFUNCTION(BlueprintCallable, Category = "SFC")
-	static USFCWebSocketManager* CreateWebSocketManagerInstance(UObject* Outer);
+	static USFCWebSocketManager* CreateWebSocketManagerInstance(UObject* Outer, TSubclassOf<USFCWebSocketManager> ManagerClass );
 
 public:
 	// Blueprint Expose Delegate

@@ -1,21 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SFCommon/SFCDataManager.h"
+#include "SFCommon/SFCDataManageUtilities.h"
 #include "SFCommon/SFCLog.h"
 #include "SFCommon/SFCDataContainer.h"
 #include "JsonUtilities.h"
 
 //--------------------------------- Data Management --------------------------------------------
 
-// 데이터 매니저 인스턴스 Get
-USFCDataManager* USFCDataManager::CreateSFCDataManagerInstance(UObject* Outer)
-{
-    return NewObject<USFCDataManager>(Outer, USFCDataManager::StaticClass());
-}
-
 // 구조체 입력 받아 데이터 컨테이너 인스턴싱
-USFCDataContainer* USFCDataManager::InstancingDataContainer(UObject* Outer, const FGenericData& InData)
+USFCDataContainer* USFCDataManageUtilities::InstancingDataContainer(UObject* Outer, const FGenericData& InData)
 {
 	USFCDataContainer* NewContainer = NewObject<USFCDataContainer>(Outer);
 	if (NewContainer)
@@ -26,14 +20,14 @@ USFCDataContainer* USFCDataManager::InstancingDataContainer(UObject* Outer, cons
 }
 
 // 빈 데이터 컨테이너 인스턴싱
-USFCDataContainer* USFCDataManager::CreateEmptyDataContainer(UObject* Outer)
+USFCDataContainer* USFCDataManageUtilities::CreateEmptyDataContainer(UObject* Outer)
 {
 	USFCDataContainer* NewContainer = NewObject<USFCDataContainer>(Outer);
 
 	return NewContainer;
 }
 
-USFCDataContainer* USFCDataManager::UpdateDataContainer(USFCDataContainer* InContainer, const FGenericData& InData)
+USFCDataContainer* USFCDataManageUtilities::UpdateDataContainer(USFCDataContainer* InContainer, const FGenericData& InData)
 {
 	if (!InContainer)
 	{
@@ -45,7 +39,7 @@ USFCDataContainer* USFCDataManager::UpdateDataContainer(USFCDataContainer* InCon
 }
 
 // FString을 FGenericData로, FString 내부 json 형태의 key는 정확히 맞아야 함
-bool USFCDataManager::StringToSFCDataStruct(const FString& InString, FGenericData& InDataStruct)
+bool USFCDataManageUtilities::StringToSFCDataStruct(const FString& InString, FGenericData& InDataStruct)
 {
     if (InString.IsEmpty())
     {
@@ -67,7 +61,7 @@ bool USFCDataManager::StringToSFCDataStruct(const FString& InString, FGenericDat
 }
 
 // JsonString을 Map으로
-TMap<FString, FString> USFCDataManager::ParseJsonStringToMap(const FString& JsonString)
+TMap<FString, FString> USFCDataManageUtilities::ParseJsonStringToMap(const FString& JsonString)
 {
 	TMap<FString, FString> ParsedMap;
 	TSharedPtr<FJsonObject> JsonObject;
@@ -116,7 +110,7 @@ TMap<FString, FString> USFCDataManager::ParseJsonStringToMap(const FString& Json
 }
 
 
-TArray<FString> USFCDataManager::ParseStringToStringArray(const FString& ArrayString)
+TArray<FString> USFCDataManageUtilities::ParseStringToStringArray(const FString& ArrayString)
 {
 	TArray<FString> StringArray;
 
@@ -137,7 +131,7 @@ TArray<FString> USFCDataManager::ParseStringToStringArray(const FString& ArraySt
 	return StringArray;
 }
 
-TArray<float> USFCDataManager::ParseStringToFloatArray(const FString& ArrayString)
+TArray<float> USFCDataManageUtilities::ParseStringToFloatArray(const FString& ArrayString)
 {
 	TArray<float> FloatArray;
 
@@ -159,7 +153,7 @@ TArray<float> USFCDataManager::ParseStringToFloatArray(const FString& ArrayStrin
 	return FloatArray;
 }
 
-FString USFCDataManager::ExtractDataFieldFromJsonString(const FString& JsonString)
+FString USFCDataManageUtilities::ExtractDataFieldFromJsonString(const FString& JsonString)
 {
 	TSharedPtr<FJsonObject> JsonObject;
 	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonString);
@@ -185,8 +179,10 @@ FString USFCDataManager::ExtractDataFieldFromJsonString(const FString& JsonStrin
 	return FString(); // Return an empty string if extraction fails
 }
 
+// ---------------------------------------- Debugging ---------------------------------------------
+
 // FString으로 구성된 Map 멤버들 출력 디버깅용 함수
-void USFCDataManager::PrintStringMapMembers(const TMap<FString, FString>& InMap, const float Duration, 
+void USFCDataManageUtilities::PrintStringMapMembers(const TMap<FString, FString>& InMap, const float Duration,
 	const FColor TextColor)
 {
 	for (const TPair<FString, FString>& Pair : InMap)
@@ -200,3 +196,4 @@ void USFCDataManager::PrintStringMapMembers(const TMap<FString, FString>& InMap,
 		}
 	}
 }
+
