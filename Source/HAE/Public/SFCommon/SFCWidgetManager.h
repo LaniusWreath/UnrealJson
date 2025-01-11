@@ -9,17 +9,25 @@
 /**
  * 
  */
+class USFCDataContainer;
+
 UCLASS(BlueprintAble)
 class HAE_API USFCWidgetManager : public UObject
 {
 	GENERATED_BODY()
 	
 public:
+
+	// -------------------------------------- Managing Widget ------------------------------------------
+	
 	UFUNCTION(BlueprintCallable, Category = "SFC|Widget")
 	static USFCWidgetManager* CreateWidgetManagerInstance(UObject* Outer, TSubclassOf<USFCWidgetManager> ManagerClass);
 
 	UFUNCTION(BlueprintCallable, Category = "SFC|Widget")
 	UUserWidget* CreateWidgetFromClass(TSubclassOf<UUserWidget> WidetClass, FName InWidgetName, APlayerController* Owner);
+
+	UFUNCTION(BlueprintCallable, Category = "SFC|Widget")
+	void AddWidgetRef(UUserWidget* WidgetRef, FName InWidgetName);
 
 	UFUNCTION(BlueprintCallable, Category = "SFC|Widget")
 	void ShowWidget(FName WidgetName);
@@ -35,6 +43,14 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "SFC|Widget")
 	void SetPlayerControllerRef(APlayerController* InPlayerController);
+
+	// ------------------------------------ Managing Data ------------------------------------------
+
+	UFUNCTION(BlueprintCallable, Category = "SFC|Widget")
+	void AddDataContainer(USFCDataContainer* Container, const FName Name);
+
+	UFUNCTION(BlueprintCallable, Category = "SFC|Widget")
+	USFCDataContainer* GetDataContainer(const FName Name) const;
 	
 private:
 
@@ -45,4 +61,7 @@ private:
 	// Cached Widgets
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SFC|Widget", meta = (AllowPrivateAccess = true))
 	TMap<FName, UUserWidget*> WidgetMap;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SFC|Widget", meta = (AllowPrivateAccess = true))
+	TMap<FName, USFCDataContainer*> DataContainerRefs;
 };
