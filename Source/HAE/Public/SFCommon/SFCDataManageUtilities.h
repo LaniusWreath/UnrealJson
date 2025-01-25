@@ -47,7 +47,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "SFC|DataManagement|Utility")
 	static FString ExtractDataFieldFromJsonString(const FString& JsonString);
 
-
+	UFUNCTION(BlueprintCallable, Category = "SFC|DataManagerment|Utility")
+	static bool SaveStringToFile(FString FileName, FString TextToSave);
+	
 	// ------------------------------ Debuging -------------------------------------------
 	UFUNCTION(BlueprintCallable, Category = "SFC|DataManagement|Debugging")
 	static void PrintStringMapMembers(const TMap<FString, FString>& InMap, const float Duration = 5, 

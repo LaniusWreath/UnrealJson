@@ -179,6 +179,13 @@ FString USFCDataManageUtilities::ExtractDataFieldFromJsonString(const FString& J
 	return FString(); // Return an empty string if extraction fails
 }
 
+bool USFCDataManageUtilities::SaveStringToFile(FString FileName, FString TextToSave)
+{
+	FString FullPath = FPaths::ProjectDir() + TEXT("Saved/") + FileName;
+
+	return FFileHelper::SaveStringToFile(TextToSave, *FullPath);
+}
+
 // ---------------------------------------- Debugging ---------------------------------------------
 
 // FString으로 구성된 Map 멤버들 출력 디버깅용 함수
